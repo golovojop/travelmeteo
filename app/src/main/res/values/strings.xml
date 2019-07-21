@@ -3,4 +3,14 @@
 
     <!-- MainActivity -->
     <string name="sz_show_map">Show Map</string>
+
+    <!-- Map Activity -->
+    <string name="sz_my_location">My Location</string>
+    <string name="sz_map_mode">Map Mode</string>
+    <string name="sz_map_traffic">Traffic</string>
+    <string name="sz_map_add_point">Add Point</string>
+    <string name="sz_map_mode_normal">Normal</string>
+    <string name="sz_map_mode_terrain">Terrain</string>
+    <string name="sz_map_mode_satellite">Satellite</string>
+
 </resources>
