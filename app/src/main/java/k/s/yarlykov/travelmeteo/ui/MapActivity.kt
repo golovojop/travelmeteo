@@ -6,6 +6,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.location.LocationManager
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
@@ -19,8 +20,10 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import k.s.yarlykov.travelmeteo.R
+import k.s.yarlykov.travelmeteo.data.domain.CityForecast
+import k.s.yarlykov.travelmeteo.data.sources.openweather.api.OpenWeatherProvider
 
-class MapActivity : AppCompatActivity(), OnMapReadyCallback {
+class MapActivity : AppCompatActivity(), OnMapReadyCallback, OpenWeatherProvider.ForecastReceiver {
     private var googleMap: GoogleMap? = null
     lateinit var locationManager: LocationManager
     private var isPermissionGranted = false
@@ -84,6 +87,11 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+    override fun onForecastOnline(forecastOnline: CityForecast, icon: Bitmap) {
+        log(forecastOnline.toString())
+
+    }
+
     private fun navigateToMyLocation() {
         @SuppressLint("MissingPermission")
         val loc = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER)
@@ -99,6 +107,16 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback {
         googleMap?.let {
             it.uiSettings.isZoomControlsEnabled = true
             it.uiSettings.isMyLocationButtonEnabled = false
+
+            it.setOnMapClickListener {
+                log("Map clicked [${it.latitude} / ${it.longitude}")
+
+                OpenWeatherProvider.requestForecast(this, it.latitude.toInt(), it.longitude.toInt())
+            }
+
+            it.setOnMapLongClickListener {
+
+            }
 
             @SuppressLint("MissingPermission")
             it.isMyLocationEnabled = isPermissionGranted
