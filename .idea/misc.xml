@@ -6,22 +6,4 @@
   <component name="ProjectType">
     <option name="id" value="Android" />
   </component>
-  <component name="SbtLocalSettings">
-    <option name="externalProjectsViewState">
-      <projects_view />
-    </option>
-    <option name="projectSyncType">
-      <map>
-        <entry key="$PROJECT_DIR$/../../ScalaAndroid/NFC/nfc01explore" value="PREVIEW" />
-        <entry key="$PROJECT_DIR$/../../ScalaAndroid/NFC/nfc02emv" value="PREVIEW" />
-        <entry key="$PROJECT_DIR$/../../ScalaAndroid/TROYKA/Tr01Read" value="PREVIEW" />
-        <entry key="$PROJECT_DIR$/../../ScalaAndroid/Test01" value="PREVIEW" />
-        <entry key="$PROJECT_DIR$/../../ScalaAndroid/Test3" value="PREVIEW" />
-        <entry key="$PROJECT_DIR$/../../ScalaAndroid/Troyka01" value="PREVIEW" />
-      </map>
-    </option>
-  </component>
-  <component name="ScalaSbtSettings">
-    <option name="customVMPath" />
-  </component>
 </project>
