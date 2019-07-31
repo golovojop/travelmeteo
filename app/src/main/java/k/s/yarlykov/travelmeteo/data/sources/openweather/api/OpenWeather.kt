@@ -16,7 +16,7 @@ interface OpenWeather {
     @GET("data/2.5/weather")
     fun loadGeoWeather(
         @Query("lat") lat: Int,
-        @Query("lat") lon: Int,
+        @Query("lon") lon: Int,
         @Query("units") units: String,
         @Query("appid") keyApi: String): Call<WeatherResponseModel>
 

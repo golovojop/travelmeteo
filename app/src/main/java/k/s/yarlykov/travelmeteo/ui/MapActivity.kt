@@ -109,7 +109,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, OpenWeatherProvider
             it.uiSettings.isMyLocationButtonEnabled = false
 
             it.setOnMapClickListener {
-                log("Map clicked [${it.latitude} / ${it.longitude}")
+                log("Map clicked [${it.latitude} / ${it.longitude}]")
 
                 OpenWeatherProvider.requestForecast(this, it.latitude.toInt(), it.longitude.toInt())
             }
