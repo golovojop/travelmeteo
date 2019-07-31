@@ -3,4 +3,13 @@
     <!-- MainActivity -->
     <string name="sz_show_map">Показать карту</string>
 
+    <!-- Map Activity -->
+    <string name="sz_my_location">Текущее местоположение</string>
+    <string name="sz_map_mode">Режим карты</string>
+    <string name="sz_map_traffic">Трафик</string>
+    <string name="sz_map_add_point">Добавить точку</string>
+    <string name="sz_map_mode_normal">Обычный</string>
+    <string name="sz_map_mode_terrain">Схема</string>
+    <string name="sz_map_mode_satellite">Спутник</string>
+
 </resources>
