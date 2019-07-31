@@ -11,6 +11,7 @@ import android.location.LocationManager
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
 import android.support.v7.app.AppCompatActivity
+import android.util.DisplayMetrics
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -22,6 +23,7 @@ import com.google.android.gms.maps.model.LatLng
 import k.s.yarlykov.travelmeteo.R
 import k.s.yarlykov.travelmeteo.data.domain.CityForecast
 import k.s.yarlykov.travelmeteo.data.sources.openweather.api.OpenWeatherProvider
+import kotlinx.android.synthetic.main.activity_map.*
 
 class MapActivity : AppCompatActivity(), OnMapReadyCallback, OpenWeatherProvider.ForecastReceiver {
     private var googleMap: GoogleMap? = null
@@ -31,13 +33,14 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, OpenWeatherProvider
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_map)
+        setSupportActionBar(bottom_app_bar)
+//        bottom_app_bar.replaceMenu(R.menu.menu_map)
 
         requestLocationPermissions()
 
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
-
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -107,6 +110,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, OpenWeatherProvider
         googleMap?.let {
             it.uiSettings.isZoomControlsEnabled = true
             it.uiSettings.isMyLocationButtonEnabled = false
+            it.setPadding(0, 0, 0, dpToPix(80, this))
 
             it.setOnMapClickListener {
                 log("Map clicked [${it.latitude} / ${it.longitude}]")
@@ -156,6 +160,11 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, OpenWeatherProvider
         fun log(message: String) {
             val TAG = "MapActivity"
             Log.d(TAG, message)
+        }
+
+        fun dpToPix(dp: Int, context: Context): Int {
+            val displayMetrics = context.resources.getDisplayMetrics()
+            return Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT))
         }
     }
 
