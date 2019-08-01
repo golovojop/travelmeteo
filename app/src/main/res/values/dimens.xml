@@ -1,4 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="card_bg_radius">7.0dip</dimen>
+
+    <dimen name="topMargin">12dp</dimen>
+    <dimen name="leftMargin">12dp</dimen>
+    <dimen name="endMargin">12dp</dimen>
+
+    <dimen name="imgBknWidth">64dp</dimen>
+    <dimen name="imgBknHeight">64dp</dimen>
+
+    <dimen name="imgWidth">32dp</dimen>
+    <dimen name="imgHeight">32dp</dimen>
+
 </resources>

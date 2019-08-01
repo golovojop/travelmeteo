@@ -13,7 +13,10 @@
     <string name="sz_map_mode_terrain">Terrain</string>
     <string name="sz_map_mode_satellite">Satellite</string>
 
-    <!-- Forecast Balloon -->
+    <!-- Forecast BottomSheet -->
     <string name="sz_forecast_hello" translatable="false">Forecast will be here</string>
+    <string name="toolCity" translatable="false">Moscow</string>
+    <string name="toolTemperature" translatable="false">+ 30\u2103</string>
+    <string name="toolWind" translatable="false">5 m/s</string>
 
 </resources>

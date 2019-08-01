@@ -166,5 +166,4 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, OpenWeatherProvider
             return Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT))
         }
     }
-
 }
