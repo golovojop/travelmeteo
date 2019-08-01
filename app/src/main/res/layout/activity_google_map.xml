@@ -18,6 +18,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
-            app:backgroundTint="@color/bg_clear_start"/>
+            app:backgroundTint="@android:color/white"/>
 
 </android.support.design.widget.CoordinatorLayout>
