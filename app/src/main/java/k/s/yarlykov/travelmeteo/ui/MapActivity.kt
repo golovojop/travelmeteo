@@ -23,7 +23,7 @@ import com.google.android.gms.maps.model.LatLng
 import k.s.yarlykov.travelmeteo.R
 import k.s.yarlykov.travelmeteo.data.domain.CityForecast
 import k.s.yarlykov.travelmeteo.data.sources.openweather.api.OpenWeatherProvider
-import kotlinx.android.synthetic.main.activity_map.*
+import kotlinx.android.synthetic.main.activity_google_map.*
 
 class MapActivity : AppCompatActivity(), OnMapReadyCallback, OpenWeatherProvider.ForecastReceiver {
     private var googleMap: GoogleMap? = null
@@ -32,9 +32,8 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, OpenWeatherProvider
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_map)
+        setContentView(R.layout.activity_google_map)
         setSupportActionBar(bottom_app_bar)
-//        bottom_app_bar.replaceMenu(R.menu.menu_map)
 
         requestLocationPermissions()
 
