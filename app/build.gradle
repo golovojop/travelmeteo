@@ -16,6 +16,7 @@ allprojects {
 android {
     compileSdkVersion 28
     defaultConfig {
+        vectorDrawables.useSupportLibrary = true
         applicationId "k.s.yarlykov.travelmeteo"
         minSdkVersion 21
         targetSdkVersion 28
