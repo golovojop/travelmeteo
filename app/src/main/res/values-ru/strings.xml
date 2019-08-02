@@ -12,4 +12,9 @@
     <string name="sz_map_mode_terrain">Схема</string>
     <string name="sz_map_mode_satellite">Спутник</string>
 
+    <!-- Forecast BottomSheet -->
+    <string name="toolCity">Москва</string>
+    <string name="toolWindUnits">м/с</string>
+    <string name="toolPressureUnits">мм.рт.ст</string>
+
 </resources>
