@@ -1,6 +1,7 @@
-package k.s.yarlykov.travelmeteo.data.sources.openweather.model
+package k.s.yarlykov.travelmeteo.data.sources.openweather.model.current
 
 import com.google.gson.annotations.SerializedName
+import k.s.yarlykov.travelmeteo.data.domain.CityForecast
 
 class WeatherResponseModel {
     @SerializedName("coord")
@@ -27,4 +28,16 @@ class WeatherResponseModel {
     var name: String? = null
     @SerializedName("cod")
     var cod: Int = 0
+}
+
+fun WeatherResponseModel.mapToCityForecast(): CityForecast {
+    return CityForecast(
+        this.name!!,
+        this.sys!!.country!!,
+        this.main!!.temp.toInt(),
+        this.weather!![0].icon!!,
+        this.wind!!.speed,
+        this.main!!.humidity,
+        this.main!!.pressure
+    )
 }

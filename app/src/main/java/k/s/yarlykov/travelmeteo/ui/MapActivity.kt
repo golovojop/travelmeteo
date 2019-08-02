@@ -23,6 +23,9 @@ import com.google.android.gms.maps.model.LatLng
 import k.s.yarlykov.travelmeteo.R
 import k.s.yarlykov.travelmeteo.data.domain.CityForecast
 import k.s.yarlykov.travelmeteo.data.sources.openweather.api.OpenWeatherProvider
+import k.s.yarlykov.travelmeteo.data.sources.openweather.model.current.WeatherResponseModel
+import k.s.yarlykov.travelmeteo.data.sources.openweather.model.hourly.HourlyWeatherResponseModel
+import k.s.yarlykov.travelmeteo.data.sources.openweather.model.hourly.getDescription
 import kotlinx.android.synthetic.main.activity_google_map.*
 
 class MapActivity : AppCompatActivity(), OnMapReadyCallback, OpenWeatherProvider.ForecastReceiver {
@@ -89,9 +92,21 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, OpenWeatherProvider
         }
     }
 
-    override fun onForecastOnline(forecastOnline: CityForecast, icon: Bitmap) {
-        log(forecastOnline.toString())
+    override fun onForecastCurrent(model: WeatherResponseModel, icon: Bitmap) {
+    }
 
+    override fun onForecastHourly(model: HourlyWeatherResponseModel) {
+
+        if(model == null) {
+            logIt("hourly model is null")
+            return
+        }
+
+        model.list?.let {
+            for(f in it) {
+                logIt(f.getDescription())
+            }
+        }
     }
 
     private fun navigateToMyLocation() {
@@ -112,13 +127,14 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, OpenWeatherProvider
             it.setPadding(0, 0, 0, dpToPix(80, this))
 
             it.setOnMapClickListener {
-                log("Map clicked [${it.latitude} / ${it.longitude}]")
+                logIt("Map clicked [${it.latitude} / ${it.longitude}]")
+//                OpenWeatherProvider.requestForecastCurrent(this, it.latitude.toInt(), it.longitude.toInt())
+                OpenWeatherProvider.requestForecastHourly(this, it.latitude.toInt(), it.longitude.toInt())
 
-                OpenWeatherProvider.requestForecast(this, it.latitude.toInt(), it.longitude.toInt())
             }
 
             it.setOnMapLongClickListener {
-
+                OpenWeatherProvider.requestForecastHourly(this, it.latitude.toInt(), it.longitude.toInt())
             }
 
             @SuppressLint("MissingPermission")
@@ -156,9 +172,11 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, OpenWeatherProvider
             context?.startActivity(intent)
         }
 
-        fun log(message: String) {
+        fun logIt(message: String?) {
             val TAG = "MapActivity"
-            Log.d(TAG, message)
+            message?.let {
+                Log.d(TAG, it)
+            }
         }
 
         fun dpToPix(dp: Int, context: Context): Int {

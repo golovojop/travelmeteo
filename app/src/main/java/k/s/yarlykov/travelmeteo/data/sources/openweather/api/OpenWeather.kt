@@ -1,6 +1,7 @@
 package k.s.yarlykov.travelmeteo.data.sources.openweather.api
 
-import k.s.yarlykov.travelmeteo.data.sources.openweather.model.WeatherResponseModel
+import k.s.yarlykov.travelmeteo.data.sources.openweather.model.current.WeatherResponseModel
+import k.s.yarlykov.travelmeteo.data.sources.openweather.model.hourly.HourlyWeatherResponseModel
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.http.GET
@@ -14,11 +15,25 @@ interface OpenWeather {
                     @Query("units") units: String): Call<WeatherResponseModel>
 
     @GET("data/2.5/weather")
-    fun loadGeoWeather(
+    fun loadGeoWeatherCurrent(
         @Query("lat") lat: Int,
         @Query("lon") lon: Int,
         @Query("units") units: String,
         @Query("appid") keyApi: String): Call<WeatherResponseModel>
+
+    /**
+     * Free subscription
+     * https://openweathermap.org/forecast5
+     *
+     * Correct request:
+     * https://api.openweathermap.org/data/2.5/forecast?lat=35&lon=139&units=metric&appid=b7838252ab3cde579f376d9417c878d1
+     */
+    @GET("data/2.5/forecast")
+    fun loadGeoWeatherHourly(
+        @Query("lat") lat: Int,
+        @Query("lon") lon: Int,
+        @Query("units") units: String,
+        @Query("appid") keyApi: String): Call<HourlyWeatherResponseModel>
 
     @GET
     fun fetchIcon(@Url url: String): Call<ResponseBody>

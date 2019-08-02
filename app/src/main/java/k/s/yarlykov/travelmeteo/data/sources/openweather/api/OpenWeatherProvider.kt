@@ -2,8 +2,10 @@ package k.s.yarlykov.travelmeteo.data.sources.openweather.api
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.util.Log
 import k.s.yarlykov.travelmeteo.data.domain.CityForecast
-import k.s.yarlykov.travelmeteo.data.sources.openweather.model.WeatherResponseModel
+import k.s.yarlykov.travelmeteo.data.sources.openweather.model.current.WeatherResponseModel
+import k.s.yarlykov.travelmeteo.data.sources.openweather.model.hourly.HourlyWeatherResponseModel
 import okhttp3.OkHttpClient
 import okhttp3.ResponseBody
 import retrofit2.Call
@@ -16,7 +18,8 @@ import java.util.concurrent.TimeUnit
 object OpenWeatherProvider {
 
     interface ForecastReceiver {
-        fun onForecastOnline(forecastOnline: CityForecast, icon: Bitmap)
+        fun onForecastCurrent(model: WeatherResponseModel, icon: Bitmap)
+        fun onForecastHourly(model: HourlyWeatherResponseModel)
     }
 
     private const val apiKey = "b7838252ab3cde579f376d9417c878d1"
@@ -42,25 +45,15 @@ object OpenWeatherProvider {
         return adapter.create(OpenWeather::class.java)
     }
 
-    fun requestForecast(receiver: ForecastReceiver?, lat: Int, lon: Int) {
-        api.loadGeoWeather(lat, lon, apiUnits, apiKey).enqueue(object : Callback<WeatherResponseModel> {
+    fun requestForecastCurrent(receiver: ForecastReceiver?, lat: Int, lon: Int) {
+        api.loadGeoWeatherCurrent(lat, lon, apiUnits, apiKey).enqueue(object : Callback<WeatherResponseModel> {
 
             override fun onResponse(call: Call<WeatherResponseModel>, response: Response<WeatherResponseModel>) {
 
                 // Code 404: body() == null; isSuccessful() == false
                 if (response.isSuccessful()) {
                     response.body()?.let {
-                        val forecast = CityForecast(
-                            it.name!!,
-                            it.sys!!.country!!,
-                            it.main!!.temp.toInt(),
-                            it.weather!![0].icon!!,
-                            it.wind!!.speed,
-                            it.main!!.humidity,
-                            it.main!!.pressure
-                        )
-
-                        requestIcon(receiver, forecast)
+                        requestIcon(receiver, it)
                     }
                 }
             }
@@ -71,18 +64,41 @@ object OpenWeatherProvider {
         })
     }
 
-    // Получить иконку погоды
-    private fun requestIcon(receiver: ForecastReceiver?, forecast: CityForecast) {
+    fun requestForecastHourly(receiver: ForecastReceiver?, lat: Int, lon: Int) {
+        api.loadGeoWeatherHourly(lat, lon, apiUnits, apiKey).enqueue(object : Callback<HourlyWeatherResponseModel> {
 
-        val call = api.fetchIcon("https://openweathermap.org/img/w/${forecast.icon}.png")
+            override fun onResponse(
+                call: Call<HourlyWeatherResponseModel>,
+                response: Response<HourlyWeatherResponseModel>
+            ) {
+
+                // Code 404: body() == null; isSuccessful() == false
+                if (response.isSuccessful) {
+                    response.body()?.let {
+                        receiver?.onForecastHourly(it)
+                    }
+                }
+            }
+
+            override fun onFailure(call: Call<HourlyWeatherResponseModel>, t: Throwable) {
+                Log.d("QWM_ERROR", t.message)
+            }
+        })
+    }
+
+
+    // Получить иконку погоды
+    private fun requestIcon(receiver: ForecastReceiver?, model: WeatherResponseModel) {
+
+        val call = api.fetchIcon("https://openweathermap.org/img/w/${model.weather!![0].icon!!}.png")
 
         call.enqueue(object : Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
 
-                if(response.isSuccessful) {
+                if (response.isSuccessful) {
                     response.body()?.let {
                         val bmp = BitmapFactory.decodeStream(response.body()!!.byteStream())
-                        receiver?.onForecastOnline(forecast, bmp)
+                        receiver?.onForecastCurrent(model, bmp)
                     }
                 }
             }
@@ -90,7 +106,6 @@ object OpenWeatherProvider {
             override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
                 TODO("not implemented") //To change body of created functions use File | Settings | File Templates.            }
             }
-
         })
     }
 }

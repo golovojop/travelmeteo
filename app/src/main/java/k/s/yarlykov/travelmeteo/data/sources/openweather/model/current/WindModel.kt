@@ -1,4 +1,4 @@
-package k.s.yarlykov.travelmeteo.data.sources.openweather.model
+package k.s.yarlykov.travelmeteo.data.sources.openweather.model.current
 
 
 import com.google.gson.annotations.SerializedName
