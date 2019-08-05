@@ -11,6 +11,8 @@ import android.location.LocationManager
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.DefaultItemAnimator
+import android.support.v7.widget.LinearLayoutManager
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.Menu
@@ -21,12 +23,14 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import k.s.yarlykov.travelmeteo.R
-import k.s.yarlykov.travelmeteo.data.domain.CityForecast
 import k.s.yarlykov.travelmeteo.data.sources.openweather.api.OpenWeatherProvider
 import k.s.yarlykov.travelmeteo.data.sources.openweather.model.current.WeatherResponseModel
+import k.s.yarlykov.travelmeteo.data.sources.openweather.model.hourly.Forecast
 import k.s.yarlykov.travelmeteo.data.sources.openweather.model.hourly.HourlyWeatherResponseModel
 import k.s.yarlykov.travelmeteo.data.sources.openweather.model.hourly.getDescription
+import k.s.yarlykov.travelmeteo.extensions.fromList
 import kotlinx.android.synthetic.main.activity_google_map.*
+import kotlinx.android.synthetic.main.layout_hourly_forecast.*
 
 class MapActivity : AppCompatActivity(), OnMapReadyCallback, OpenWeatherProvider.ForecastReceiver {
     private var googleMap: GoogleMap? = null
@@ -38,8 +42,12 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, OpenWeatherProvider
         setContentView(R.layout.activity_google_map)
         setSupportActionBar(bottom_app_bar)
 
+        // Запросить разрешение на работу с гео
         requestLocationPermissions()
 
+        initViews()
+
+        // Подгрузить карту асинхронно
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
@@ -103,12 +111,16 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, OpenWeatherProvider
         }
 
         model.list?.let {
-            for(f in it) {
+            hourly.fromList(it)
+            rvHourly.adapter?.notifyDataSetChanged()
+
+            for(f in hourly) {
                 logIt(f.getDescription())
             }
         }
     }
 
+    // Спозиционировать карту на мои текущие координаты
     private fun navigateToMyLocation() {
         @SuppressLint("MissingPermission")
         val loc = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER)
@@ -130,7 +142,6 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, OpenWeatherProvider
                 logIt("Map clicked [${it.latitude} / ${it.longitude}]")
 //                OpenWeatherProvider.requestForecastCurrent(this, it.latitude.toInt(), it.longitude.toInt())
                 OpenWeatherProvider.requestForecastHourly(this, it.latitude.toInt(), it.longitude.toInt())
-
             }
 
             it.setOnMapLongClickListener {
@@ -139,6 +150,20 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, OpenWeatherProvider
 
             @SuppressLint("MissingPermission")
             it.isMyLocationEnabled = isPermissionGranted
+        }
+    }
+
+    private fun initViews() {
+
+        // Определить ориентацию и соотв LayoutManager
+        val horizontalLayoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+
+        rvHourly.apply{
+            // Размер RV не зависит от изменения размеров его элементов
+            setHasFixedSize(true)
+            layoutManager = horizontalLayoutManager
+            adapter = HourlyRVAdapter(hourly)
+            itemAnimator = DefaultItemAnimator()
         }
     }
 
@@ -164,6 +189,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, OpenWeatherProvider
     companion object {
         private val EXTRA_MAP = MapActivity::class.java.simpleName + "extra.MAP"
         private const val REQUEST_PERM_LOCATION = 101
+        private var hourly: MutableList<Forecast> = mutableListOf()
 
         fun start(context: Context?, extraData: String) {
             val intent = Intent(context, MapActivity::class.java).apply {

@@ -10,7 +10,7 @@ import android.widget.TextView
 import k.s.yarlykov.travelmeteo.R
 import k.s.yarlykov.travelmeteo.data.sources.openweather.model.hourly.Forecast
 
-class HourlyRVAdapter(val source: List<Forecast>): RecyclerView.Adapter<HourlyRVAdapter.ViewHolder>(){
+class HourlyRVAdapter(val source: MutableList<Forecast>): RecyclerView.Adapter<HourlyRVAdapter.ViewHolder>(){
 
     // Вызывается когда нужно создать новый элемент списка
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -39,6 +39,8 @@ class HourlyRVAdapter(val source: List<Forecast>): RecyclerView.Adapter<HourlyRV
 
         fun bind(f: Forecast) = with(f) {
             tvDate.text = f.dtTxt
+            tvTemp.text = "${f.wind!!.speed}"
+            ivIcon.setImageResource(R.drawable.bkn_ra_d_flat)
         }
     }
 }
