@@ -1,7 +1,9 @@
 package k.s.yarlykov.travelmeteo.data.sources.openweather.model.hourly
 
+import android.content.Context
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
+import java.lang.StringBuilder
 
 class Forecast {
 
@@ -31,6 +33,26 @@ class Forecast {
     var rain: Rain? = null
 }
 
+// Конвертировать имя иконки в ID ресурса картинки
+fun Forecast.iconId(context: Context): Int {
+    val icon = "ow${weather!![0].icon}"
+    val resources = context.resources
+    return resources.getIdentifier(icon, "drawable",
+        context.packageName)
+}
+
+fun Forecast.celsius(): String {
+    val sb = StringBuilder()
+    val t = Math.round(this.main!!.temp)
+
+    sb.append(if(t < 0) "-" else "+")
+    sb.append("$t")
+    sb.append("\u00B0")
+
+    return sb.toString()
+}
+
+// Дебаг в консоль
 fun Forecast.getDescription(): String {
     return """
         date: ${this.dtTxt}

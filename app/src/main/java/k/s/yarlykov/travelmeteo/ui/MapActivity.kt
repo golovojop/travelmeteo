@@ -25,10 +25,8 @@ import com.google.android.gms.maps.model.LatLng
 import k.s.yarlykov.travelmeteo.R
 import k.s.yarlykov.travelmeteo.data.sources.openweather.api.OpenWeatherProvider
 import k.s.yarlykov.travelmeteo.data.sources.openweather.model.current.WeatherResponseModel
-import k.s.yarlykov.travelmeteo.data.sources.openweather.model.hourly.Forecast
-import k.s.yarlykov.travelmeteo.data.sources.openweather.model.hourly.HourlyWeatherResponseModel
-import k.s.yarlykov.travelmeteo.data.sources.openweather.model.hourly.getDescription
-import k.s.yarlykov.travelmeteo.extensions.fromList
+import k.s.yarlykov.travelmeteo.data.sources.openweather.model.hourly.*
+import k.s.yarlykov.travelmeteo.extensions.initFromModel
 import kotlinx.android.synthetic.main.activity_google_map.*
 import kotlinx.android.synthetic.main.layout_hourly_forecast.*
 
@@ -111,12 +109,20 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, OpenWeatherProvider
         }
 
         model.list?.let {
-            hourly.fromList(it)
+
+            // Установить название места
+            tvCity.text = model.city!!.name
+            // Установить иконку
+            ivBkn.setImageResource(it[0].iconId(this@MapActivity))
+            // Установить температуру
+            tvTemperature.text = it[0].celsius()
+
+            hourly.initFromModel(it)
             rvHourly.adapter?.notifyDataSetChanged()
 
-            for(f in hourly) {
-                logIt(f.getDescription())
-            }
+//            for(f in hourly) {
+//                logIt(f.getDescription())
+//            }
         }
     }
 
@@ -155,16 +161,27 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, OpenWeatherProvider
 
     private fun initViews() {
 
-        // Определить ориентацию и соотв LayoutManager
-        val horizontalLayoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        // Инициализация behavior для элемента LinearLayout (ID: bottom_sheet)
+//        with(BottomSheetBehavior.from(bottom_sheet)) {
+//            setHideable(false)
+//        }
 
+        // Инициализация RecycleView
         rvHourly.apply{
             // Размер RV не зависит от изменения размеров его элементов
             setHasFixedSize(true)
-            layoutManager = horizontalLayoutManager
-            adapter = HourlyRVAdapter(hourly)
+            layoutManager = LinearLayoutManager(this@MapActivity, LinearLayoutManager.HORIZONTAL, false)
+            adapter = HourlyRVAdapter(hourly, applicationContext)
             itemAnimator = DefaultItemAnimator()
         }
+    }
+
+    // Конвертировать имя иконки в ID ресурса картинки
+    private fun fetchIconId(context: Context, iconName: String?): Int {
+        val icon = "ow$iconName"
+        val resources = context.resources
+        return resources.getIdentifier(icon, "drawable",
+            context.packageName)
     }
 
     private fun requestLocationPermissions() {

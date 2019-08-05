@@ -1,5 +1,6 @@
 package k.s.yarlykov.travelmeteo.ui
 
+import android.content.Context
 import android.media.Image
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
@@ -9,8 +10,11 @@ import android.widget.ImageView
 import android.widget.TextView
 import k.s.yarlykov.travelmeteo.R
 import k.s.yarlykov.travelmeteo.data.sources.openweather.model.hourly.Forecast
+import k.s.yarlykov.travelmeteo.data.sources.openweather.model.hourly.iconId
+import k.s.yarlykov.travelmeteo.extensions.format
+import java.util.*
 
-class HourlyRVAdapter(val source: MutableList<Forecast>): RecyclerView.Adapter<HourlyRVAdapter.ViewHolder>(){
+class HourlyRVAdapter(val source: MutableList<Forecast>, val context: Context): RecyclerView.Adapter<HourlyRVAdapter.ViewHolder>(){
 
     // Вызывается когда нужно создать новый элемент списка
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -27,7 +31,6 @@ class HourlyRVAdapter(val source: MutableList<Forecast>): RecyclerView.Adapter<H
         return source.size
     }
 
-
     override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
         viewHolder.bind(source[position])
     }
@@ -38,9 +41,9 @@ class HourlyRVAdapter(val source: MutableList<Forecast>): RecyclerView.Adapter<H
         val ivIcon = itemView.findViewById<ImageView>(R.id.ivHourlyIcon)
 
         fun bind(f: Forecast) = with(f) {
-            tvDate.text = f.dtTxt
-            tvTemp.text = "${f.wind!!.speed}"
-            ivIcon.setImageResource(R.drawable.bkn_ra_d_flat)
+            tvDate.text = Date(dt * 1000).format("HH:mm")
+            tvTemp.text = "${main!!.temp.toInt()}"
+            ivIcon.setImageResource(iconId(context))
         }
     }
 }
