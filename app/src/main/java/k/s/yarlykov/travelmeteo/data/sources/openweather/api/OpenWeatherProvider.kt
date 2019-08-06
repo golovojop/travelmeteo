@@ -68,7 +68,7 @@ object OpenWeatherProvider {
         })
     }
 
-    fun requestForecastHourly(receiver: ForecastReceiver?, lat: Int, lon: Int) {
+    fun requestForecastHourly(receiver: ForecastReceiver?, lat: String, lon: String) {
         api.loadGeoWeatherHourly(lat, lon, apiUnits, apiKey).enqueue(object : Callback<HourlyWeatherResponseModel> {
 
             override fun onResponse(
@@ -89,7 +89,6 @@ object OpenWeatherProvider {
             }
         })
     }
-
 
     // Получить иконку погоды
     private fun requestIcon(receiver: ForecastReceiver?, model: WeatherResponseModel) {

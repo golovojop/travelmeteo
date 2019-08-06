@@ -30,12 +30,11 @@ interface OpenWeather {
      */
     @GET("data/2.5/forecast")
     fun loadGeoWeatherHourly(
-        @Query("lat") lat: Int,
-        @Query("lon") lon: Int,
+        @Query("lat") lat: String,
+        @Query("lon") lon: String,
         @Query("units") units: String,
         @Query("appid") keyApi: String): Call<HourlyWeatherResponseModel>
 
     @GET
     fun fetchIcon(@Url url: String): Call<ResponseBody>
-
 }

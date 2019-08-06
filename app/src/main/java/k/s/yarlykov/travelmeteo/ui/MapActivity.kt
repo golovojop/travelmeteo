@@ -30,6 +30,8 @@ import k.s.yarlykov.travelmeteo.data.sources.openweather.api.OpenWeatherProvider
 import k.s.yarlykov.travelmeteo.data.sources.openweather.model.current.WeatherResponseModel
 import k.s.yarlykov.travelmeteo.data.sources.openweather.model.hourly.*
 import k.s.yarlykov.travelmeteo.extensions.initFromModel
+import k.s.yarlykov.travelmeteo.extensions.lat
+import k.s.yarlykov.travelmeteo.extensions.lon
 import kotlinx.android.synthetic.main.activity_google_map.*
 import kotlinx.android.synthetic.main.layout_hourly_forecast.*
 
@@ -147,12 +149,11 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, OpenWeatherProvider
 
             it.setOnMapClickListener {
                 logIt("Map clicked [${it.latitude} / ${it.longitude}]")
-//                OpenWeatherProvider.requestForecastCurrent(this, it.latitude.toInt(), it.longitude.toInt())
-                OpenWeatherProvider.requestForecastHourly(this, it.latitude.toInt(), it.longitude.toInt())
+                OpenWeatherProvider.requestForecastHourly(this, it.lat(), it.lon())
             }
 
             it.setOnMapLongClickListener {
-                OpenWeatherProvider.requestForecastHourly(this, it.latitude.toInt(), it.longitude.toInt())
+                OpenWeatherProvider.requestForecastHourly(this, it.lat(), it.lon())
             }
 
             @SuppressLint("MissingPermission")
