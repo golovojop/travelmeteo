@@ -3,7 +3,10 @@ package k.s.yarlykov.travelmeteo.data.sources.openweather.model.hourly
 import android.content.Context
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
+import k.s.yarlykov.travelmeteo.data.domain.CustomForecast
+import k.s.yarlykov.travelmeteo.extensions.format
 import java.lang.StringBuilder
+import java.util.*
 
 class Forecast {
 
@@ -12,30 +15,30 @@ class Forecast {
     var dt: Long = 0
     @SerializedName("main")
     @Expose
-    var main: Main? = null
+    lateinit var main: Main
     @SerializedName("weather")
     @Expose
-    var weather: List<Weather>? = null
+    lateinit var weather: List<Weather>
     @SerializedName("clouds")
     @Expose
-    var clouds: Clouds? = null
+    lateinit var clouds: Clouds
     @SerializedName("wind")
     @Expose
-    var wind: Wind? = null
+    lateinit var wind: Wind
     @SerializedName("sys")
     @Expose
-    var sys: Sys? = null
+    lateinit var sys: Sys
     @SerializedName("dt_txt")
     @Expose
-    var dtTxt: String? = null
+    lateinit var dtTxt: String
     @SerializedName("rain")
     @Expose
-    var rain: Rain? = null
+    lateinit var rain: Rain
 }
 
 // Конвертировать имя иконки в ID ресурса картинки
 fun Forecast.iconId(context: Context): Int {
-    val icon = "ow${weather!![0].icon}"
+    val icon = "ow${weather[0].icon}"
     val resources = context.resources
     return resources.getIdentifier(icon, "drawable",
         context.packageName)
@@ -43,7 +46,7 @@ fun Forecast.iconId(context: Context): Int {
 
 fun Forecast.celsius(): String {
     val sb = StringBuilder()
-    val t = Math.round(this.main!!.temp)
+    val t = Math.round(this.main.temp)
 
     sb.append(if(t < 0) "-" else "+")
     sb.append("$t")
@@ -52,16 +55,19 @@ fun Forecast.celsius(): String {
     return sb.toString()
 }
 
-// Дебаг в консоль
-fun Forecast.getDescription(): String {
-    return """
-        date: ${this.dtTxt}
-        state: '${this.weather!!.get(0).main}: ${this.weather!!.get(0).description}'
-        temp: ${Math.round(this.main!!.temp)}
-        temp_min: ${Math.round(this.main!!.tempMin)}
-        temp_max: ${Math.round(this.main!!.tempMax)}
-        wind: ${this.wind!!.speed}
-        pressure: ${this.main!!.pressure}
-        humidity: ${this.main!!.humidity}
-    """.trimIndent()
+// Расширение для конвертации прогноза в базовый формат приложения
+fun Forecast.mapModel(context: Context) : CustomForecast {
+    return CustomForecast(
+        Date(this.dt * 1000).format("HH:mm"),
+        Math.round(this.main.temp),
+        Math.round(this.main.tempMin),
+        Math.round(this.main.tempMax),
+        this.wind.speed,
+        this.wind.direction(),
+        this.main.humidity.toInt(),
+        this.main.pressure.toInt(),
+        this.weather.get(0).main,
+        this.weather.get(0).description,
+        this.iconId(context)
+    )
 }

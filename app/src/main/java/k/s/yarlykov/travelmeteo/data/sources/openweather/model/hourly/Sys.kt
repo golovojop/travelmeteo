@@ -7,6 +7,6 @@ class Sys {
 
     @SerializedName("pod")
     @Expose
-    var pod: String? = null
+    lateinit var pod: String
 
 }

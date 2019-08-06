@@ -9,12 +9,15 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import k.s.yarlykov.travelmeteo.R
+import k.s.yarlykov.travelmeteo.data.domain.CustomForecast
+import k.s.yarlykov.travelmeteo.data.domain.celsius
 import k.s.yarlykov.travelmeteo.data.sources.openweather.model.hourly.Forecast
 import k.s.yarlykov.travelmeteo.data.sources.openweather.model.hourly.iconId
 import k.s.yarlykov.travelmeteo.extensions.format
 import java.util.*
 
-class HourlyRVAdapter(val source: MutableList<Forecast>, val context: Context): RecyclerView.Adapter<HourlyRVAdapter.ViewHolder>(){
+class HourlyRVAdapter(val source: MutableList<CustomForecast>, val context: Context):
+    RecyclerView.Adapter<HourlyRVAdapter.ViewHolder>(){
 
     // Вызывается когда нужно создать новый элемент списка
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -40,10 +43,10 @@ class HourlyRVAdapter(val source: MutableList<Forecast>, val context: Context): 
         val tvTemp = itemView.findViewById<TextView>(R.id.tvHourlyTemp)
         val ivIcon = itemView.findViewById<ImageView>(R.id.ivHourlyIcon)
 
-        fun bind(f: Forecast) = with(f) {
-            tvDate.text = Date(dt * 1000).format("HH:mm")
-            tvTemp.text = "${main!!.temp.toInt()}"
-            ivIcon.setImageResource(iconId(context))
+        fun bind(f: CustomForecast) = with(f) {
+            tvDate.text = this.time
+            tvTemp.text = this.celsius(this.temp)
+            ivIcon.setImageResource(this.icon)
         }
     }
 }

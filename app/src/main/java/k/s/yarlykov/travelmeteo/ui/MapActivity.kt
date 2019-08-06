@@ -23,6 +23,9 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import k.s.yarlykov.travelmeteo.R
+import k.s.yarlykov.travelmeteo.data.domain.CustomForecast
+import k.s.yarlykov.travelmeteo.data.domain.CustomForecastModel
+import k.s.yarlykov.travelmeteo.data.domain.celsius
 import k.s.yarlykov.travelmeteo.data.sources.openweather.api.OpenWeatherProvider
 import k.s.yarlykov.travelmeteo.data.sources.openweather.model.current.WeatherResponseModel
 import k.s.yarlykov.travelmeteo.data.sources.openweather.model.hourly.*
@@ -98,31 +101,29 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, OpenWeatherProvider
         }
     }
 
+    override fun onContextRequest(): Context {
+        return applicationContext
+    }
+
     override fun onForecastCurrent(model: WeatherResponseModel, icon: Bitmap) {
     }
 
-    override fun onForecastHourly(model: HourlyWeatherResponseModel) {
+    override fun onForecastHourly(model: CustomForecastModel) {
 
-        if(model == null) {
-            logIt("hourly model is null")
+        if(model.list.size == 0) {
             return
         }
 
-        model.list?.let {
+        model.list.let {
 
             // Установить название места
-            tvCity.text = model.city!!.name
+            tvCity.text = model.city
             // Установить иконку
-            ivBkn.setImageResource(it[0].iconId(this@MapActivity))
+            ivBkn.setImageResource(it[0].icon)
             // Установить температуру
-            tvTemperature.text = it[0].celsius()
-
+            tvTemperature.text = it[0].celsius(it[0].temp)
             hourly.initFromModel(it)
             rvHourly.adapter?.notifyDataSetChanged()
-
-//            for(f in hourly) {
-//                logIt(f.getDescription())
-//            }
         }
     }
 
@@ -170,20 +171,14 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, OpenWeatherProvider
         rvHourly.apply{
             // Размер RV не зависит от изменения размеров его элементов
             setHasFixedSize(true)
+            // Горизонтальная прокрутка
             layoutManager = LinearLayoutManager(this@MapActivity, LinearLayoutManager.HORIZONTAL, false)
             adapter = HourlyRVAdapter(hourly, applicationContext)
             itemAnimator = DefaultItemAnimator()
         }
     }
 
-    // Конвертировать имя иконки в ID ресурса картинки
-    private fun fetchIconId(context: Context, iconName: String?): Int {
-        val icon = "ow$iconName"
-        val resources = context.resources
-        return resources.getIdentifier(icon, "drawable",
-            context.packageName)
-    }
-
+    // Запрос разрешений на работу с геопозицией
     private fun requestLocationPermissions() {
         if (ActivityCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION)
             != PackageManager.PERMISSION_GRANTED &&
@@ -206,7 +201,10 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, OpenWeatherProvider
     companion object {
         private val EXTRA_MAP = MapActivity::class.java.simpleName + "extra.MAP"
         private const val REQUEST_PERM_LOCATION = 101
-        private var hourly: MutableList<Forecast> = mutableListOf()
+
+        // В связи с тем, что данные будут меняться при каждом
+        // запросе погоды, то используем MutableList
+        private var hourly: MutableList<CustomForecast> = mutableListOf()
 
         fun start(context: Context?, extraData: String) {
             val intent = Intent(context, MapActivity::class.java).apply {

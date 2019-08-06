@@ -10,12 +10,11 @@ class Weather {
     var id: Long = 0
     @SerializedName("main")
     @Expose
-    var main: String? = null
+    lateinit var main: String
     @SerializedName("description")
     @Expose
-    var description: String? = null
+    lateinit var description: String
     @SerializedName("icon")
     @Expose
-    var icon: String? = null
-
+    lateinit var icon: String
 }

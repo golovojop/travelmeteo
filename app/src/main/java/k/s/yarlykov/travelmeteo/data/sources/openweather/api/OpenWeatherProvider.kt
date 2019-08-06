@@ -1,11 +1,14 @@
 package k.s.yarlykov.travelmeteo.data.sources.openweather.api
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Log
 import k.s.yarlykov.travelmeteo.data.domain.CityForecast
+import k.s.yarlykov.travelmeteo.data.domain.CustomForecastModel
 import k.s.yarlykov.travelmeteo.data.sources.openweather.model.current.WeatherResponseModel
 import k.s.yarlykov.travelmeteo.data.sources.openweather.model.hourly.HourlyWeatherResponseModel
+import k.s.yarlykov.travelmeteo.data.sources.openweather.model.hourly.mapModel
 import okhttp3.OkHttpClient
 import okhttp3.ResponseBody
 import retrofit2.Call
@@ -19,7 +22,8 @@ object OpenWeatherProvider {
 
     interface ForecastReceiver {
         fun onForecastCurrent(model: WeatherResponseModel, icon: Bitmap)
-        fun onForecastHourly(model: HourlyWeatherResponseModel)
+        fun onForecastHourly(model: CustomForecastModel)
+        fun onContextRequest(): Context
     }
 
     private const val apiKey = "b7838252ab3cde579f376d9417c878d1"
@@ -75,7 +79,7 @@ object OpenWeatherProvider {
                 // Code 404: body() == null; isSuccessful() == false
                 if (response.isSuccessful) {
                     response.body()?.let {
-                        receiver?.onForecastHourly(it)
+                        receiver?.onForecastHourly(it.mapModel(receiver.onContextRequest()))
                     }
                 }
             }

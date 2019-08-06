@@ -1,10 +1,11 @@
 package k.s.yarlykov.travelmeteo.extensions
 
+import k.s.yarlykov.travelmeteo.data.domain.CustomForecast
 import k.s.yarlykov.travelmeteo.data.sources.openweather.model.hourly.Forecast
 import java.text.SimpleDateFormat
 import java.util.*
 
-fun MutableList<Forecast>.initFromModel(li: List<Forecast>) {
+fun MutableList<CustomForecast>.initFromModel(li: List<CustomForecast>) {
     clear()
     this.addAll(li)
 
