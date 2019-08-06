@@ -149,7 +149,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, OpenWeatherProvider
 
             it.setOnMapClickListener {
                 logIt("Map clicked [${it.latitude} / ${it.longitude}]")
-                OpenWeatherProvider.requestForecastHourly(this, it.lat(), it.lon())
+//                OpenWeatherProvider.requestForecastHourly(this, it.lat(), it.lon())
             }
 
             it.setOnMapLongClickListener {

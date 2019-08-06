@@ -6,7 +6,7 @@
     <dimen name="leftMargin">12dp</dimen>
     <dimen name="endMargin">12dp</dimen>
     <dimen name="unityMarginStart">4dp</dimen>
-    <dimen name="rowMarginTop">4dp</dimen>
+    <dimen name="rowMarginTop">8dp</dimen>
 
     <dimen name="imgBknWidth">56dp</dimen>
     <dimen name="imgBknHeight">56dp</dimen>
