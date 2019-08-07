@@ -4,10 +4,10 @@
               xmlns:tools="http://schemas.android.com/tools"
               android:id="@+id/bottom_sheet"
               android:layout_width="match_parent"
-              android:layout_height="280dp"
+              android:layout_height="wrap_content"
               android:orientation="vertical"
               android:background="@android:color/transparent"
-              app:behavior_hideable="true"
+              app:behavior_hideable="false"
               app:behavior_peekHeight="80dp"
               app:layout_behavior="android.support.design.widget.BottomSheetBehavior">
 
@@ -16,7 +16,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_gravity="center"
-            android:backgroundTint="@color/bg_clear_start"
+            android:backgroundTint="@color/bg_bottom_sheet"
             card_view:cardCornerRadius="6dp">
 
         <LinearLayout android:layout_width="match_parent"
@@ -66,101 +66,13 @@
                         tools:src="@drawable/bkn_d_flat"/>
             </LinearLayout>
 
-            <!-- Wind info -->
-            <LinearLayout android:layout_width="match_parent"
-                          android:layout_height="wrap_content"
-                          android:orientation="horizontal"
-                          android:layout_marginTop="@dimen/rowMarginTop"
-                          android:layout_gravity="start">
-                <ImageView
-                        android:id="@+id/ivWind"
-                        android:layout_width="@dimen/imgWidth"
-                        android:layout_height="@dimen/imgHeight"
-                        android:layout_marginStart="@dimen/leftMargin"
-                        android:layout_marginEnd="@dimen/endMargin"
-                        app:srcCompat="@drawable/ic_wind"
-                        tools:src="@drawable/ic_wind"/>
-                <TextView android:id="@+id/tvWindValue"
-                          android:layout_width="wrap_content"
-                          android:layout_height="wrap_content"
-                          android:gravity="center_vertical"
-                          android:text="@string/toolWindValue"
-                          tools:text="@string/toolWindValue"
-                          android:textColor="@android:color/white"/>
-                <TextView android:id="@+id/tvWindUnits"
-                          android:layout_width="wrap_content"
-                          android:layout_height="wrap_content"
-                          android:gravity="center_vertical"
-                          android:text="@string/toolWindUnits"
-                          android:layout_marginStart="@dimen/unityMarginStart"
-                          tools:text="@string/toolWindUnits"
-                          android:textColor="@android:color/white"/>
-            </LinearLayout>
-
-            <!-- Pressure info -->
-            <LinearLayout android:layout_width="match_parent"
-                          android:layout_height="wrap_content"
-                          android:orientation="horizontal"
-                          android:layout_marginTop="@dimen/rowMarginTop"
-                          android:layout_gravity="start">
-                <ImageView
-                        android:id="@+id/ivPressure"
-                        android:layout_width="@dimen/imgWidth"
-                        android:layout_height="@dimen/imgHeight"
-                        android:layout_marginStart="@dimen/leftMargin"
-                        android:layout_marginEnd="@dimen/endMargin"
-                        app:srcCompat="@drawable/ic_pressure"
-                        tools:src="@drawable/ic_pressure"/>
-                <TextView android:id="@+id/tvPressureValue"
-                          android:layout_width="wrap_content"
-                          android:layout_height="wrap_content"
-                          android:gravity="center_vertical"
-                          android:text="@string/toolPressureValue"
-                          tools:text="@string/toolPressureValue"
-                          android:textColor="@android:color/white"/>
-                <TextView android:id="@+id/tvPressureUnits"
-                          android:layout_width="wrap_content"
-                          android:layout_height="wrap_content"
-                          android:gravity="center_vertical"
-                          android:layout_marginStart="@dimen/unityMarginStart"
-                          android:text="@string/toolPressureUnits"
-                          tools:text="@string/toolPressureUnits"
-                          android:textColor="@android:color/white"/>
-            </LinearLayout>
-
-            <!-- Humidity info -->
-            <LinearLayout android:layout_width="match_parent"
-                          android:layout_height="wrap_content"
-                          android:orientation="horizontal"
-                          android:layout_marginTop="@dimen/rowMarginTop"
-                          android:layout_gravity="start">
-                <ImageView
-                        android:id="@+id/ivHumidity"
-                        android:layout_width="@dimen/imgWidth"
-                        android:layout_height="@dimen/imgHeight"
-                        android:layout_marginStart="@dimen/leftMargin"
-                        android:layout_marginEnd="@dimen/endMargin"
-                        app:srcCompat="@drawable/ic_humidity"
-                        tools:src="@drawable/ic_humidity"/>
-                <TextView android:id="@+id/tvHumidityValue"
-                          android:layout_width="wrap_content"
-                          android:layout_height="wrap_content"
-                          android:gravity="center_vertical"
-                          android:text="@string/toolHumidityValue"
-                          tools:text="@string/toolHumidityValue"
-                          android:textColor="@android:color/white"/>
-                <TextView android:id="@+id/tvHumidityUnits"
-                          android:layout_width="wrap_content"
-                          android:layout_height="wrap_content"
-                          android:gravity="center_vertical"
-                          android:layout_marginStart="@dimen/unityMarginStart"
-                          android:text="@string/toolHumidityUnits"
-                          tools:text="@string/toolHumidityUnits"
-                          android:textColor="@android:color/white"/>
-            </LinearLayout>
-
-
-
+            <android.support.v7.widget.RecyclerView
+                    android:id="@+id/rvHourly"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="100dp"
+                    app:layout_behavior="@string/appbar_scrolling_view_behavior" />
         </LinearLayout>
     </android.support.v7.widget.CardView>
 </LinearLayout>
