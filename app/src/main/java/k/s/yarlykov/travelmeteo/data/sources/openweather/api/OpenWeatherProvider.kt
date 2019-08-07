@@ -1,11 +1,9 @@
 package k.s.yarlykov.travelmeteo.data.sources.openweather.api
 
-import android.content.Context
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Log
-import k.s.yarlykov.travelmeteo.data.domain.CityForecast
-import k.s.yarlykov.travelmeteo.data.domain.CustomForecastModel
+import k.s.yarlykov.travelmeteo.data.sources.unifiedprovider.ForecastConsumer
+import k.s.yarlykov.travelmeteo.data.sources.unifiedprovider.ForecastProvider
 import k.s.yarlykov.travelmeteo.data.sources.openweather.model.current.WeatherResponseModel
 import k.s.yarlykov.travelmeteo.data.sources.openweather.model.hourly.HourlyWeatherResponseModel
 import k.s.yarlykov.travelmeteo.data.sources.openweather.model.hourly.mapModel
@@ -18,13 +16,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
-object OpenWeatherProvider {
-
-    interface ForecastReceiver {
-        fun onForecastCurrent(model: WeatherResponseModel, icon: Bitmap)
-        fun onForecastHourly(model: CustomForecastModel)
-        fun onContextRequest(): Context
-    }
+object OpenWeatherProvider : ForecastProvider {
 
     private const val apiKey = "b7838252ab3cde579f376d9417c878d1"
     private const val apiUnits = "metric"
@@ -49,7 +41,7 @@ object OpenWeatherProvider {
         return adapter.create(OpenWeather::class.java)
     }
 
-    fun requestForecastCurrent(receiver: ForecastReceiver?, lat: Int, lon: Int) {
+    override fun requestForecastCurrent(consumer: ForecastConsumer?, lat: String, lon: String) {
         api.loadGeoWeatherCurrent(lat, lon, apiUnits, apiKey).enqueue(object : Callback<WeatherResponseModel> {
 
             override fun onResponse(call: Call<WeatherResponseModel>, response: Response<WeatherResponseModel>) {
@@ -57,7 +49,7 @@ object OpenWeatherProvider {
                 // Code 404: body() == null; isSuccessful() == false
                 if (response.isSuccessful()) {
                     response.body()?.let {
-                        requestIcon(receiver, it)
+                        requestIcon(consumer, it)
                     }
                 }
             }
@@ -68,7 +60,7 @@ object OpenWeatherProvider {
         })
     }
 
-    fun requestForecastHourly(receiver: ForecastReceiver?, lat: String, lon: String) {
+    override fun requestForecastHourly(consumer: ForecastConsumer?, lat: String, lon: String) {
         api.loadGeoWeatherHourly(lat, lon, apiUnits, apiKey).enqueue(object : Callback<HourlyWeatherResponseModel> {
 
             override fun onResponse(
@@ -79,7 +71,7 @@ object OpenWeatherProvider {
                 // Code 404: body() == null; isSuccessful() == false
                 if (response.isSuccessful) {
                     response.body()?.let {
-                        receiver?.onForecastHourly(it.mapModel(receiver.onContextRequest()))
+                        consumer?.onForecastHourly(it.mapModel(consumer.onContextRequest()))
                     }
                 }
             }
@@ -91,7 +83,7 @@ object OpenWeatherProvider {
     }
 
     // Получить иконку погоды
-    private fun requestIcon(receiver: ForecastReceiver?, model: WeatherResponseModel) {
+    private fun requestIcon(consumer: ForecastConsumer?, model: WeatherResponseModel) {
 
         val call = api.fetchIcon("https://openweathermap.org/img/w/${model.weather!![0].icon!!}.png")
 
@@ -101,7 +93,7 @@ object OpenWeatherProvider {
                 if (response.isSuccessful) {
                     response.body()?.let {
                         val bmp = BitmapFactory.decodeStream(response.body()!!.byteStream())
-                        receiver?.onForecastCurrent(model, bmp)
+                        consumer?.onForecastCurrent(model, bmp)
                     }
                 }
             }

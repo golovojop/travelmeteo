@@ -65,7 +65,7 @@ fun Forecast.mapModel(context: Context) : CustomForecast {
         this.wind.speed,
         this.wind.direction(),
         this.main.humidity.toInt(),
-        this.main.pressure.toInt(),
+        this.main.pressure,
         this.weather.get(0).main,
         this.weather.get(0).description,
         this.iconId(context)

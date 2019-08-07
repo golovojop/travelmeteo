@@ -16,6 +16,7 @@ import android.widget.TextView
 import k.s.yarlykov.travelmeteo.R
 import k.s.yarlykov.travelmeteo.data.domain.CustomForecast
 import k.s.yarlykov.travelmeteo.data.domain.celsius
+import k.s.yarlykov.travelmeteo.data.domain.toMmHg
 
 class HourlyRVAdapter(private val source: MutableList<CustomForecast>, private val context: Context) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -63,7 +64,7 @@ class HourlyRVAdapter(private val source: MutableList<CustomForecast>, private v
             is ViewHolderHeader -> viewHolder.bind(source[0])
             // Холдеры дугих типов получают данные из источника
             // согласно позиции
-            is ViewHolderItem -> viewHolder.bind(source[position])
+            is ViewHolderItem -> viewHolder.bind(source[position - 1])
         }
     }
 
@@ -81,7 +82,6 @@ class HourlyRVAdapter(private val source: MutableList<CustomForecast>, private v
             tvTemp.text = this.celsius(this.temp)
             ivIcon.setImageResource(this.icon)
         }
-
     }
 
     inner class ViewHolderHeader(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -91,7 +91,7 @@ class HourlyRVAdapter(private val source: MutableList<CustomForecast>, private v
 
         fun bind(f: CustomForecast) = with(f) {
             tvWind.text = "${this.wind_speed}"
-            tvPressure.text = "${this.pressure}"
+            tvPressure.text = "${this.toMmHg()}"
             tvHumidity.text = "${this.humidity}"
         }
     }

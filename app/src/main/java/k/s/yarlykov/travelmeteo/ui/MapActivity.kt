@@ -9,6 +9,9 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.location.LocationManager
 import android.os.Bundle
+import android.support.design.widget.BottomSheetBehavior
+import android.support.design.widget.BottomSheetBehavior.STATE_COLLAPSED
+import android.support.design.widget.BottomSheetBehavior.STATE_EXPANDED
 import android.support.v4.app.ActivityCompat
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.DefaultItemAnimator
@@ -21,25 +24,30 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
+import com.google.android.gms.maps.model.MarkerOptions
 import k.s.yarlykov.travelmeteo.R
 import k.s.yarlykov.travelmeteo.data.domain.CustomForecast
 import k.s.yarlykov.travelmeteo.data.domain.CustomForecastModel
 import k.s.yarlykov.travelmeteo.data.domain.celsius
-import k.s.yarlykov.travelmeteo.data.sources.openweather.api.OpenWeatherProvider
+import k.s.yarlykov.travelmeteo.data.sources.unifiedprovider.ForecastConsumer
+import k.s.yarlykov.travelmeteo.data.sources.unifiedprovider.WeatherProvider
 import k.s.yarlykov.travelmeteo.data.sources.openweather.model.current.WeatherResponseModel
-import k.s.yarlykov.travelmeteo.data.sources.openweather.model.hourly.*
+import k.s.yarlykov.travelmeteo.extensions.deleteAll
 import k.s.yarlykov.travelmeteo.extensions.initFromModel
-import k.s.yarlykov.travelmeteo.extensions.lat
-import k.s.yarlykov.travelmeteo.extensions.lon
 import kotlinx.android.synthetic.main.activity_google_map.*
-import kotlinx.android.synthetic.main.layout_hourly_forecast.*
+import kotlinx.android.synthetic.main.layout_bottom_sheet_forecast.*
 
-class MapActivity : AppCompatActivity(), OnMapReadyCallback, OpenWeatherProvider.ForecastReceiver {
+class MapActivity : AppCompatActivity(), OnMapReadyCallback,
+    ForecastConsumer {
     private var googleMap: GoogleMap? = null
     lateinit var locationManager: LocationManager
+    lateinit var markers: MutableList<Marker>
     private var isPermissionGranted = false
 
+    //region Activity Life Cycle Methods
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_google_map)
@@ -48,7 +56,11 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, OpenWeatherProvider
         // Запросить разрешение на работу с гео
         requestLocationPermissions()
 
+        // Инициализация виджетов
         initViews()
+
+        // Список маркеров на карте
+        markers = mutableListOf()
 
         // Подгрузить карту асинхронно
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
@@ -56,6 +68,13 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, OpenWeatherProvider
         mapFragment.getMapAsync(this)
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        markers.deleteAll()
+    }
+    //endregion
+
+    //region Options Menu
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.menu_map, menu)
         return true
@@ -77,108 +96,11 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, OpenWeatherProvider
                 googleMap?.setTrafficEnabled(!(googleMap?.isTrafficEnabled ?: false))
             }
         }
-
         return true
     }
+    //endregion
 
-    override fun onMapReady(map: GoogleMap?) {
-        googleMap = map
-        initMap()
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        when (requestCode) {
-            REQUEST_PERM_LOCATION -> {
-                if (grantResults.size == 2 &&
-                    (grantResults[0] == PackageManager.PERMISSION_GRANTED ||
-                            grantResults[1] == PackageManager.PERMISSION_GRANTED)
-                ) {
-                    isPermissionGranted = true
-                }
-            }
-        }
-
-        if (isPermissionGranted) {
-            recreate()
-        }
-    }
-
-    override fun onContextRequest(): Context {
-        return applicationContext
-    }
-
-    override fun onForecastCurrent(model: WeatherResponseModel, icon: Bitmap) {
-    }
-
-    override fun onForecastHourly(model: CustomForecastModel) {
-
-        if(model.list.size == 0) {
-            return
-        }
-
-        model.list.let {
-
-            // Установить название места
-            tvCity.text = model.city
-            // Установить иконку
-            ivBkn.setImageResource(it[0].icon)
-            // Установить температуру
-            tvTemperature.text = it[0].celsius(it[0].temp)
-            hourly.initFromModel(it)
-            rvHourly.adapter?.notifyDataSetChanged()
-        }
-    }
-
-    // Спозиционировать карту на мои текущие координаты
-    private fun navigateToMyLocation() {
-        @SuppressLint("MissingPermission")
-        val loc = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER)
-
-        loc?.let {
-            val target = LatLng(it.latitude, it.longitude)
-            val cameraUpdate = CameraUpdateFactory.newLatLngZoom(target, 15F)
-            googleMap?.animateCamera(cameraUpdate)
-        }
-    }
-
-    private fun initMap() {
-        googleMap?.let {
-            it.uiSettings.isZoomControlsEnabled = true
-            it.uiSettings.isMyLocationButtonEnabled = false
-            it.setPadding(0, 0, 0, dpToPix(80, this))
-
-            it.setOnMapClickListener {
-                logIt("Map clicked [${it.latitude} / ${it.longitude}]")
-//                OpenWeatherProvider.requestForecastHourly(this, it.lat(), it.lon())
-            }
-
-            it.setOnMapLongClickListener {
-                OpenWeatherProvider.requestForecastHourly(this, it.lat(), it.lon())
-            }
-
-            @SuppressLint("MissingPermission")
-            it.isMyLocationEnabled = isPermissionGranted
-        }
-    }
-
-    private fun initViews() {
-
-        // Инициализация behavior для элемента LinearLayout (ID: bottom_sheet)
-//        with(BottomSheetBehavior.from(bottom_sheet)) {
-//            setHideable(false)
-//        }
-
-        // Инициализация RecycleView
-        rvHourly.apply{
-            // Размер RV не зависит от изменения размеров его элементов
-            setHasFixedSize(true)
-            // Горизонтальная прокрутка
-            layoutManager = LinearLayoutManager(this@MapActivity, LinearLayoutManager.HORIZONTAL, false)
-            adapter = HourlyRVAdapter(hourly, applicationContext)
-            itemAnimator = DefaultItemAnimator()
-        }
-    }
-
+    //region Application Permissions
     // Запрос разрешений на работу с геопозицией
     private fun requestLocationPermissions() {
         if (ActivityCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION)
@@ -199,6 +121,126 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, OpenWeatherProvider
         }
     }
 
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        when (requestCode) {
+            REQUEST_PERM_LOCATION -> {
+                if (grantResults.size == 2 &&
+                    (grantResults[0] == PackageManager.PERMISSION_GRANTED ||
+                            grantResults[1] == PackageManager.PERMISSION_GRANTED)
+                ) {
+                    isPermissionGranted = true
+                }
+            }
+        }
+
+        if (isPermissionGranted) {
+            recreate()
+        }
+    }
+    //endregion
+
+    //region ForecastConsumer
+    override fun onContextRequest(): Context {
+        return applicationContext
+    }
+
+    override fun onForecastCurrent(model: WeatherResponseModel, icon: Bitmap) {
+    }
+
+    override fun onForecastHourly(model: CustomForecastModel) {
+
+        if (model.list.size == 0) {
+            return
+        }
+
+        model.list.let {
+            // Установить название места
+            tvCity.text = model.city
+            // Установить иконку
+            ivBkn.setImageResource(it[0].icon)
+            // Установить температуру
+            tvTemperature.text = it[0].celsius(it[0].temp)
+            hourly.initFromModel(it)
+            rvHourly.adapter?.notifyDataSetChanged()
+            setBottomSheetState(STATE_EXPANDED)
+        }
+    }
+    //endregion
+
+    //region Init Methods
+    private fun initMap() {
+        googleMap?.let {
+            it.uiSettings.isZoomControlsEnabled = false
+            it.uiSettings.isMyLocationButtonEnabled = false
+            it.setPadding(0, 0, 0, dpToPix(80, this))
+
+            it.setOnMapClickListener {
+                //                logIt("Map clicked [${it.latitude} / ${it.longitude}]")
+                setBottomSheetState(STATE_COLLAPSED)
+                markers.deleteAll()
+            }
+
+            // Долгое нажатие на карту - запросить прогноз
+            it.setOnMapLongClickListener { latLng ->
+                // Запрос почасового прогноза для данной точки
+                WeatherProvider.requestForecastHourly(this, latLng)
+                // Пометить точку маркером на карте
+                // https://developers.google.com/maps/documentation/android-sdk/marker
+                it.addMarker(
+                    MarkerOptions()
+                        .position(latLng)
+                        .alpha(0.7f)
+                        .flat(true)
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
+                )
+                    .apply {
+                        markers.deleteAll()
+                        markers.add(this)
+                    }
+            }
+
+            @SuppressLint("MissingPermission")
+            it.isMyLocationEnabled = isPermissionGranted
+        }
+    }
+
+    private fun initViews() {
+
+        // Инициализация RecycleView
+        rvHourly.apply {
+            // Размер RV не зависит от изменения размеров его элементов
+            setHasFixedSize(true)
+            // Горизонтальная прокрутка
+            layoutManager = LinearLayoutManager(this@MapActivity, LinearLayoutManager.HORIZONTAL, false)
+            adapter = HourlyRVAdapter(hourly, applicationContext)
+            itemAnimator = DefaultItemAnimator()
+        }
+    }
+    //endregion
+
+    // Установить положение шторки
+    private fun setBottomSheetState(state: Int) {
+        BottomSheetBehavior.from(bottom_sheet).state = state
+    }
+
+    override fun onMapReady(map: GoogleMap?) {
+        googleMap = map
+        initMap()
+    }
+
+    // Спозиционировать карту на мои текущие координаты
+    private fun navigateToMyLocation() {
+        @SuppressLint("MissingPermission")
+        val loc = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER)
+
+        loc?.let {
+            val target = LatLng(it.latitude, it.longitude)
+            val cameraUpdate = CameraUpdateFactory.newLatLngZoom(target, 15F)
+            googleMap?.animateCamera(cameraUpdate)
+        }
+    }
+
+    //region companion object
     companion object {
         private val EXTRA_MAP = MapActivity::class.java.simpleName + "extra.MAP"
         private const val REQUEST_PERM_LOCATION = 101
@@ -226,4 +268,5 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, OpenWeatherProvider
             return Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT))
         }
     }
+    //endregion
 }

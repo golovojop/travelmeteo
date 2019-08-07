@@ -43,7 +43,7 @@ fun HourlyWeatherResponseModel.mapModel(context: Context): CustomForecastModel {
                 it.wind.speed,
                 it.wind.direction(),
                 it.main.humidity.toInt(),
-                it.main.pressure.toInt(),
+                it.main.pressure,
                 it.weather.get(0).main,
                 it.weather.get(0).description,
                 it.iconId(context)

@@ -1,17 +1,35 @@
 package k.s.yarlykov.travelmeteo.extensions
 
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
 import k.s.yarlykov.travelmeteo.data.domain.CustomForecast
 import k.s.yarlykov.travelmeteo.data.sources.openweather.model.hourly.Forecast
 import java.text.SimpleDateFormat
 import java.util.*
 
 /**
- * MutableList
+ * MutableList <CustomForecast>
  */
 fun MutableList<CustomForecast>.initFromModel(li: List<CustomForecast>) {
+    // Из исходного массива возьмём не более QTY элементов
+    val QTY = 12
     this.clear()
-    this.addAll(li)
+
+    for((index, value) in li.withIndex()) {
+        if(index < QTY) {
+            this.add(index, value)
+        } else {
+            break
+        }
+    }
+}
+
+/**
+ * MutableList <Marker>
+ */
+fun MutableList<Marker>.deleteAll() {
+    this.forEach(Marker::remove)
+    this.clear()
 }
 
 /**

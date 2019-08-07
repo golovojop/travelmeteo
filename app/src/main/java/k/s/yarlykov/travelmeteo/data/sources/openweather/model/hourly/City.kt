@@ -9,11 +9,11 @@ class City {
     var id: Long = 0
     @SerializedName("name")
     @Expose
-    lateinit var name: String
+    var name: String = ""
     @SerializedName("coord")
     @Expose
     lateinit var coord: Coord
     @SerializedName("country")
     @Expose
-    lateinit var country: String
+    var country: String = ""
 }
