@@ -238,6 +238,10 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback,
     //endregion
 
     //region BottomSheet Management
+    /**
+     * Materials:
+     * https://medium.com/material-design-in-action/implementing-bottomappbar-behavior-fbfbc3a30568
+     */
     // Установить положение шторки
     private fun setBottomSheetState(state: Int) {
         BottomSheetBehavior.from(bottom_sheet).state = state
