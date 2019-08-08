@@ -13,11 +13,19 @@
     <!-- подключение нижнего экрана с прогнозом погоды -->
     <include layout="@layout/layout_bottom_sheet_forecast"/>
 
+    <!-- верхняя окантовка элемента BottomAppBar привязывается через anchor-->
+    <View android:layout_width="fill_parent"
+          android:layout_height="4dp"
+          app:layout_anchor="@+id/bottom_app_bar"
+          app:layout_anchorGravity="top"
+          android:background="@color/border_bottom_sheet_card"/>
+
     <android.support.design.bottomappbar.BottomAppBar
             android:id="@+id/bottom_app_bar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
-            app:backgroundTint="@android:color/white"/>
-
+            app:backgroundTint="@android:color/white"
+            app:hideOnScroll="true"
+            app:layout_scrollFlags="scroll|enterAlways"/>
 </android.support.design.widget.CoordinatorLayout>
