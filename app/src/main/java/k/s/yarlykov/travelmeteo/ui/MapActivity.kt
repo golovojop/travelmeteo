@@ -72,6 +72,19 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback,
         super.onDestroy()
         markers.deleteAll()
     }
+
+    private fun initViews() {
+
+        // Инициализация RecycleView
+        rvHourly.apply {
+            // Размер RV не зависит от изменения размеров его элементов
+            setHasFixedSize(true)
+            // Горизонтальная прокрутка
+            layoutManager = LinearLayoutManager(this@MapActivity, LinearLayoutManager.HORIZONTAL, false)
+            adapter = HourlyRVAdapter(hourly, applicationContext)
+            itemAnimator = DefaultItemAnimator()
+        }
+    }
     //endregion
 
     //region Options Menu
@@ -149,7 +162,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback,
 
     override fun onForecastHourly(model: CustomForecastModel) {
 
-        if (model.list.size == 0) {
+        if (model.list.isEmpty()) {
             return
         }
 
@@ -160,14 +173,16 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback,
             ivBkn.setImageResource(it[0].icon)
             // Установить температуру
             tvTemperature.text = it[0].celsius(it[0].temp)
+            // Обновить RecycleView
             hourly.initFromModel(it)
             rvHourly.adapter?.notifyDataSetChanged()
+            // Выдвинуть шторку с виджетом
             setBottomSheetState(STATE_EXPANDED)
         }
     }
     //endregion
 
-    //region Init Methods
+    //region GoogleMap Methods
     private fun initMap() {
         googleMap?.let {
             it.uiSettings.isZoomControlsEnabled = false
@@ -204,25 +219,6 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback,
         }
     }
 
-    private fun initViews() {
-
-        // Инициализация RecycleView
-        rvHourly.apply {
-            // Размер RV не зависит от изменения размеров его элементов
-            setHasFixedSize(true)
-            // Горизонтальная прокрутка
-            layoutManager = LinearLayoutManager(this@MapActivity, LinearLayoutManager.HORIZONTAL, false)
-            adapter = HourlyRVAdapter(hourly, applicationContext)
-            itemAnimator = DefaultItemAnimator()
-        }
-    }
-    //endregion
-
-    // Установить положение шторки
-    private fun setBottomSheetState(state: Int) {
-        BottomSheetBehavior.from(bottom_sheet).state = state
-    }
-
     override fun onMapReady(map: GoogleMap?) {
         googleMap = map
         initMap()
@@ -239,6 +235,14 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback,
             googleMap?.animateCamera(cameraUpdate)
         }
     }
+    //endregion
+
+    //region BottomSheet Management
+    // Установить положение шторки
+    private fun setBottomSheetState(state: Int) {
+        BottomSheetBehavior.from(bottom_sheet).state = state
+    }
+    //endregion
 
     //region companion object
     companion object {
