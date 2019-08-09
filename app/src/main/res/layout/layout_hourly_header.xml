@@ -36,6 +36,7 @@
             <TextView android:id="@+id/tvWindValue"
                       android:layout_width="wrap_content"
                       android:layout_height="wrap_content"
+                      android:layout_gravity="center_vertical"
                       android:gravity="center_vertical"
                       android:text="@string/toolWindValue"
                       tools:text="@string/toolWindValue"
@@ -43,11 +44,28 @@
             <TextView android:id="@+id/tvWindUnits"
                       android:layout_width="wrap_content"
                       android:layout_height="wrap_content"
-                      android:gravity="center_vertical"
+                      android:layout_gravity="center_vertical"
+                      android:gravity="end|center_vertical"
                       android:text="@string/toolWindUnits"
                       android:layout_marginStart="@dimen/unityMarginStart"
                       tools:text="@string/toolWindUnits"
                       android:textColor="@android:color/white"/>
+            <TextView android:id="@+id/tvWindDirection"
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      android:layout_gravity="center_vertical"
+                      android:gravity="start|center_vertical"
+                      tools:text="@string/toolWindDirection"
+                      android:textColor="@android:color/white"/>
+            <ImageView
+                    android:id="@+id/ivWindDirection"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginStart="2dp"
+                    android:layout_gravity="center_vertical"
+                    app:srcCompat="@drawable/ic_wind_direction_white"
+                    tools:src="@drawable/ic_wind_direction_white"/>
+
         </LinearLayout>
 
         <!-- Pressure info -->
@@ -67,6 +85,7 @@
             <TextView android:id="@+id/tvPressureValue"
                       android:layout_width="wrap_content"
                       android:layout_height="wrap_content"
+                      android:layout_gravity="center_vertical"
                       android:gravity="center_vertical"
                       android:text="@string/toolPressureValue"
                       tools:text="@string/toolPressureValue"
@@ -74,6 +93,7 @@
             <TextView android:id="@+id/tvPressureUnits"
                       android:layout_width="wrap_content"
                       android:layout_height="wrap_content"
+                      android:layout_gravity="center_vertical"
                       android:gravity="center_vertical"
                       android:layout_marginStart="@dimen/unityMarginStart"
                       android:text="@string/toolPressureUnits"
@@ -98,6 +118,7 @@
             <TextView android:id="@+id/tvHumidityValue"
                       android:layout_width="wrap_content"
                       android:layout_height="wrap_content"
+                      android:layout_gravity="center_vertical"
                       android:gravity="center_vertical"
                       android:text="@string/toolHumidityValue"
                       tools:text="@string/toolHumidityValue"
@@ -105,6 +126,7 @@
             <TextView android:id="@+id/tvHumidityUnits"
                       android:layout_width="wrap_content"
                       android:layout_height="wrap_content"
+                      android:layout_gravity="center_vertical"
                       android:gravity="center_vertical"
                       android:layout_marginStart="@dimen/unityMarginStart"
                       android:text="@string/toolHumidityUnits"

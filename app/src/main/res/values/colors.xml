@@ -3,7 +3,7 @@
     <color name="colorPrimary">#008577</color>
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#D81B60</color>
-    <color name="border_bottom_sheet_card">#A0A0A0</color>
+    <color name="top_border_bottom_sheet">#AAB0B0B0</color>
     <color name="bg_bottom_sheet">#cc2b95e6</color>
     <color name="bg_alert_end_color">#ffda545e</color>
     <color name="bg_alert_start_color">#ffe15e50</color>

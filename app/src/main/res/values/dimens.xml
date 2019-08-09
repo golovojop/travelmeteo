@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="card_bg_radius">7.0dip</dimen>
+    <dimen name="card_bg_radius">6dp</dimen>
 
     <dimen name="topMargin">12dp</dimen>
     <dimen name="leftMargin">12dp</dimen>

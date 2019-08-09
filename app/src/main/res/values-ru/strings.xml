@@ -16,5 +16,6 @@
     <string name="toolCity">Москва</string>
     <string name="toolWindUnits">м/с</string>
     <string name="toolPressureUnits">мм.рт.ст</string>
+    <string name="toolWindDirection">ЮВ</string>
 
 </resources>

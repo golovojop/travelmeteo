@@ -20,6 +20,7 @@
 
     <string name="toolWindValue" translatable="false">5</string>
     <string name="toolWindUnits">m/s</string>
+    <string name="toolWindDirection">NW</string>
 
     <string name="toolPressureValue" translatable="false">763</string>
     <string name="toolPressureUnits">mmHg</string>

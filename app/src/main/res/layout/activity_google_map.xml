@@ -18,7 +18,7 @@
           android:layout_height="4dp"
           app:layout_anchor="@+id/bottom_app_bar"
           app:layout_anchorGravity="top"
-          android:background="@color/border_bottom_sheet_card"/>
+          android:background="@color/top_border_bottom_sheet"/>
 
     <android.support.design.bottomappbar.BottomAppBar
             android:id="@+id/bottom_app_bar"
