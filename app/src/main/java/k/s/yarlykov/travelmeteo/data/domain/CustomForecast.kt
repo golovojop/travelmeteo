@@ -1,5 +1,7 @@
 package k.s.yarlykov.travelmeteo.data.domain
 
+import k.s.yarlykov.travelmeteo.R
+
 /**
  * Единый формат для прогноза из разных источников
  */
@@ -16,12 +18,29 @@ data class CustomForecast(
     val weather_main: String,
     val weather_descr: String,
     val icon: Int
-)
+) {
+    companion object {
+        fun empty() = CustomForecast(
+            "",
+            1,
+            1,
+            1,
+            0F,
+            "",
+            0F,
+            1,
+            0F,
+            "",
+            "",
+            R.drawable.ovc_flat
+        )
+    }
+}
 
 // Представить температуру в виде строки с префиксом "+" или "-" и знаком градуса после значения
 fun CustomForecast.celsius(t: Int): String {
     val sb = StringBuilder()
-    sb.append(if(t < 0) "-" else "+")
+    sb.append(if (t < 0) "-" else "+")
     sb.append("$t")
     sb.append("\u00B0")
 

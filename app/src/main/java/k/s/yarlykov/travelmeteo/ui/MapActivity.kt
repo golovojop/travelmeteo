@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.drawable.AnimationDrawable
 import android.location.LocationManager
 import android.os.Bundle
 import android.support.design.widget.BottomSheetBehavior
@@ -20,6 +21,7 @@ import android.util.DisplayMetrics
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -58,7 +60,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback,
         requestLocationPermissions()
 
         // Инициализация виджетов
-        initViews()
+        initViews(savedInstanceState)
 
         // Список маркеров на карте
         markers = mutableListOf()
@@ -74,7 +76,15 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback,
         markers.deleteAll()
     }
 
-    private fun initViews() {
+    private fun initViews(savedInstanceState: Bundle?) {
+
+        // При первом запуске, чтобы инициализировать виджеты для RecycleView
+        // Иначе криво отображается картикнка со стрелкой ветра
+        if (savedInstanceState == null && hourly.isEmpty()) {
+            hourly.add(CustomForecast.empty())
+            hourly.add(CustomForecast.empty())
+            swapContent(true)
+        }
 
         // Инициализация RecycleView
         rvHourly.apply {
@@ -177,6 +187,8 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback,
             // Обновить RecycleView
             hourly.initFromModel(it)
             rvHourly.adapter?.notifyDataSetChanged()
+            // Сменить видимость виджетов
+            swapContent(false)
             // Выдвинуть шторку с виджетом
             setBottomSheetState(STATE_EXPANDED)
         }
@@ -248,6 +260,22 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback,
         BottomSheetBehavior.from(bottom_sheet).state = state
     }
     //endregion
+
+
+    private fun swapContent(isShowLogo: Boolean) {
+
+        if(isShowLogo) {
+            llForecast.visibility = View.GONE
+            cvMapLogo.visibility = View.VISIBLE
+
+            ivMapLogo.setBackgroundResource(R.drawable.crazy_marker)
+            (ivMapLogo.background as AnimationDrawable).start()
+        } else {
+            llForecast.visibility = View.VISIBLE
+            cvMapLogo.visibility = View.GONE
+            (ivMapLogo.background as AnimationDrawable).stop()
+        }
+    }
 
     //region companion object
     companion object {
