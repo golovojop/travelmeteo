@@ -36,6 +36,7 @@ import k.s.yarlykov.travelmeteo.data.sources.unifiedprovider.ForecastConsumer
 import k.s.yarlykov.travelmeteo.data.sources.unifiedprovider.WeatherProvider
 import k.s.yarlykov.travelmeteo.data.sources.openweather.model.current.WeatherResponseModel
 import k.s.yarlykov.travelmeteo.extensions.deleteAll
+import k.s.yarlykov.travelmeteo.extensions.dpToPix
 import k.s.yarlykov.travelmeteo.extensions.initFromModel
 import kotlinx.android.synthetic.main.activity_google_map.*
 import kotlinx.android.synthetic.main.layout_bottom_sheet_forecast.*
@@ -187,7 +188,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback,
         googleMap?.let {
             it.uiSettings.isZoomControlsEnabled = false
             it.uiSettings.isMyLocationButtonEnabled = false
-            it.setPadding(0, 0, 0, dpToPix(80, this))
+            it.setPadding(0, 0, 0, dpToPix(80))
 
             it.setOnMapClickListener {
                 //                logIt("Map clicked [${it.latitude} / ${it.longitude}]")
@@ -269,11 +270,6 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback,
             message?.let {
                 Log.d(TAG, it)
             }
-        }
-
-        fun dpToPix(dp: Int, context: Context): Int {
-            val displayMetrics = context.resources.getDisplayMetrics()
-            return Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT))
         }
     }
     //endregion

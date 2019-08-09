@@ -3,10 +3,6 @@ package k.s.yarlykov.travelmeteo.data.sources.openweather.model.hourly
 import android.content.Context
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
-import k.s.yarlykov.travelmeteo.data.domain.CustomForecast
-import k.s.yarlykov.travelmeteo.extensions.format
-import java.lang.StringBuilder
-import java.util.*
 
 class Forecast {
 
@@ -53,21 +49,4 @@ fun Forecast.celsius(): String {
     sb.append("\u00B0")
 
     return sb.toString()
-}
-
-// Расширение для конвертации прогноза в базовый формат приложения
-fun Forecast.mapModel(context: Context) : CustomForecast {
-    return CustomForecast(
-        Date(this.dt * 1000).format("HH:mm"),
-        Math.round(this.main.temp),
-        Math.round(this.main.tempMin),
-        Math.round(this.main.tempMax),
-        this.wind.speed,
-        this.wind.direction(),
-        this.main.humidity.toInt(),
-        this.main.pressure,
-        this.weather.get(0).main,
-        this.weather.get(0).description,
-        this.iconId(context)
-    )
 }

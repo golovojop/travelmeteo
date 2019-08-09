@@ -12,14 +12,24 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import k.s.yarlykov.travelmeteo.R
 import k.s.yarlykov.travelmeteo.data.domain.CustomForecast
 import k.s.yarlykov.travelmeteo.data.domain.celsius
 import k.s.yarlykov.travelmeteo.data.domain.toMmHg
+import k.s.yarlykov.travelmeteo.extensions.bitmapFromVectorDrawable
+import k.s.yarlykov.travelmeteo.extensions.dpToPix
+import k.s.yarlykov.travelmeteo.extensions.rotate
 
 class HourlyRVAdapter(private val source: MutableList<CustomForecast>, private val context: Context) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+
+    // Размеры указателя направления ветра в dip
+    val dipWindW = 20
+    val dipWindH = 20
+
+    val windBitmap = context.bitmapFromVectorDrawable(R.drawable.ic_wind_direction_white, dipWindW, dipWindH)
 
     // Позволяет адаптеру самостоятельно устанавливать типы для отдельных элементов
     // списка RV. Нужно в том случае, если они, например, имеют разные макеты.
@@ -27,7 +37,6 @@ class HourlyRVAdapter(private val source: MutableList<CustomForecast>, private v
     override fun getItemViewType(position: Int): Int {
         return if (position == 0) TYPE_HEADER else TYPE_ITEM
     }
-
 
     // Вызывается когда нужно создать новый элемент списка
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -86,13 +95,29 @@ class HourlyRVAdapter(private val source: MutableList<CustomForecast>, private v
 
     inner class ViewHolderHeader(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val tvWind = itemView.findViewById<TextView>(R.id.tvWindValue)
+        val tvWindDir = itemView.findViewById<TextView>(R.id.tvWindDirection)
         val tvPressure = itemView.findViewById<TextView>(R.id.tvPressureValue)
         val tvHumidity = itemView.findViewById<TextView>(R.id.tvHumidityValue)
+        val ivWindDir = itemView.findViewById<ImageView>(R.id.ivWindDirection)
 
         fun bind(f: CustomForecast) = with(f) {
+
+            // Переустановить размеры виджета с указателем ветки
+            ivWindDir.layoutParams.width = context.dpToPix(dipWindW)
+            ivWindDir.layoutParams.height = context.dpToPix(dipWindH)
+
+            // Concatenate before
+            val windDir = ", ${this.wind_direction_sz}"
+
             tvWind.text = "${this.wind_speed}"
+            tvWindDir.text = windDir
             tvPressure.text = "${this.toMmHg()}"
             tvHumidity.text = "${this.humidity}"
+            // Сначала восстановить картинку в исходное положения
+            ivWindDir.setImageBitmap(windBitmap)
+            // Затем повернуть. Нужна коррекция, чтобы повернуть
+            // указатель по ветру, а не против него
+            ivWindDir.rotate(f.wind_direction_degree + 180.0F)
         }
     }
 

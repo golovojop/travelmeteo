@@ -4,9 +4,10 @@ import android.content.Context
 import com.google.android.gms.maps.model.LatLng
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
+import k.s.yarlykov.travelmeteo.R
 import k.s.yarlykov.travelmeteo.data.domain.CustomForecast
 import k.s.yarlykov.travelmeteo.data.domain.CustomForecastModel
-import k.s.yarlykov.travelmeteo.extensions.format
+import k.s.yarlykov.travelmeteo.extensions.formatHHmm
 import java.util.*
 
 class HourlyWeatherResponseModel {
@@ -30,18 +31,22 @@ class HourlyWeatherResponseModel {
 
 fun HourlyWeatherResponseModel.mapModel(context: Context): CustomForecastModel {
 
+    // Загрузить массив с именами сторон света
+    val directions = context.resources.getStringArray(R.array.compass_directions).asList()
+
     return CustomForecastModel(
         this.city.name,
         this.city.country,
         LatLng(this.city.coord.lat.toDouble(), this.city.coord.lon.toDouble()),
         this.list.map {
             CustomForecast(
-                Date(it.dt * 1000).format("HH:mm"),
+                Date(it.dt * 1000).formatHHmm(this.city.timezone),
                 Math.round(it.main.temp),
                 Math.round(it.main.tempMin),
                 Math.round(it.main.tempMax),
                 it.wind.speed,
-                it.wind.direction(),
+                it.wind.direction(directions),
+                it.wind.deg,
                 it.main.humidity.toInt(),
                 it.main.pressure,
                 it.weather.get(0).main,

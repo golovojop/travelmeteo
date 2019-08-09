@@ -16,4 +16,7 @@ class City {
     @SerializedName("country")
     @Expose
     var country: String = ""
+    @SerializedName("timezone")
+    @Expose
+    var timezone: Int = 0
 }
