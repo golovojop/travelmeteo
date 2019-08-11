@@ -13,11 +13,11 @@ class Wind {
     var deg: Float = 0.toFloat()
 }
 
-fun Wind.direction(directions: List<String>): String {
+fun Wind.direction(): Int {
     val step = 22.5
 
     var n = Math.floor(this.deg/step).toInt()
     if(n >= 15) n = 0
     if(n % 2 > 0) n++
-    return directions.get(n/2)
+    return n/2
 }

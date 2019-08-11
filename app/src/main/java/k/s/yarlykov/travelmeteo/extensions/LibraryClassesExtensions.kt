@@ -90,6 +90,9 @@ fun LatLng.lon(): String {
  * Materials:
  * https://stackoverflow.com/questions/8981845/android-rotate-image-in-imageview-by-an-angle
  *
+ * Есть проблемы при первом показе картинки. Лучше поворачивать bitmap, а потом устанавливать её
+ * в ImageView (см метод Bitmap.rotate ниже)
+ *
  */
 fun ImageView.rotate(angle: Float) {
     val matrix = Matrix()
@@ -119,11 +122,6 @@ fun Context.bitmapFromVectorDrawable(drawableId: Int, dpW: Int, dpH: Int): Bitma
         dpToPix(dpW), dpToPix(dpH),
         Bitmap.Config.ARGB_8888) ?: return null
 
-//    val bitmap = Bitmap.createBitmap(
-//        drawable.intrinsicWidth,
-//        drawable.intrinsicHeight,
-//        Bitmap.Config.ARGB_8888) ?: return null
-
     val canvas = Canvas(bitmap)
     drawable.setBounds(0, 0, canvas.width, canvas.height)
     drawable.draw(canvas)
@@ -135,6 +133,19 @@ fun Context.bitmapFromVectorDrawable(drawableId: Int, dpW: Int, dpH: Int): Bitma
 fun Context.dpToPix(dp: Int): Int {
     val displayMetrics = this.resources.displayMetrics
     return Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT))
+}
+
+/**
+ * Bitmap
+ *
+ * Materials:
+ * https://stackoverflow.com/questions/9015372/how-to-rotate-a-bitmap-90-degrees
+ *
+ * Поворачиваем bitmap на заданный угол
+ */
+fun Bitmap.rotate(degrees: Float): Bitmap {
+    val matrix = Matrix().apply { postRotate(degrees) }
+    return Bitmap.createBitmap(this, 0, 0, width, height, matrix, true)
 }
 
 

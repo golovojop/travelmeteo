@@ -81,8 +81,8 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback,
         // При первом запуске, чтобы инициализировать виджеты для RecycleView
         // Иначе криво отображается картикнка со стрелкой ветра
         if (savedInstanceState == null && hourly.isEmpty()) {
-            hourly.add(CustomForecast.empty())
-            hourly.add(CustomForecast.empty())
+            hourly.add(CustomForecast())
+            hourly.add(CustomForecast())
             swapContent(true)
         }
 

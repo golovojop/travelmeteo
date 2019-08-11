@@ -32,21 +32,25 @@ class HourlyWeatherResponseModel {
 fun HourlyWeatherResponseModel.mapModel(context: Context): CustomForecastModel {
 
     // Загрузить массив с именами сторон света
-    val directions = context.resources.getStringArray(R.array.compass_directions).asList()
+    val directionsNames = context.resources.getStringArray(R.array.compass_directions).asList()
+    val directionsAngles = context.resources.getIntArray(R.array.compass_directions_angles)
 
     return CustomForecastModel(
         this.city.name,
         this.city.country,
         LatLng(this.city.coord.lat.toDouble(), this.city.coord.lon.toDouble()),
         this.list.map {
+            // Индекс
+            val windIndex = it.wind.direction()
+
             CustomForecast(
                 Date(it.dt * 1000).formatHHmm(this.city.timezone),
                 Math.round(it.main.temp),
                 Math.round(it.main.tempMin),
                 Math.round(it.main.tempMax),
                 it.wind.speed,
-                it.wind.direction(directions),
-                it.wind.deg,
+                directionsNames[windIndex],
+                directionsAngles[windIndex].toFloat(),
                 it.main.humidity.toInt(),
                 it.main.pressure,
                 it.weather.get(0).main,

@@ -12,14 +12,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.TextView
 import k.s.yarlykov.travelmeteo.R
 import k.s.yarlykov.travelmeteo.data.domain.CustomForecast
 import k.s.yarlykov.travelmeteo.data.domain.celsius
 import k.s.yarlykov.travelmeteo.data.domain.toMmHg
 import k.s.yarlykov.travelmeteo.extensions.bitmapFromVectorDrawable
-import k.s.yarlykov.travelmeteo.extensions.dpToPix
 import k.s.yarlykov.travelmeteo.extensions.rotate
 
 class HourlyRVAdapter(private val source: MutableList<CustomForecast>, private val context: Context) :
@@ -29,6 +27,7 @@ class HourlyRVAdapter(private val source: MutableList<CustomForecast>, private v
     val dipWindW = 20
     val dipWindH = 20
 
+    // Исходный bitmap для иконки направления ветра (стрелка вверх).
     val windBitmap = context.bitmapFromVectorDrawable(R.drawable.ic_wind_direction_white, dipWindW, dipWindH)
 
     // Позволяет адаптеру самостоятельно устанавливать типы для отдельных элементов
@@ -102,22 +101,16 @@ class HourlyRVAdapter(private val source: MutableList<CustomForecast>, private v
 
         fun bind(f: CustomForecast) = with(f) {
 
-            // Переустановить размеры виджета с указателем ветки
-            ivWindDir.layoutParams.width = context.dpToPix(dipWindW)
-            ivWindDir.layoutParams.height = context.dpToPix(dipWindH)
-
-            // Concatenate before
+            // Concatenate before usage
             val windDir = ", ${this.wind_direction_sz}"
 
             tvWind.text = "${this.wind_speed}"
             tvWindDir.text = windDir
             tvPressure.text = "${this.toMmHg()}"
             tvHumidity.text = "${this.humidity}"
-            // Сначала восстановить картинку в исходное положения
-            ivWindDir.setImageBitmap(windBitmap)
-            // Затем повернуть. Нужна коррекция, чтобы повернуть
-            // указатель по ветру, а не против него
-            ivWindDir.rotate(f.wind_direction_degree + 180.0F)
+            // Исходный bitmap поворачиваем и устанавливаем
+            // в качестве bitmap'а элемента ImageView
+            ivWindDir.setImageBitmap(windBitmap?.rotate(f.wind_direction_degree))
         }
     }
 
