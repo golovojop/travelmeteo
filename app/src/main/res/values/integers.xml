@@ -25,7 +25,7 @@
     <integer name="passport_internal_version">70502</integer>
     <integer name="passport_sync_limit_count">10</integer>
     <integer name="passport_sync_limit_durations_hours">24</integer>
-    <item type="integer" name="passport_vk_application_id" />
+    <item type="integer" name="passport_vk_application_id"/>
     <integer name="searchlib_job_scheduler_preferred_version">24</integer>
     <integer name="searchlib_searchui_search_popup_animation_duration">150</integer>
     <integer name="searchlib_searchui_searchpopup_suggest_max_lines">3</integer>
@@ -47,4 +47,15 @@
     <integer name="timeline_animation_frame_duration_ded_moroz">200</integer>
     <integer name="timeline_animation_frame_duration_salut">200</integer>
     <integer name="widget_min_width">110</integer>
+    <!-- Wind direction angles-->
+    <integer-array name="compass_directions_angles">
+        <item>180</item>
+        <item>225</item>
+        <item>270</item>
+        <item>315</item>
+        <item>0</item>
+        <item>45</item>
+        <item>90</item>
+        <item>135</item>
+    </integer-array>
 </resources>
