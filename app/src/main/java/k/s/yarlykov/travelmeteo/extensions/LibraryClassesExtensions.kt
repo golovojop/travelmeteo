@@ -119,7 +119,7 @@ fun Context.bitmapFromVectorDrawable(drawableId: Int, dpW: Int, dpH: Int): Bitma
     }
 
     val bitmap = Bitmap.createBitmap(
-        dpToPix(dpW), dpToPix(dpH),
+        dpToPix(dpW.toFloat()), dpToPix(dpH.toFloat()),
         Bitmap.Config.ARGB_8888) ?: return null
 
     val canvas = Canvas(bitmap)
@@ -130,7 +130,7 @@ fun Context.bitmapFromVectorDrawable(drawableId: Int, dpW: Int, dpH: Int): Bitma
 }
 
 // Конвертируем dip to pixels
-fun Context.dpToPix(dp: Int): Int {
+fun Context.dpToPix(dp: Float): Int {
     val displayMetrics = this.resources.displayMetrics
     return Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT))
 }

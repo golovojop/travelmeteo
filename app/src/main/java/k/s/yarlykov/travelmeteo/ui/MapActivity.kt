@@ -9,19 +9,24 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.drawable.AnimationDrawable
 import android.location.LocationManager
+import android.os.Build
 import android.os.Bundle
 import android.support.design.widget.BottomSheetBehavior
 import android.support.design.widget.BottomSheetBehavior.STATE_COLLAPSED
 import android.support.design.widget.BottomSheetBehavior.STATE_EXPANDED
+import android.support.design.widget.CoordinatorLayout
 import android.support.v4.app.ActivityCompat
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.CardView
 import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.LinearLayoutManager
-import android.util.DisplayMetrics
 import android.util.Log
+import android.util.TypedValue
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.FrameLayout
+import android.widget.LinearLayout
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -34,9 +39,9 @@ import k.s.yarlykov.travelmeteo.R
 import k.s.yarlykov.travelmeteo.data.domain.CustomForecast
 import k.s.yarlykov.travelmeteo.data.domain.CustomForecastModel
 import k.s.yarlykov.travelmeteo.data.domain.celsius
+import k.s.yarlykov.travelmeteo.data.sources.openweather.model.current.WeatherResponseModel
 import k.s.yarlykov.travelmeteo.data.sources.unifiedprovider.ForecastConsumer
 import k.s.yarlykov.travelmeteo.data.sources.unifiedprovider.WeatherProvider
-import k.s.yarlykov.travelmeteo.data.sources.openweather.model.current.WeatherResponseModel
 import k.s.yarlykov.travelmeteo.extensions.deleteAll
 import k.s.yarlykov.travelmeteo.extensions.dpToPix
 import k.s.yarlykov.travelmeteo.extensions.initFromModel
@@ -71,6 +76,11 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback,
         mapFragment.getMapAsync(this)
     }
 
+    override fun onResume() {
+        super.onResume()
+        initBottomSheetView()
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         markers.deleteAll()
@@ -96,6 +106,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback,
             itemAnimator = DefaultItemAnimator()
         }
     }
+
     //endregion
 
     //region Options Menu
@@ -200,7 +211,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback,
         googleMap?.let {
             it.uiSettings.isZoomControlsEnabled = false
             it.uiSettings.isMyLocationButtonEnabled = false
-            it.setPadding(0, 0, 0, dpToPix(80))
+            it.setPadding(0, 0, 0, dpToPix(80.toFloat()))
 
             it.setOnMapClickListener {
                 //                logIt("Map clicked [${it.latitude} / ${it.longitude}]")
@@ -259,23 +270,66 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback,
     private fun setBottomSheetState(state: Int) {
         BottomSheetBehavior.from(bottom_sheet).state = state
     }
-    //endregion
 
+    private fun initBottomSheetView() {
+        // Расстояние между двумя CardView
+        val shadowHeight = this.dpToPix(1.6F)
+        val sliderMargin = this.dpToPix(8F)
+        val sliderHeight = this.dpToPix(4F)
+        val bottomAppBarBorder = this.dpToPix(4F)
 
+        val bottomAppBar = bottom_app_bar
+        val bottomSheet = bottom_sheet
+
+        val calculatedHeight =
+            getActionBarHeight()!! +
+                    shadowHeight +
+                    (sliderMargin * 2) +
+                    sliderHeight +
+                    bottomAppBarBorder
+
+        logIt("${getActionBarHeight()}, ${calculatedHeight}")
+        BottomSheetBehavior.from(bottom_sheet).peekHeight = calculatedHeight
+
+        // Позиционирование группы виджетов с прогнозом погоды
+        val forecastTopMargin = shadowHeight +
+                (sliderMargin * 2) +
+                sliderHeight +
+                bottomAppBarBorder
+
+        val params = llForecast.layoutParams as FrameLayout.LayoutParams
+        params.setMargins(params.leftMargin, forecastTopMargin, params.rightMargin, params.bottomMargin)
+        llForecast.layoutParams = params
+    }
+
+    // Определить высоту AppBar'а
+    // https://stackoverflow.com/questions/12301510/how-to-get-the-actionbar-height/18427819#18427819
+    fun getActionBarHeight(): Int? {
+        var actionBarHeight = getSupportActionBar()?.getHeight()
+
+        if (actionBarHeight == 0) {
+            val tv = TypedValue()
+            if (theme.resolveAttribute(android.R.attr.actionBarSize, tv, true))
+                actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data, getResources().getDisplayMetrics())
+        }
+        return actionBarHeight
+    }
+
+    // Управление видимостью виджетов
     private fun swapContent(isShowLogo: Boolean) {
-
-        if(isShowLogo) {
-            llForecast.visibility = View.GONE
+        if (isShowLogo) {
+//            llForecast.visibility = View.GONE
             cvMapLogo.visibility = View.VISIBLE
-
             ivMapLogo.setBackgroundResource(R.drawable.crazy_marker)
             (ivMapLogo.background as AnimationDrawable).start()
         } else {
-            llForecast.visibility = View.VISIBLE
+//            llForecast.visibility = View.VISIBLE
             cvMapLogo.visibility = View.GONE
             (ivMapLogo.background as AnimationDrawable).stop()
         }
     }
+    //endregion
+
 
     //region companion object
     companion object {
