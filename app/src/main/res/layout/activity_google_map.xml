@@ -14,7 +14,8 @@
     <include layout="@layout/layout_bottom_sheet_forecast"/>
 
     <!-- верхняя окантовка элемента BottomAppBar привязывается через anchor-->
-    <View android:layout_width="fill_parent"
+    <View android:id="@+id/vAppBarBorder"
+            android:layout_width="fill_parent"
           android:layout_height="4dp"
           app:layout_anchor="@+id/bottom_app_bar"
           app:layout_anchorGravity="top"

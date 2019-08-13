@@ -9,7 +9,6 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.drawable.AnimationDrawable
 import android.location.LocationManager
-import android.os.Build
 import android.os.Bundle
 import android.support.design.widget.BottomSheetBehavior
 import android.support.design.widget.BottomSheetBehavior.STATE_COLLAPSED
@@ -17,7 +16,6 @@ import android.support.design.widget.BottomSheetBehavior.STATE_EXPANDED
 import android.support.design.widget.CoordinatorLayout
 import android.support.v4.app.ActivityCompat
 import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.CardView
 import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.LinearLayoutManager
 import android.util.Log
@@ -26,7 +24,6 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.FrameLayout
-import android.widget.LinearLayout
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -272,45 +269,56 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback,
     }
 
     private fun initBottomSheetView() {
-        // Расстояние между двумя CardView
-        val shadowHeight = this.dpToPix(1.6F)
-        val sliderMargin = this.dpToPix(8F)
-        val sliderHeight = this.dpToPix(4F)
-        val bottomAppBarBorder = this.dpToPix(4F)
 
-        val bottomAppBar = bottom_app_bar
-        val bottomSheet = bottom_sheet
+        // 1. Расчет и установка высоты верхней видимой части BottomSheet
+        // в свернутом состоянии: то что будет видно над BottomAppBar.
+        // Назовем эту видимую часть sheetCap
 
+        // 1.1. Расстояние между двумя CardView (верхняя рамка)
+        val shadowHeight = (cvNested.layoutParams as FrameLayout.LayoutParams).topMargin
+        // 1.2. Высота видимой части BottomSheet
+        val sheetCapHeight = with(vSlider.layoutParams as FrameLayout.LayoutParams) {
+            2 * topMargin + height
+        }
+        // 2.1 Высота BottomAppBar
+        val bottomAppBarBorder = (vAppBarBorder.layoutParams as CoordinatorLayout.LayoutParams).height
+
+        // 2.2 Складываем вместе и получаем peekHeight для BottomSheet
         val calculatedHeight =
             getActionBarHeight()!! +
                     shadowHeight +
-                    (sliderMargin * 2) +
-                    sliderHeight +
+                    sheetCapHeight +
                     bottomAppBarBorder
 
-        logIt("${getActionBarHeight()}, ${calculatedHeight}")
+        // 2.3
         BottomSheetBehavior.from(bottom_sheet).peekHeight = calculatedHeight
 
-        // Позиционирование группы виджетов с прогнозом погоды
-        val forecastTopMargin = shadowHeight +
-                (sliderMargin * 2) +
-                sliderHeight +
-                bottomAppBarBorder
+        // 3.1 Позиционирование LinearLayout с прогнозом погоды внутри BottomSheet
+        val contentTopMargin =
+            shadowHeight +
+                    sheetCapHeight +
+                    bottomAppBarBorder
+        // 3.2
+        llForecast.layoutParams = (llForecast.layoutParams as FrameLayout.LayoutParams).apply {
+            setMargins(this.leftMargin, contentTopMargin, this.rightMargin, this.bottomMargin)
+        }
 
-        val params = llForecast.layoutParams as FrameLayout.LayoutParams
-        params.setMargins(params.leftMargin, forecastTopMargin, params.rightMargin, params.bottomMargin)
-        llForecast.layoutParams = params
+        cvMapLogo.layoutParams = (llForecast.layoutParams as FrameLayout.LayoutParams).apply {
+            setMargins(this.leftMargin, contentTopMargin, this.rightMargin, this.bottomMargin)
+        }
+
     }
+
 
     // Определить высоту AppBar'а
     // https://stackoverflow.com/questions/12301510/how-to-get-the-actionbar-height/18427819#18427819
-    fun getActionBarHeight(): Int? {
-        var actionBarHeight = getSupportActionBar()?.getHeight()
+    private fun getActionBarHeight(): Int? {
+        var actionBarHeight = supportActionBar?.height
 
         if (actionBarHeight == 0) {
             val tv = TypedValue()
             if (theme.resolveAttribute(android.R.attr.actionBarSize, tv, true))
-                actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data, getResources().getDisplayMetrics())
+                actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data, resources.displayMetrics)
         }
         return actionBarHeight
     }
