@@ -6,6 +6,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.drawable.AnimationDrawable
 import android.location.LocationManager
@@ -24,6 +25,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.FrameLayout
+import android.widget.LinearLayout
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -45,27 +47,34 @@ import k.s.yarlykov.travelmeteo.extensions.initFromModel
 import kotlinx.android.synthetic.main.activity_google_map.*
 import kotlinx.android.synthetic.main.layout_bottom_sheet_forecast.*
 
-class MapActivity : AppCompatActivity(), OnMapReadyCallback,
-    ForecastConsumer {
-    private var googleMap: GoogleMap? = null
+class MapActivity : AppCompatActivity(), OnMapReadyCallback, ForecastConsumer {
+
     lateinit var locationManager: LocationManager
     lateinit var markers: MutableList<Marker>
+    private var googleMap: GoogleMap? = null
     private var isPermissionGranted = false
+    private var lastForecastDate: CustomForecastModel? = null
+    private var isPortrait: Boolean = false
 
     //region Activity Life Cycle Methods
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_google_map)
+
+        // Определить ориентацию экрана
+        isPortrait = resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT
+        // Загрузить нужный макет
+        setContentView(if (isPortrait) R.layout.activity_google_map else R.layout.activity_google_map_lan)
+        // Добавить AppBar
         setSupportActionBar(bottom_app_bar)
 
         // Запросить разрешение на работу с гео
         requestLocationPermissions()
 
-        // Инициализация виджетов
-        initViews(savedInstanceState)
-
         // Список маркеров на карте
         markers = mutableListOf()
+
+        // Инициализация виджетов с учетом savedInstanceState
+        initViews(savedInstanceState)
 
         // Подгрузить карту асинхронно
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
@@ -75,7 +84,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback,
 
     override fun onResume() {
         super.onResume()
-        initBottomSheetView()
+        setBottomSheetSizing()
     }
 
     override fun onDestroy() {
@@ -83,14 +92,24 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback,
         markers.deleteAll()
     }
 
+    // Сохранить последний прогноз
+    override fun onSaveInstanceState(outState: Bundle?) {
+        outState?.putSerializable(FORECAST_KEY, lastForecastDate)
+        super.onSaveInstanceState(outState)
+    }
+
+    // Инициализация вьюшек
     private fun initViews(savedInstanceState: Bundle?) {
 
-        // При первом запуске, чтобы инициализировать виджеты для RecycleView
-        // Иначе криво отображается картикнка со стрелкой ветра
-        if (savedInstanceState == null && hourly.isEmpty()) {
-            hourly.add(CustomForecast())
-            hourly.add(CustomForecast())
-            swapContent(true)
+        // Очистить список с прогнозами
+        hourly.clear()
+
+        // Скрыть шторку BottomSheetВ, потому что карта ещё не загружена
+        setBottomSheetVisibility(hideContent = true)
+
+        // Извлечение данных из savedState
+        savedInstanceState?.let {
+            updateForecastData(it.getSerializable(FORECAST_KEY) as CustomForecastModel)
         }
 
         // Инициализация RecycleView
@@ -103,7 +122,6 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback,
             itemAnimator = DefaultItemAnimator()
         }
     }
-
     //endregion
 
     //region Options Menu
@@ -180,25 +198,32 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback,
     }
 
     override fun onForecastHourly(model: CustomForecastModel) {
-
-        if (model.list.isEmpty()) {
-            return
+        if (!model.list.isEmpty()) {
+            updateForecastData(model)
         }
+    }
 
-        model.list.let {
-            // Установить название места
-            tvCity.text = model.city
-            // Установить иконку
-            ivBkn.setImageResource(it[0].icon)
-            // Установить температуру
-            tvTemperature.text = it[0].celsius(it[0].temp)
-            // Обновить RecycleView
-            hourly.initFromModel(it)
-            rvHourly.adapter?.notifyDataSetChanged()
-            // Сменить видимость виджетов
-            swapContent(false)
-            // Выдвинуть шторку с виджетом
-            setBottomSheetState(STATE_EXPANDED)
+    // Обновить контент в BottomSheet новыми данными
+    private fun updateForecastData(model: CustomForecastModel?) {
+        model?.let { m ->
+            // Сохранить последний прогноз
+            lastForecastDate = m
+
+            m.list.let {
+                // Установить название места
+                tvCity.text = m.city
+                // Установить иконку
+                ivBkn.setImageResource(it[0].icon)
+                // Установить температуру
+                tvTemperature.text = it[0].celsius(it[0].temp)
+                // Обновить RecycleView
+                hourly.initFromModel(it)
+                rvHourly.adapter?.notifyDataSetChanged()
+                // Сменить видимость виджетов
+                setBottomSheetVisibility(false)
+                // Выдвинуть шторку с виджетом
+                setBottomSheetState(STATE_EXPANDED)
+            }
         }
     }
     //endregion
@@ -222,17 +247,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback,
                 WeatherProvider.requestForecastHourly(this, latLng)
                 // Пометить точку маркером на карте
                 // https://developers.google.com/maps/documentation/android-sdk/marker
-                it.addMarker(
-                    MarkerOptions()
-                        .position(latLng)
-                        .alpha(0.7f)
-                        .flat(true)
-                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
-                )
-                    .apply {
-                        markers.deleteAll()
-                        markers.add(this)
-                    }
+                addMarker(latLng)
             }
 
             @SuppressLint("MissingPermission")
@@ -243,6 +258,20 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback,
     override fun onMapReady(map: GoogleMap?) {
         googleMap = map
         initMap()
+    }
+
+    private fun addMarker(latLng: LatLng) {
+        googleMap?.addMarker(
+            MarkerOptions()
+                .position(latLng)
+                .alpha(0.7f)
+                .flat(true)
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
+        )
+            ?.apply {
+                markers.deleteAll()
+                markers.add(this)
+            }
     }
 
     // Спозиционировать карту на мои текущие координаты
@@ -263,13 +292,13 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback,
      * Materials:
      * https://medium.com/material-design-in-action/implementing-bottomappbar-behavior-fbfbc3a30568
      */
-    // Установить положение шторки
+    // Установить положение шторки: свернута или выдвинута на высоту контента
     private fun setBottomSheetState(state: Int) {
         BottomSheetBehavior.from(bottom_sheet).state = state
     }
 
-    private fun initBottomSheetView() {
-
+    // Расчитываем высоту "шапки" BottomSheet'a которая будет на BottomAppBar'ом
+    private fun setBottomSheetSizing() {
         // 1. Расчет и установка высоты верхней видимой части BottomSheet
         // в свернутом состоянии: то что будет видно над BottomAppBar.
         // Назовем эту видимую часть sheetCap
@@ -299,16 +328,40 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback,
                     sheetCapHeight +
                     bottomAppBarBorder
         // 3.2
+//        val params = llForecast.layoutParams
+//
+//        when(params) {
+//            is FrameLayout.LayoutParams -> {
+//                params.setMargins(params.leftMargin, contentTopMargin, params.rightMargin, params.bottomMargin)
+//                cvMapLogo.layoutParams = params
+//            }
+//            is LinearLayout.LayoutParams -> {
+//                params.setMargins(params.leftMargin, contentTopMargin, params.rightMargin, params.bottomMargin)
+//                cvMapLogo.layoutParams = params
+//            }
+//        }
+
         llForecast.layoutParams = (llForecast.layoutParams as FrameLayout.LayoutParams).apply {
             setMargins(this.leftMargin, contentTopMargin, this.rightMargin, this.bottomMargin)
         }
-
         cvMapLogo.layoutParams = (llForecast.layoutParams as FrameLayout.LayoutParams).apply {
             setMargins(this.leftMargin, contentTopMargin, this.rightMargin, this.bottomMargin)
         }
-
     }
 
+    // Управление видимостью виджетов внутри BottomSheet
+    private fun setBottomSheetVisibility(hideContent: Boolean) {
+        if (hideContent) {
+//            llForecast.visibility = View.GONE
+            cvMapLogo.visibility = View.VISIBLE
+            ivMapLogo.setBackgroundResource(R.drawable.crazy_marker)
+            (ivMapLogo.background as AnimationDrawable).start()
+        } else {
+//            llForecast.visibility = View.VISIBLE
+            cvMapLogo.visibility = View.GONE
+            (ivMapLogo.background as AnimationDrawable).stop()
+        }
+    }
 
     // Определить высоту AppBar'а
     // https://stackoverflow.com/questions/12301510/how-to-get-the-actionbar-height/18427819#18427819
@@ -322,20 +375,6 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback,
         }
         return actionBarHeight
     }
-
-    // Управление видимостью виджетов
-    private fun swapContent(isShowLogo: Boolean) {
-        if (isShowLogo) {
-//            llForecast.visibility = View.GONE
-            cvMapLogo.visibility = View.VISIBLE
-            ivMapLogo.setBackgroundResource(R.drawable.crazy_marker)
-            (ivMapLogo.background as AnimationDrawable).start()
-        } else {
-//            llForecast.visibility = View.VISIBLE
-            cvMapLogo.visibility = View.GONE
-            (ivMapLogo.background as AnimationDrawable).stop()
-        }
-    }
     //endregion
 
 
@@ -343,6 +382,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback,
     companion object {
         private val EXTRA_MAP = MapActivity::class.java.simpleName + "extra.MAP"
         private const val REQUEST_PERM_LOCATION = 101
+        private val FORECAST_KEY = "FORECAST_KEY"
 
         // В связи с тем, что данные будут меняться при каждом
         // запросе погоды, то используем MutableList

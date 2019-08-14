@@ -1,6 +1,7 @@
 package k.s.yarlykov.travelmeteo.data.domain
 
 import k.s.yarlykov.travelmeteo.R
+import java.io.Serializable
 
 /**
  * Единый формат для прогноза из разных источников
@@ -18,7 +19,7 @@ data class CustomForecast(
     val weather_main: String = "",
     val weather_descr: String = "",
     val icon: Int = R.drawable.ovc_flat
-)
+) : Serializable
 
 // Представить температуру в виде строки с префиксом "+" или "-" и знаком градуса после значения
 fun CustomForecast.celsius(t: Int): String {
