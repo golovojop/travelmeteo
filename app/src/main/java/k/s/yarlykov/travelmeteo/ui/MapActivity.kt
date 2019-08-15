@@ -104,12 +104,12 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, ForecastConsumer {
         // Очистить список с прогнозами
         hourly.clear()
 
-        // Скрыть шторку BottomSheetВ, потому что карта ещё не загружена
+        // Скрыть шторку BottomSheet, потому что карта ещё не загружена
         setBottomSheetVisibility(hideContent = true)
 
         // Извлечение данных из savedState
         savedInstanceState?.let {
-            updateForecastData(it.getSerializable(FORECAST_KEY) as CustomForecastModel)
+            updateForecastData(it.getSerializable(FORECAST_KEY) as? CustomForecastModel)
         }
 
         // Инициализация RecycleView
@@ -220,7 +220,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, ForecastConsumer {
                 hourly.initFromModel(it)
                 rvHourly.adapter?.notifyDataSetChanged()
                 // Сменить видимость виджетов
-                setBottomSheetVisibility(false)
+                setBottomSheetVisibility(hideContent = false)
                 // Выдвинуть шторку с виджетом
                 setBottomSheetState(STATE_EXPANDED)
             }
@@ -299,6 +299,9 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, ForecastConsumer {
 
     // Расчитываем высоту "шапки" BottomSheet'a которая будет на BottomAppBar'ом
     private fun setBottomSheetSizing() {
+
+        val bottomAppBarHeight = getActionBarHeight()!!
+
         // 1. Расчет и установка высоты верхней видимой части BottomSheet
         // в свернутом состоянии: то что будет видно над BottomAppBar.
         // Назовем эту видимую часть sheetCap
@@ -310,14 +313,14 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, ForecastConsumer {
             2 * topMargin + height
         }
         // 2.1 Высота BottomAppBar
-        val bottomAppBarBorder = (vAppBarBorder.layoutParams as CoordinatorLayout.LayoutParams).height
+        val bottomAppBarBorderHeight = (vAppBarBorder.layoutParams as CoordinatorLayout.LayoutParams).height
 
         // 2.2 Складываем вместе и получаем peekHeight для BottomSheet
         val calculatedHeight =
-            getActionBarHeight()!! +
+            bottomAppBarHeight +
                     shadowHeight +
                     sheetCapHeight +
-                    bottomAppBarBorder
+                    bottomAppBarBorderHeight
 
         // 2.3
         BottomSheetBehavior.from(bottom_sheet).peekHeight = calculatedHeight
@@ -326,7 +329,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, ForecastConsumer {
         val contentTopMargin =
             shadowHeight +
                     sheetCapHeight +
-                    bottomAppBarBorder
+                    bottomAppBarBorderHeight
         // 3.2
 //        val params = llForecast.layoutParams
 //
@@ -344,9 +347,17 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, ForecastConsumer {
         llForecast.layoutParams = (llForecast.layoutParams as FrameLayout.LayoutParams).apply {
             setMargins(this.leftMargin, contentTopMargin, this.rightMargin, this.bottomMargin)
         }
+
+        // 4.1 Позиционирование CardView с логотипом с таким же верхни отступом, что и LinearLayout с прогнозом погоды
         cvMapLogo.layoutParams = (llForecast.layoutParams as FrameLayout.LayoutParams).apply {
             setMargins(this.leftMargin, contentTopMargin, this.rightMargin, this.bottomMargin)
         }
+
+        rvHourly.layoutParams = (rvHourly.layoutParams as LinearLayout.LayoutParams).apply {
+            setMargins(this.leftMargin, this.topMargin, this.rightMargin, bottomAppBarHeight/2)
+        }
+
+
     }
 
     // Управление видимостью виджетов внутри BottomSheet
