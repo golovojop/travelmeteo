@@ -41,6 +41,15 @@
                         android:layout_height="4dp"
                         android:layout_gravity="top|center_horizontal"
                         android:background="#4c4c4c"/>
+                <ImageView
+                        android:id="@+id/ivBg"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="20dp"
+                        android:layout_gravity="bottom"
+                        android:scaleType="center"
+                        app:srcCompat="@drawable/n_1"
+                        tools:src="@drawable/n_1"/>
             </FrameLayout>
 
             <!-- Logo CardView -->
@@ -59,7 +68,6 @@
                         android:layout_width="128dp"
                         android:layout_height="128dp"
                         android:layout_gravity="center_vertical|center_horizontal"
-
                         tools:src="@drawable/map_marker"/>
             </android.support.v7.widget.CardView>
 
@@ -113,9 +121,7 @@
                         android:id="@+id/rvHourly"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:layout_marginBottom="100dp"
-                        app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
+                        android:layout_marginTop="4dp"/>
             </LinearLayout>
         </android.support.v7.widget.CardView>
     </android.support.v7.widget.CardView>
