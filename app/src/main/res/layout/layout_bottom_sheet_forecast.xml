@@ -30,7 +30,7 @@
                 card_view:cardCornerRadius="@dimen/card_bg_radius"
                 card_view:cardBackgroundColor="@android:color/white">
 
-            <!-- Slider indicator -->
+            <!-- Slider indicator and nature pic background-->
             <FrameLayout android:layout_width="match_parent"
                          android:layout_height="match_parent"
                          android:background="@android:color/white">
@@ -42,14 +42,14 @@
                         android:layout_gravity="top|center_horizontal"
                         android:background="#4c4c4c"/>
                 <ImageView
-                        android:id="@+id/ivBg"
+                        android:id="@+id/ivNatureBg"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="20dp"
                         android:layout_gravity="bottom"
                         android:scaleType="center"
-                        app:srcCompat="@drawable/n_1"
-                        tools:src="@drawable/n_1"/>
+                        app:srcCompat="@drawable/summer_1"
+                        tools:src="@drawable/summer_1"/>
             </FrameLayout>
 
             <!-- Logo CardView -->

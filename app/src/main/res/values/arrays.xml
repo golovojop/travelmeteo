@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <integer-array name="seasons">
+        <item>@array/summerNature</item>
+        <item>@array/winterNature</item>
+    </integer-array>
+
+    <integer-array name="summerNature">
+        <item>@drawable/summer_1</item>
+        <item>@drawable/summer_2</item>
+        <item>@drawable/summer_3</item>
+        <item>@drawable/summer_4</item>
+        <item>@drawable/summer_5</item>
+    </integer-array>
+
+    <integer-array name="winterNature">
+        <item>@drawable/summer_1</item>
+        <item>@drawable/summer_2</item>
+        <item>@drawable/summer_3</item>
+        <item>@drawable/summer_4</item>
+        <item>@drawable/summer_5</item>
+    </integer-array>
+</resources>
