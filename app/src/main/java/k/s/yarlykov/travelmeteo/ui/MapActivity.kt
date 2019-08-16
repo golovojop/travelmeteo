@@ -9,6 +9,7 @@ import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.drawable.AnimationDrawable
+import android.graphics.drawable.Drawable
 import android.location.LocationManager
 import android.os.Bundle
 import android.support.design.widget.BottomSheetBehavior
@@ -16,6 +17,7 @@ import android.support.design.widget.BottomSheetBehavior.STATE_COLLAPSED
 import android.support.design.widget.BottomSheetBehavior.STATE_EXPANDED
 import android.support.design.widget.CoordinatorLayout
 import android.support.v4.app.ActivityCompat
+import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.LinearLayoutManager
@@ -25,7 +27,6 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.FrameLayout
-import android.widget.LinearLayout
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -43,11 +44,14 @@ import k.s.yarlykov.travelmeteo.data.sources.unifiedprovider.ForecastConsumer
 import k.s.yarlykov.travelmeteo.data.sources.unifiedprovider.WeatherProvider
 import k.s.yarlykov.travelmeteo.extensions.deleteAll
 import k.s.yarlykov.travelmeteo.extensions.dpToPix
+import k.s.yarlykov.travelmeteo.extensions.screenRatioHeight
 import k.s.yarlykov.travelmeteo.extensions.initFromModel
+import k.s.yarlykov.travelmeteo.presenters.IMapView
 import kotlinx.android.synthetic.main.activity_google_map.*
 import kotlinx.android.synthetic.main.layout_bottom_sheet_forecast.*
+import kotlin.random.Random
 
-class MapActivity : AppCompatActivity(), OnMapReadyCallback, ForecastConsumer {
+class MapActivity : AppCompatActivity(), OnMapReadyCallback, ForecastConsumer, IMapView {
 
     lateinit var locationManager: LocationManager
     lateinit var markers: MutableList<Marker>
@@ -96,31 +100,6 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, ForecastConsumer {
     override fun onSaveInstanceState(outState: Bundle?) {
         outState?.putSerializable(FORECAST_KEY, lastForecastDate)
         super.onSaveInstanceState(outState)
-    }
-
-    // Инициализация вьюшек
-    private fun initViews(savedInstanceState: Bundle?) {
-
-        // Очистить список с прогнозами
-        hourly.clear()
-
-        // Скрыть шторку BottomSheet, потому что карта ещё не загружена
-        setBottomSheetVisibility(hideContent = true)
-
-        // Извлечение данных из savedState
-        savedInstanceState?.let {
-            updateForecastData(it.getSerializable(FORECAST_KEY) as? CustomForecastModel)
-        }
-
-        // Инициализация RecycleView
-        rvHourly.apply {
-            // Размер RV не зависит от изменения размеров его элементов
-            setHasFixedSize(true)
-            // Горизонтальная прокрутка
-            layoutManager = LinearLayoutManager(this@MapActivity, LinearLayoutManager.HORIZONTAL, false)
-            adapter = HourlyRVAdapter(hourly, applicationContext)
-            itemAnimator = DefaultItemAnimator()
-        }
     }
     //endregion
 
@@ -223,6 +202,9 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, ForecastConsumer {
                 setBottomSheetVisibility(hideContent = false)
                 // Выдвинуть шторку с виджетом
                 setBottomSheetState(STATE_EXPANDED)
+                // Установить картинку фона под прогноз
+                val r = random(seasonImages.size)
+                ivNatureBg.setImageDrawable(seasonImages[r])
             }
         }
     }
@@ -287,18 +269,52 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, ForecastConsumer {
     }
     //endregion
 
-    //region BottomSheet Management
+    //region IMapView implementation. BottomSheet Management
+    // Инициализация вьюшек
+    override fun initViews(savedInstanceState: Bundle?) {
+
+        // Очистить список с прогнозами
+        hourly.clear()
+
+        // Скрыть шторку BottomSheet, потому что карта ещё не загружена
+        setBottomSheetVisibility(hideContent = true)
+
+        // Загрузить картинки природы для фона
+        resources.obtainTypedArray(R.array.summerNature).let { typedArray ->
+            seasonImages.clear()
+            for (i in 0 until typedArray.length()) {
+                seasonImages.add(ContextCompat.getDrawable(this, typedArray.getResourceId(i, R.drawable.home_logo)))
+            }
+            typedArray.recycle()
+        }
+
+        // Извлечение данных из savedState
+        savedInstanceState?.let {
+            updateForecastData(it.getSerializable(FORECAST_KEY) as? CustomForecastModel)
+        }
+
+        // Инициализация RecycleView
+        rvHourly.apply {
+            // Размер RV не зависит от изменения размеров его элементов
+            setHasFixedSize(true)
+            // Горизонтальная прокрутка
+            layoutManager = LinearLayoutManager(this@MapActivity, LinearLayoutManager.HORIZONTAL, false)
+            adapter = HourlyRVAdapter(hourly, applicationContext)
+            itemAnimator = DefaultItemAnimator()
+        }
+    }
+
     /**
      * Materials:
      * https://medium.com/material-design-in-action/implementing-bottomappbar-behavior-fbfbc3a30568
      */
     // Установить положение шторки: свернута или выдвинута на высоту контента
-    private fun setBottomSheetState(state: Int) {
+    override fun setBottomSheetState(state: Int) {
         BottomSheetBehavior.from(bottom_sheet).state = state
     }
 
     // Расчитываем высоту "шапки" BottomSheet'a которая будет на BottomAppBar'ом
-    private fun setBottomSheetSizing() {
+    override fun setBottomSheetSizing() {
 
         val bottomAppBarHeight = getActionBarHeight()!!
 
@@ -325,43 +341,35 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, ForecastConsumer {
         // 2.3
         BottomSheetBehavior.from(bottom_sheet).peekHeight = calculatedHeight
 
-        // 3.1 Позиционирование LinearLayout с прогнозом погоды внутри BottomSheet
+        // 3 Позиционирование LinearLayout с прогнозом погоды внутри BottomSheet
+        // 3.1 Расчет отступа контента от верней рамки BottomSheet
         val contentTopMargin =
             shadowHeight +
                     sheetCapHeight +
                     bottomAppBarBorderHeight
-        // 3.2
-//        val params = llForecast.layoutParams
-//
-//        when(params) {
-//            is FrameLayout.LayoutParams -> {
-//                params.setMargins(params.leftMargin, contentTopMargin, params.rightMargin, params.bottomMargin)
-//                cvMapLogo.layoutParams = params
-//            }
-//            is LinearLayout.LayoutParams -> {
-//                params.setMargins(params.leftMargin, contentTopMargin, params.rightMargin, params.bottomMargin)
-//                cvMapLogo.layoutParams = params
-//            }
-//        }
-
+        // 3.2 Установка вычисленного значения через LayoutParams
         llForecast.layoutParams = (llForecast.layoutParams as FrameLayout.LayoutParams).apply {
             setMargins(this.leftMargin, contentTopMargin, this.rightMargin, this.bottomMargin)
         }
 
-        // 4.1 Позиционирование CardView с логотипом с таким же верхни отступом, что и LinearLayout с прогнозом погоды
+        // 4.1 Позиционирование CardView с логотипом с таким же верхним отступом, что и LinearLayout с прогнозом погоды
         cvMapLogo.layoutParams = (llForecast.layoutParams as FrameLayout.LayoutParams).apply {
             setMargins(this.leftMargin, contentTopMargin, this.rightMargin, this.bottomMargin)
         }
 
-        rvHourly.layoutParams = (rvHourly.layoutParams as LinearLayout.LayoutParams).apply {
-            setMargins(this.leftMargin, this.topMargin, this.rightMargin, bottomAppBarHeight/2)
+        // 5.1 Верхний и нижний отступы для фона с картинкой природы. Фон находится в
+        ivNatureBg.layoutParams = (ivNatureBg.layoutParams as FrameLayout.LayoutParams).apply {
+            setMargins(this.leftMargin, contentTopMargin, this.rightMargin, bottomAppBarBorderHeight)
         }
 
-
+        // 5.2 Высота картинки фона. Так как эта картинка находится в FrameLayout слайдера,
+        // то выставив её высоту достаточно большой мы определяем самый высокий элемент внутри CardView
+        // и по его высоте будет регулироться высота остальных sibling элементов этой карточки.
+        ivNatureBg.layoutParams.height = screenRatioHeight(0.6F)
     }
 
     // Управление видимостью виджетов внутри BottomSheet
-    private fun setBottomSheetVisibility(hideContent: Boolean) {
+    override fun setBottomSheetVisibility(hideContent: Boolean) {
         if (hideContent) {
 //            llForecast.visibility = View.GONE
             cvMapLogo.visibility = View.VISIBLE
@@ -399,6 +407,9 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, ForecastConsumer {
         // запросе погоды, то используем MutableList
         private var hourly: MutableList<CustomForecast> = mutableListOf()
 
+        // Картинки природы для фона
+        private val seasonImages: MutableList<Drawable?> = mutableListOf()
+
         fun start(context: Context?, extraData: String) {
             val intent = Intent(context, MapActivity::class.java).apply {
                 putExtra(EXTRA_MAP, extraData)
@@ -412,6 +423,8 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, ForecastConsumer {
                 Log.d(TAG, it)
             }
         }
+
+        fun random(until: Int) = Random.nextInt(0, until)
     }
     //endregion
 }

@@ -135,6 +135,9 @@ fun Context.dpToPix(dp: Float): Int {
     return Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT))
 }
 
+fun Context.screenRatioHeight(ratio : Float): Int = (this.resources.displayMetrics.heightPixels.toFloat() * Math.abs(ratio)).toInt()
+fun Context.screenRatioWidth(ratio : Float): Int = (this.resources.displayMetrics.widthPixels.toFloat() * Math.abs(ratio)).toInt()
+
 /**
  * Bitmap
  *
