@@ -7,18 +7,18 @@
     </integer-array>
 
     <integer-array name="summerNature">
-        <item>@drawable/summer_1</item>
-        <item>@drawable/summer_2</item>
-        <item>@drawable/summer_3</item>
-        <item>@drawable/summer_4</item>
-        <item>@drawable/summer_5</item>
+        <item>@drawable/summer_01</item>
+        <item>@drawable/summer_02</item>
+        <item>@drawable/summer_03</item>
+        <item>@drawable/summer_04</item>
+        <item>@drawable/summer_05</item>
     </integer-array>
 
     <integer-array name="winterNature">
-        <item>@drawable/summer_1</item>
-        <item>@drawable/summer_2</item>
-        <item>@drawable/summer_3</item>
-        <item>@drawable/summer_4</item>
-        <item>@drawable/summer_5</item>
+        <item>@drawable/summer_01</item>
+        <item>@drawable/summer_02</item>
+        <item>@drawable/summer_03</item>
+        <item>@drawable/summer_04</item>
+        <item>@drawable/summer_05</item>
     </integer-array>
 </resources>

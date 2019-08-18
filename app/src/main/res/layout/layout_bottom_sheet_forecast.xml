@@ -46,10 +46,11 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="20dp"
+                        android:layout_marginBottom="?attr/actionBarSize"
                         android:layout_gravity="bottom"
-                        android:scaleType="center"
-                        app:srcCompat="@drawable/summer_1"
-                        tools:src="@drawable/summer_1"/>
+                        android:scaleType="fitXY"
+                        app:srcCompat="@drawable/summer_01"
+                        tools:src="@drawable/summer_01"/>
             </FrameLayout>
 
             <!-- Logo CardView -->

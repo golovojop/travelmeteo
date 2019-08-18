@@ -98,8 +98,8 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, ForecastConsumer, I
 
     // Сохранить последний прогноз
     override fun onSaveInstanceState(outState: Bundle?) {
-        outState?.putSerializable(FORECAST_KEY, lastForecastDate)
         super.onSaveInstanceState(outState)
+        outState?.putParcelable(FORECAST_KEY, lastForecastDate)
     }
     //endregion
 
@@ -290,7 +290,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, ForecastConsumer, I
 
         // Извлечение данных из savedState
         savedInstanceState?.let {
-            updateForecastData(it.getSerializable(FORECAST_KEY) as? CustomForecastModel)
+            updateForecastData(it.getParcelable(FORECAST_KEY) as? CustomForecastModel)
         }
 
         // Инициализация RecycleView
@@ -357,26 +357,19 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, ForecastConsumer, I
             setMargins(this.leftMargin, contentTopMargin, this.rightMargin, this.bottomMargin)
         }
 
-        // 5.1 Верхний и нижний отступы для фона с картинкой природы. Фон находится в
-        ivNatureBg.layoutParams = (ivNatureBg.layoutParams as FrameLayout.LayoutParams).apply {
-            setMargins(this.leftMargin, contentTopMargin, this.rightMargin, bottomAppBarBorderHeight)
-        }
-
-        // 5.2 Высота картинки фона. Так как эта картинка находится в FrameLayout слайдера,
+        // 5.1 Высота картинки фона. Так как эта картинка находится в FrameLayout слайдера,
         // то выставив её высоту достаточно большой мы определяем самый высокий элемент внутри CardView
         // и по его высоте будет регулироться высота остальных sibling элементов этой карточки.
-        ivNatureBg.layoutParams.height = screenRatioHeight(0.6F)
+        ivNatureBg.layoutParams.height = screenRatioHeight(0.6f)
     }
 
     // Управление видимостью виджетов внутри BottomSheet
     override fun setBottomSheetVisibility(hideContent: Boolean) {
         if (hideContent) {
-//            llForecast.visibility = View.GONE
             cvMapLogo.visibility = View.VISIBLE
             ivMapLogo.setBackgroundResource(R.drawable.crazy_marker)
             (ivMapLogo.background as AnimationDrawable).start()
         } else {
-//            llForecast.visibility = View.VISIBLE
             cvMapLogo.visibility = View.GONE
             (ivMapLogo.background as AnimationDrawable).stop()
         }
