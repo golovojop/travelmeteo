@@ -5,7 +5,7 @@ import android.util.Log
 import k.s.yarlykov.travelmeteo.data.sources.unifiedprovider.ForecastConsumer
 import k.s.yarlykov.travelmeteo.data.sources.unifiedprovider.ForecastProducer
 import k.s.yarlykov.travelmeteo.data.sources.openweather.model.current.WeatherResponseModel
-import k.s.yarlykov.travelmeteo.data.sources.openweather.model.hourly.HourlyWeatherResponseModel
+import k.s.yarlykov.travelmeteo.data.sources.openweather.model.hourly.OpenWeatherHourlyResponseModel
 import k.s.yarlykov.travelmeteo.data.sources.openweather.model.hourly.mapModel
 import okhttp3.OkHttpClient
 import okhttp3.ResponseBody
@@ -16,7 +16,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
-object OpenWeatherProvider : ForecastProducer {
+object OpenWeatherMapProvider : ForecastProducer {
 
     private const val apiKey = "b7838252ab3cde579f376d9417c878d1"
     private const val apiUnits = "metric"
@@ -44,22 +44,22 @@ object OpenWeatherProvider : ForecastProducer {
     }
 
     override fun requestForecastHourly(consumer: ForecastConsumer?, lat: String, lon: String) {
-        api.loadGeoWeatherHourly(lat, lon, apiUnits, apiKey).enqueue(object : Callback<HourlyWeatherResponseModel> {
+        api.loadGeoWeatherHourly(lat, lon, apiUnits, apiKey).enqueue(object : Callback<OpenWeatherHourlyResponseModel> {
 
             override fun onResponse(
-                call: Call<HourlyWeatherResponseModel>,
-                response: Response<HourlyWeatherResponseModel>
+                call: Call<OpenWeatherHourlyResponseModel>,
+                hourlyResponse: Response<OpenWeatherHourlyResponseModel>
             ) {
 
                 // Code 404: body() == null; isSuccessful() == false
-                if (response.isSuccessful) {
-                    response.body()?.let {
-                        consumer?.onForecastHourly(it.mapModel(consumer.onContextRequest()))
+                if (hourlyResponse.isSuccessful) {
+                    hourlyResponse.body()?.let {
+                        consumer?.onForecastHourly(it.mapModel(consumer.onContextRequest()!!))
                     }
                 }
             }
 
-            override fun onFailure(call: Call<HourlyWeatherResponseModel>, t: Throwable) {
+            override fun onFailure(call: Call<OpenWeatherHourlyResponseModel>, t: Throwable) {
                 Log.d("QWM_ERROR", t.message)
             }
         })

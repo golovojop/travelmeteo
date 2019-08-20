@@ -10,7 +10,7 @@ import k.s.yarlykov.travelmeteo.data.domain.CustomForecastModel
 import k.s.yarlykov.travelmeteo.extensions.formatHHmm
 import java.util.*
 
-class HourlyWeatherResponseModel {
+class OpenWeatherHourlyResponseModel {
 
     @SerializedName("cod")
     @Expose
@@ -29,7 +29,7 @@ class HourlyWeatherResponseModel {
     lateinit var city: City
 }
 
-fun HourlyWeatherResponseModel.mapModel(context: Context): CustomForecastModel {
+fun OpenWeatherHourlyResponseModel.mapModel(context: Context): CustomForecastModel {
 
     // Загрузить массив с именами сторон света
     val directionsNames = context.resources.getStringArray(R.array.compass_directions).asList()

@@ -8,5 +8,5 @@ import k.s.yarlykov.travelmeteo.data.sources.openweather.model.current.WeatherRe
 interface ForecastConsumer {
     fun onForecastCurrent(model: WeatherResponseModel, icon: Bitmap)
     fun onForecastHourly(model: CustomForecastModel)
-    fun onContextRequest(): Context
+    fun onContextRequest(): Context?
 }

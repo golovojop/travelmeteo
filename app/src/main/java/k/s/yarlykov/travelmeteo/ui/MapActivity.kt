@@ -7,7 +7,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
-import android.graphics.Bitmap
 import android.graphics.drawable.AnimationDrawable
 import android.graphics.drawable.Drawable
 import android.location.LocationManager
@@ -39,31 +38,40 @@ import k.s.yarlykov.travelmeteo.R
 import k.s.yarlykov.travelmeteo.data.domain.CustomForecast
 import k.s.yarlykov.travelmeteo.data.domain.CustomForecastModel
 import k.s.yarlykov.travelmeteo.data.domain.celsius
-import k.s.yarlykov.travelmeteo.data.sources.openweather.model.current.WeatherResponseModel
-import k.s.yarlykov.travelmeteo.data.sources.unifiedprovider.ForecastConsumer
-import k.s.yarlykov.travelmeteo.data.sources.unifiedprovider.WeatherProvider
-import k.s.yarlykov.travelmeteo.data.sources.unifiedprovider.weatherProvider
+import k.s.yarlykov.travelmeteo.di.AppExtensionProvider
 import k.s.yarlykov.travelmeteo.extensions.deleteAll
 import k.s.yarlykov.travelmeteo.extensions.dpToPix
-import k.s.yarlykov.travelmeteo.extensions.screenRatioHeight
 import k.s.yarlykov.travelmeteo.extensions.initFromModel
+import k.s.yarlykov.travelmeteo.extensions.screenRatioHeight
+import k.s.yarlykov.travelmeteo.presenters.IMapPresenter
 import k.s.yarlykov.travelmeteo.presenters.IMapView
+import k.s.yarlykov.travelmeteo.presenters.MapPresenter
 import kotlinx.android.synthetic.main.activity_google_map.*
 import kotlinx.android.synthetic.main.layout_bottom_sheet_forecast.*
 import kotlin.random.Random
 
-class MapActivity : AppCompatActivity(), OnMapReadyCallback, ForecastConsumer, IMapView {
+class MapActivity : AppCompatActivity(), OnMapReadyCallback, /*ForecastConsumer,*/ IMapView {
 
     lateinit var locationManager: LocationManager
     lateinit var markers: MutableList<Marker>
+    lateinit var presenter: IMapPresenter
+    private var lastForecastDate: CustomForecastModel? = null
     private var googleMap: GoogleMap? = null
     private var isPermissionGranted = false
-    private var lastForecastDate: CustomForecastModel? = null
     private var isPortrait: Boolean = false
 
     //region Activity Life Cycle Methods
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Запросить разрешение на работу с гео
+        requestLocationPermissions()
+        if (!isPermissionGranted) {
+            /**
+             * TODO: Нужно загрузить какой-нибудь макет с предупреждением
+             */
+            return
+        }
 
         // Определить ориентацию экрана
         isPortrait = resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT
@@ -72,14 +80,16 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, ForecastConsumer, I
         // Добавить AppBar
         setSupportActionBar(bottom_app_bar)
 
-        // Запросить разрешение на работу с гео
-        requestLocationPermissions()
-
         // Список маркеров на карте
         markers = mutableListOf()
 
         // Инициализация виджетов с учетом savedInstanceState
         initViews(savedInstanceState)
+
+        // Инициализировать presenter'а
+        val appExtension = (this.application as AppExtensionProvider).provideAppExtension()
+        presenter = MapPresenter(this, appExtension.getWeatherProvider())
+        presenter.onCreate()
 
         // Подгрузить карту асинхронно
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
@@ -90,17 +100,51 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, ForecastConsumer, I
     override fun onResume() {
         super.onResume()
         setBottomSheetSizing()
+        presenter.onResume()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        markers.deleteAll()
+        presenter.onDestroy()
     }
 
     // Сохранить последний прогноз
     override fun onSaveInstanceState(outState: Bundle?) {
         super.onSaveInstanceState(outState)
         outState?.putParcelable(FORECAST_KEY, lastForecastDate)
+    }
+
+    // Инициализация вьюшек
+    private fun initViews(savedInstanceState: Bundle?) {
+        // Очистить список с прогнозами
+        hourly.clear()
+
+        // Скрыть шторку BottomSheet, потому что карта ещё не загружена
+        setBottomSheetVisibility(hideContent = true)
+
+        // Загрузить картинки природы для фона
+        resources.obtainTypedArray(R.array.summerNature).let { typedArray ->
+            seasonImages.clear()
+            for (i in 0 until typedArray.length()) {
+                seasonImages.add(ContextCompat.getDrawable(this, typedArray.getResourceId(i, R.drawable.home_logo)))
+            }
+            typedArray.recycle()
+        }
+
+        // Извлечение данных из savedState
+        savedInstanceState?.let {
+            updateForecastData(it.getParcelable(FORECAST_KEY) as? CustomForecastModel)
+        }
+
+        // Инициализация RecycleView
+        rvHourly.apply {
+            // Размер RV не зависит от изменения размеров его элементов
+            setHasFixedSize(true)
+            // Горизонтальная прокрутка
+            layoutManager = LinearLayoutManager(this@MapActivity, LinearLayoutManager.HORIZONTAL, false)
+            adapter = HourlyRVAdapter(hourly, applicationContext)
+            itemAnimator = DefaultItemAnimator()
+        }
     }
     //endregion
 
@@ -111,9 +155,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, ForecastConsumer, I
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        val id = item?.itemId ?: 0
-
-        when (id) {
+        when (item?.itemId ?: 0) {
             R.id.menuMapModeNormal -> googleMap?.mapType = GoogleMap.MAP_TYPE_NORMAL
             R.id.menuMapModeTerrain -> googleMap?.mapType = GoogleMap.MAP_TYPE_TERRAIN
             R.id.menuMapModeSatellite -> googleMap?.mapType = GoogleMap.MAP_TYPE_SATELLITE
@@ -170,21 +212,8 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, ForecastConsumer, I
     //endregion
 
     //region ForecastConsumer
-    override fun onContextRequest(): Context {
-        return applicationContext
-    }
-
-    override fun onForecastCurrent(model: WeatherResponseModel, icon: Bitmap) {
-    }
-
-    override fun onForecastHourly(model: CustomForecastModel) {
-        if (!model.list.isEmpty()) {
-            updateForecastData(model)
-        }
-    }
-
     // Обновить контент в BottomSheet новыми данными
-    private fun updateForecastData(model: CustomForecastModel?) {
+    override fun updateForecastData(model: CustomForecastModel?) {
         model?.let { m ->
             // Сохранить последний прогноз
             lastForecastDate = m
@@ -218,16 +247,17 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, ForecastConsumer, I
             it.uiSettings.isMyLocationButtonEnabled = false
             it.setPadding(0, 0, 0, dpToPix(80.toFloat()))
 
-            it.setOnMapClickListener {
-                //                logIt("Map clicked [${it.latitude} / ${it.longitude}]")
+            it.setOnMapClickListener { latLng ->
                 setBottomSheetState(STATE_COLLAPSED)
                 markers.deleteAll()
+                presenter.onMapClick(latLng)
             }
 
             // Долгое нажатие на карту - запросить прогноз
             it.setOnMapLongClickListener { latLng ->
                 // Запрос почасового прогноза для данной точки
-                weatherProvider.requestForecastHourly(this, latLng)
+                presenter.onMapClick(latLng)
+//                weatherProvider.requestForecastHourly(this, latLng)
                 // Пометить точку маркером на карте
                 // https://developers.google.com/maps/documentation/android-sdk/marker
                 addMarker(latLng)
@@ -258,7 +288,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, ForecastConsumer, I
     }
 
     // Спозиционировать карту на мои текущие координаты
-    private fun navigateToMyLocation() {
+    fun navigateToMyLocation() {
         @SuppressLint("MissingPermission")
         val loc = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER)
 
@@ -271,39 +301,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, ForecastConsumer, I
     //endregion
 
     //region IMapView implementation. BottomSheet Management
-    // Инициализация вьюшек
-    override fun initViews(savedInstanceState: Bundle?) {
 
-        // Очистить список с прогнозами
-        hourly.clear()
-
-        // Скрыть шторку BottomSheet, потому что карта ещё не загружена
-        setBottomSheetVisibility(hideContent = true)
-
-        // Загрузить картинки природы для фона
-        resources.obtainTypedArray(R.array.summerNature).let { typedArray ->
-            seasonImages.clear()
-            for (i in 0 until typedArray.length()) {
-                seasonImages.add(ContextCompat.getDrawable(this, typedArray.getResourceId(i, R.drawable.home_logo)))
-            }
-            typedArray.recycle()
-        }
-
-        // Извлечение данных из savedState
-        savedInstanceState?.let {
-            updateForecastData(it.getParcelable(FORECAST_KEY) as? CustomForecastModel)
-        }
-
-        // Инициализация RecycleView
-        rvHourly.apply {
-            // Размер RV не зависит от изменения размеров его элементов
-            setHasFixedSize(true)
-            // Горизонтальная прокрутка
-            layoutManager = LinearLayoutManager(this@MapActivity, LinearLayoutManager.HORIZONTAL, false)
-            adapter = HourlyRVAdapter(hourly, applicationContext)
-            itemAnimator = DefaultItemAnimator()
-        }
-    }
 
     /**
      * Materials:

@@ -1,7 +1,7 @@
 package k.s.yarlykov.travelmeteo.data.sources.openweather.api
 
 import k.s.yarlykov.travelmeteo.data.sources.openweather.model.current.WeatherResponseModel
-import k.s.yarlykov.travelmeteo.data.sources.openweather.model.hourly.HourlyWeatherResponseModel
+import k.s.yarlykov.travelmeteo.data.sources.openweather.model.hourly.OpenWeatherHourlyResponseModel
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.http.GET
@@ -33,7 +33,7 @@ interface OpenWeather {
         @Query("lat") lat: String,
         @Query("lon") lon: String,
         @Query("units") units: String,
-        @Query("appid") keyApi: String): Call<HourlyWeatherResponseModel>
+        @Query("appid") keyApi: String): Call<OpenWeatherHourlyResponseModel>
 
     @GET
     fun fetchIcon(@Url url: String): Call<ResponseBody>

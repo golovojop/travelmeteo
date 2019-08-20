@@ -1,10 +1,10 @@
 package k.s.yarlykov.travelmeteo.presenters
 
-import android.os.Bundle
+import k.s.yarlykov.travelmeteo.data.domain.CustomForecastModel
 
 interface IMapView {
-    fun initViews(savedInstanceState: Bundle?)
     fun setBottomSheetState(state: Int)
     fun setBottomSheetSizing()
     fun setBottomSheetVisibility(hideContent: Boolean)
+    fun updateForecastData(model: CustomForecastModel?)
 }
