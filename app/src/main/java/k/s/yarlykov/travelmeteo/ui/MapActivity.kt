@@ -42,6 +42,7 @@ import k.s.yarlykov.travelmeteo.data.domain.celsius
 import k.s.yarlykov.travelmeteo.data.sources.openweather.model.current.WeatherResponseModel
 import k.s.yarlykov.travelmeteo.data.sources.unifiedprovider.ForecastConsumer
 import k.s.yarlykov.travelmeteo.data.sources.unifiedprovider.WeatherProvider
+import k.s.yarlykov.travelmeteo.data.sources.unifiedprovider.weatherProvider
 import k.s.yarlykov.travelmeteo.extensions.deleteAll
 import k.s.yarlykov.travelmeteo.extensions.dpToPix
 import k.s.yarlykov.travelmeteo.extensions.screenRatioHeight
@@ -226,7 +227,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, ForecastConsumer, I
             // Долгое нажатие на карту - запросить прогноз
             it.setOnMapLongClickListener { latLng ->
                 // Запрос почасового прогноза для данной точки
-                WeatherProvider.requestForecastHourly(this, latLng)
+                weatherProvider.requestForecastHourly(this, latLng)
                 // Пометить точку маркером на карте
                 // https://developers.google.com/maps/documentation/android-sdk/marker
                 addMarker(latLng)

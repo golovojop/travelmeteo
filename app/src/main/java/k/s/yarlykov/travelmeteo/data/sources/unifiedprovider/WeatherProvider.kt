@@ -5,16 +5,21 @@ import k.s.yarlykov.travelmeteo.data.sources.openweather.api.OpenWeatherProvider
 import k.s.yarlykov.travelmeteo.extensions.lat
 import k.s.yarlykov.travelmeteo.extensions.lon
 
-object WeatherProvider {
+interface WeatherProvider {
+    fun requestForecastHourly(consumer: ForecastConsumer?, coord: LatLng)
+    fun requestForecastCurrent(consumer: ForecastConsumer?, coord: LatLng)
+}
+
+val weatherProvider = object : WeatherProvider {
 
     // Текущий источник данных: openweathermap.org
-    val provider: ForecastProvider = OpenWeatherProvider
+    val modelSource: ForecastProducer = OpenWeatherProvider
 
-    fun requestForecastHourly(consumer: ForecastConsumer?, coord: LatLng) {
-        provider.requestForecastHourly(consumer, coord.lat(), coord.lon())
+    override fun requestForecastHourly(consumer: ForecastConsumer?, coord: LatLng) {
+        modelSource.requestForecastHourly(consumer, coord.lat(), coord.lon())
     }
 
-    fun requestForecastCurrent(consumer: ForecastConsumer?, coord: LatLng) {
-        provider.requestForecastCurrent(consumer, coord.lat(), coord.lon())
+    override fun requestForecastCurrent(consumer: ForecastConsumer?, coord: LatLng) {
+        modelSource.requestForecastCurrent(consumer, coord.lat(), coord.lon())
     }
 }

@@ -3,7 +3,7 @@ package k.s.yarlykov.travelmeteo.data.sources.openweather.api
 import android.graphics.BitmapFactory
 import android.util.Log
 import k.s.yarlykov.travelmeteo.data.sources.unifiedprovider.ForecastConsumer
-import k.s.yarlykov.travelmeteo.data.sources.unifiedprovider.ForecastProvider
+import k.s.yarlykov.travelmeteo.data.sources.unifiedprovider.ForecastProducer
 import k.s.yarlykov.travelmeteo.data.sources.openweather.model.current.WeatherResponseModel
 import k.s.yarlykov.travelmeteo.data.sources.openweather.model.hourly.HourlyWeatherResponseModel
 import k.s.yarlykov.travelmeteo.data.sources.openweather.model.hourly.mapModel
@@ -16,30 +16,13 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
-object OpenWeatherProvider : ForecastProvider {
+object OpenWeatherProvider : ForecastProducer {
 
     private const val apiKey = "b7838252ab3cde579f376d9417c878d1"
     private const val apiUnits = "metric"
     private const val baseUrl = "https://api.openweathermap.org/"
 
     private val api: OpenWeather = createAdapter()
-
-    private fun createAdapter(): OpenWeather {
-        // Установить таймауты
-        val okHttpClient = OkHttpClient().newBuilder()
-            .connectTimeout(5, TimeUnit.SECONDS)
-            .readTimeout(10, TimeUnit.SECONDS)
-            .writeTimeout(10, TimeUnit.SECONDS)
-            .build()
-
-        val adapter = Retrofit.Builder()
-            .baseUrl(baseUrl)
-            .client(okHttpClient)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-
-        return adapter.create(OpenWeather::class.java)
-    }
 
     override fun requestForecastCurrent(consumer: ForecastConsumer?, lat: String, lon: String) {
         api.loadGeoWeatherCurrent(lat, lon, apiUnits, apiKey).enqueue(object : Callback<WeatherResponseModel> {
@@ -102,5 +85,22 @@ object OpenWeatherProvider : ForecastProvider {
                 TODO("not implemented") //To change body of created functions use File | Settings | File Templates.            }
             }
         })
+    }
+
+    private fun createAdapter(): OpenWeather {
+        // Установить таймауты
+        val okHttpClient = OkHttpClient().newBuilder()
+            .connectTimeout(5, TimeUnit.SECONDS)
+            .readTimeout(10, TimeUnit.SECONDS)
+            .writeTimeout(10, TimeUnit.SECONDS)
+            .build()
+
+        val adapter = Retrofit.Builder()
+            .baseUrl(baseUrl)
+            .client(okHttpClient)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+        return adapter.create(OpenWeather::class.java)
     }
 }
