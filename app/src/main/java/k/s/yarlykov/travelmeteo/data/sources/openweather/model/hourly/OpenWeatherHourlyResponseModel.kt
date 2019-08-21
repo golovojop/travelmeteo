@@ -29,33 +29,25 @@ class OpenWeatherHourlyResponseModel {
     lateinit var city: City
 }
 
-fun OpenWeatherHourlyResponseModel.mapModel(context: Context): CustomForecastModel {
-
-    // Загрузить массив с именами сторон света
-    val directionsNames = context.resources.getStringArray(R.array.compass_directions).asList()
-    val directionsAngles = context.resources.getIntArray(R.array.compass_directions_angles)
+fun OpenWeatherHourlyResponseModel.mapModel(): CustomForecastModel {
 
     return CustomForecastModel(
         this.city.name,
         this.city.country,
         LatLng(this.city.coord.lat.toDouble(), this.city.coord.lon.toDouble()),
         this.list.map {
-            // Индекс
-            val windIndex = it.wind.direction()
-
             CustomForecast(
                 Date(it.dt * 1000).formatHHmm(this.city.timezone),
                 Math.round(it.main.temp),
                 Math.round(it.main.tempMin),
                 Math.round(it.main.tempMax),
                 it.wind.speed,
-                directionsNames[windIndex],
-                directionsAngles[windIndex].toFloat(),
+                it.wind.deg,
                 it.main.humidity.toInt(),
                 it.main.pressure,
                 it.weather.get(0).main,
                 it.weather.get(0).description,
-                it.iconId(context)
+                "ow${it.weather.get(0).icon}"
             )
         }
     )

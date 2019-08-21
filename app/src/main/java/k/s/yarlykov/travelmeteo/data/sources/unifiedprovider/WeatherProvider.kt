@@ -10,6 +10,7 @@ interface WeatherProvider {
 }
 
 data class AppWeatherProvider(val forecastProducer: ForecastProducer) : WeatherProvider {
+
     override fun requestForecastHourly(consumer: ForecastConsumer?, coord: LatLng) {
         forecastProducer.requestForecastHourly(consumer, coord.lat(), coord.lon())
     }
@@ -17,17 +18,3 @@ data class AppWeatherProvider(val forecastProducer: ForecastProducer) : WeatherP
         forecastProducer.requestForecastCurrent(consumer, coord.lat(), coord.lon())
     }
 }
-
-//val weatherProvider = object : WeatherProvider {
-//
-//    // Текущий источник данных: openweathermap.org
-//    val modelSource: ForecastProducer = OpenWeatherMapProvider
-//
-//    override fun requestForecastHourly(consumer: ForecastConsumer?, coord: LatLng) {
-//        modelSource.requestForecastHourly(consumer, coord.lat(), coord.lon())
-//    }
-//
-//    override fun requestForecastCurrent(consumer: ForecastConsumer?, coord: LatLng) {
-//        modelSource.requestForecastCurrent(consumer, coord.lat(), coord.lon())
-//    }
-//}

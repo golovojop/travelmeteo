@@ -54,7 +54,7 @@ object OpenWeatherMapProvider : ForecastProducer {
                 // Code 404: body() == null; isSuccessful() == false
                 if (hourlyResponse.isSuccessful) {
                     hourlyResponse.body()?.let {
-                        consumer?.onForecastHourly(it.mapModel(consumer.onContextRequest()!!))
+                        consumer?.onForecastHourly(it.mapModel())
                     }
                 }
             }

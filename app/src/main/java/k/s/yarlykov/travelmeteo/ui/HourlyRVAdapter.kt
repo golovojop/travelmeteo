@@ -14,14 +14,17 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import k.s.yarlykov.travelmeteo.R
-import k.s.yarlykov.travelmeteo.data.domain.CustomForecast
-import k.s.yarlykov.travelmeteo.data.domain.celsius
-import k.s.yarlykov.travelmeteo.data.domain.toMmHg
+import k.s.yarlykov.travelmeteo.data.domain.*
 import k.s.yarlykov.travelmeteo.extensions.bitmapFromVectorDrawable
+import k.s.yarlykov.travelmeteo.extensions.iconId
 import k.s.yarlykov.travelmeteo.extensions.rotate
 
-class HourlyRVAdapter(private val source: MutableList<CustomForecast>, private val context: Context) :
+class HourlyRVAdapter(val source: MutableList<CustomForecast>, val context: Context) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+
+    // Загрузить массивы с именами сторон света и значениями углов направления ветра
+    val directionNames: List<String> = context.resources.getStringArray(R.array.compass_directions).asList()
+    val directionAngles: IntArray = context.resources.getIntArray(R.array.compass_directions_angles)
 
     // Размеры указателя направления ветра в dip
     val dipWindW = 20
@@ -88,7 +91,7 @@ class HourlyRVAdapter(private val source: MutableList<CustomForecast>, private v
         fun bind(f: CustomForecast) = with(f) {
             tvDate.text = this.time
             tvTemp.text = this.celsius(this.temp)
-            ivIcon.setImageResource(this.icon)
+            ivIcon.setImageResource(context.iconId(this.icon))
         }
     }
 
@@ -101,16 +104,19 @@ class HourlyRVAdapter(private val source: MutableList<CustomForecast>, private v
 
         fun bind(f: CustomForecast) = with(f) {
 
+            // Преобразовать курс ветра в его ID (также будет индексом в массивах значений)
+            val windId = this.windDegToId()
+
             // Concatenate before usage
-            val windDir = ", ${this.wind_direction_sz}"
+            val windDirection = ", ${directionNames[windId]}"
 
             tvWind.text = "${this.wind_speed}"
-            tvWindDir.text = windDir
+            tvWindDir.text = windDirection
             tvPressure.text = "${this.toMmHg()}"
             tvHumidity.text = "${this.humidity}"
             // Исходный bitmap поворачиваем и устанавливаем
             // в качестве bitmap'а элемента ImageView
-            ivWindDir.setImageBitmap(windBitmap?.rotate(f.wind_direction_degree))
+            ivWindDir.setImageBitmap(windBitmap?.rotate(directionAngles[windId].toFloat()))
         }
     }
 

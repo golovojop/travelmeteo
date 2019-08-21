@@ -151,5 +151,6 @@ fun Bitmap.rotate(degrees: Float): Bitmap {
     return Bitmap.createBitmap(this, 0, 0, width, height, matrix, true)
 }
 
-
-
+// Получить Resource Id ресурса картинки по имени файла (без расшипения)
+fun Context.iconId(picName : String) : Int =
+    resources.getIdentifier(picName, "drawable", this.packageName)

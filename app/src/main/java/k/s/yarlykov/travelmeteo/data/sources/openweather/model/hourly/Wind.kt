@@ -1,6 +1,5 @@
 package k.s.yarlykov.travelmeteo.data.sources.openweather.model.hourly
 
-import android.content.Context
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 
@@ -13,6 +12,10 @@ class Wind {
     var deg: Float = 0.toFloat()
 }
 
+/**
+ * Курс направления ветра (в градусах) сконвертировать в индекс направления ветра.
+ * Программа работает с набором из 8 направлений (N,S,W,E,NW,NE,SW,SE).
+ */
 fun Wind.direction(): Int {
     val step = 22.5
 

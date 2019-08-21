@@ -1,6 +1,8 @@
 package k.s.yarlykov.travelmeteo.data.domain
 
 import k.s.yarlykov.travelmeteo.R
+import k.s.yarlykov.travelmeteo.data.sources.openweather.model.hourly.Wind
+import k.s.yarlykov.travelmeteo.data.sources.openweather.model.hourly.direction
 import java.io.Serializable
 
 /**
@@ -12,13 +14,12 @@ data class CustomForecast(
     val temp_min: Int = 0,
     val temp_max: Int = 0,
     val wind_speed: Float = 0F,
-    val wind_direction_sz: String = "",
-    val wind_direction_degree: Float = 0F,
+    val wind_deg: Float = 0F,
     val humidity: Int = 0,
     val pressure: Float = 0F,
     val weather_main: String = "",
     val weather_descr: String = "",
-    val icon: Int = R.drawable.ovc_flat
+    val icon: String = ""
 ) : Serializable
 
 // Представить температуру в виде строки с префиксом "+" или "-" и знаком градуса после значения
@@ -33,3 +34,16 @@ fun CustomForecast.celsius(t: Int): String {
 
 fun CustomForecast.toMmHg(): Int = (this.pressure * 0.75006f).toInt()
 fun CustomForecast.toMb(): Int = this.pressure.toInt()
+
+/**
+ * Курс направления ветра (в градусах) сконвертировать в индекс направления ветра.
+ * Программа работает с набором из 8 направлений (N,S,W,E,NW,NE,SW,SE).
+ */
+fun CustomForecast.windDegToId(): Int {
+    val step = 22.5
+
+    var n = Math.floor(this.wind_deg/step).toInt()
+    if(n >= 15) n = 0
+    if(n % 2 > 0) n++
+    return n/2
+}

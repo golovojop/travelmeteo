@@ -39,10 +39,7 @@ import k.s.yarlykov.travelmeteo.data.domain.CustomForecast
 import k.s.yarlykov.travelmeteo.data.domain.CustomForecastModel
 import k.s.yarlykov.travelmeteo.data.domain.celsius
 import k.s.yarlykov.travelmeteo.di.AppExtensionProvider
-import k.s.yarlykov.travelmeteo.extensions.deleteAll
-import k.s.yarlykov.travelmeteo.extensions.dpToPix
-import k.s.yarlykov.travelmeteo.extensions.initFromModel
-import k.s.yarlykov.travelmeteo.extensions.screenRatioHeight
+import k.s.yarlykov.travelmeteo.extensions.*
 import k.s.yarlykov.travelmeteo.presenters.IMapPresenter
 import k.s.yarlykov.travelmeteo.presenters.IMapView
 import k.s.yarlykov.travelmeteo.presenters.MapPresenter
@@ -193,6 +190,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, /*ForecastConsumer,
         }
     }
 
+    // Обработка результата запроса
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         when (requestCode) {
             REQUEST_PERM_LOCATION -> {
@@ -222,7 +220,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, /*ForecastConsumer,
                 // Установить название места
                 tvCity.text = m.city
                 // Установить иконку
-                ivBkn.setImageResource(it[0].icon)
+                ivBkn.setImageResource(this.iconId(it[0].icon))
                 // Установить температуру
                 tvTemperature.text = it[0].celsius(it[0].temp)
                 // Обновить RecycleView
@@ -257,7 +255,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, /*ForecastConsumer,
             it.setOnMapLongClickListener { latLng ->
                 // Запрос почасового прогноза для данной точки
                 presenter.onMapClick(latLng)
-//                weatherProvider.requestForecastHourly(this, latLng)
+
                 // Пометить точку маркером на карте
                 // https://developers.google.com/maps/documentation/android-sdk/marker
                 addMarker(latLng)
