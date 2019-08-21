@@ -1,13 +1,12 @@
 package k.s.yarlykov.travelmeteo.data.domain
 
-import k.s.yarlykov.travelmeteo.R
-import k.s.yarlykov.travelmeteo.data.sources.openweather.model.hourly.Wind
-import k.s.yarlykov.travelmeteo.data.sources.openweather.model.hourly.direction
-import java.io.Serializable
+import android.os.Parcelable
+import kotlinx.android.parcel.Parcelize
 
 /**
  * Единый формат для прогноза из разных источников
  */
+@Parcelize
 data class CustomForecast(
     val time: String = "",
     val temp: Int = 0,
@@ -20,7 +19,7 @@ data class CustomForecast(
     val weather_main: String = "",
     val weather_descr: String = "",
     val icon: String = ""
-) : Serializable
+) : Parcelable
 
 // Представить температуру в виде строки с префиксом "+" или "-" и знаком градуса после значения
 fun CustomForecast.celsius(t: Int): String {
@@ -42,8 +41,8 @@ fun CustomForecast.toMb(): Int = this.pressure.toInt()
 fun CustomForecast.windDegToId(): Int {
     val step = 22.5
 
-    var n = Math.floor(this.wind_deg/step).toInt()
-    if(n >= 15) n = 0
-    if(n % 2 > 0) n++
-    return n/2
+    var n = Math.floor(this.wind_deg / step).toInt()
+    if (n >= 15) n = 0
+    if (n % 2 > 0) n++
+    return n / 2
 }

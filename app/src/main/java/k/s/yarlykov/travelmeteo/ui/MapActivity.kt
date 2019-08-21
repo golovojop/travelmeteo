@@ -209,35 +209,6 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, /*ForecastConsumer,
     }
     //endregion
 
-    //region ForecastConsumer
-    // Обновить контент в BottomSheet новыми данными
-    override fun updateForecastData(model: CustomForecastModel?) {
-        model?.let { m ->
-            // Сохранить последний прогноз
-            lastForecastDate = m
-
-            m.list.let {
-                // Установить название места
-                tvCity.text = m.city
-                // Установить иконку
-                ivBkn.setImageResource(this.iconId(it[0].icon))
-                // Установить температуру
-                tvTemperature.text = it[0].celsius(it[0].temp)
-                // Обновить RecycleView
-                hourly.initFromModel(it)
-                rvHourly.adapter?.notifyDataSetChanged()
-                // Сменить видимость виджетов
-                setBottomSheetVisibility(hideContent = false)
-                // Выдвинуть шторку с виджетом
-                setBottomSheetState(STATE_EXPANDED)
-                // Установить картинку фона под прогноз
-                val r = random(seasonImages.size)
-                ivNatureBg.setImageDrawable(seasonImages[r])
-            }
-        }
-    }
-    //endregion
-
     //region GoogleMap Methods
     private fun initMap() {
         googleMap?.let {
@@ -254,7 +225,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, /*ForecastConsumer,
             // Долгое нажатие на карту - запросить прогноз
             it.setOnMapLongClickListener { latLng ->
                 // Запрос почасового прогноза для данной точки
-                presenter.onMapClick(latLng)
+                presenter.onMapLongClick(latLng)
 
                 // Пометить точку маркером на карте
                 // https://developers.google.com/maps/documentation/android-sdk/marker
@@ -286,7 +257,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, /*ForecastConsumer,
     }
 
     // Спозиционировать карту на мои текущие координаты
-    fun navigateToMyLocation() {
+    private fun navigateToMyLocation() {
         @SuppressLint("MissingPermission")
         val loc = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER)
 
@@ -298,9 +269,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, /*ForecastConsumer,
     }
     //endregion
 
-    //region IMapView implementation. BottomSheet Management
-
-
+    //region IMapView implementation. BottomSheet Management. Update forecast info.
     /**
      * Materials:
      * https://medium.com/material-design-in-action/implementing-bottomappbar-behavior-fbfbc3a30568
@@ -372,6 +341,33 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, /*ForecastConsumer,
         }
     }
 
+    // Обновить контент в BottomSheet новыми данными
+    override fun updateForecastData(model: CustomForecastModel?) {
+        model?.let { m ->
+            // Сохранить последний прогноз
+            lastForecastDate = m
+
+            m.list.let {
+                // Установить название места
+                tvCity.text = m.city
+                // Установить иконку
+                ivBkn.setImageResource(this.iconId(it[0].icon))
+                // Установить температуру
+                tvTemperature.text = it[0].celsius(it[0].temp)
+                // Обновить RecycleView
+                hourly.initFromModel(it)
+                rvHourly.adapter?.notifyDataSetChanged()
+                // Сменить видимость виджетов
+                setBottomSheetVisibility(hideContent = false)
+                // Выдвинуть шторку с виджетом
+                setBottomSheetState(STATE_EXPANDED)
+                // Установить картинку фона под прогноз
+                val r = random(seasonImages.size)
+                ivNatureBg.setImageDrawable(seasonImages[r])
+            }
+        }
+    }
+
     // Определить высоту AppBar'а
     // https://stackoverflow.com/questions/12301510/how-to-get-the-actionbar-height/18427819#18427819
     private fun getActionBarHeight(): Int? {
@@ -385,7 +381,6 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, /*ForecastConsumer,
         return actionBarHeight
     }
     //endregion
-
 
     //region companion object
     companion object {

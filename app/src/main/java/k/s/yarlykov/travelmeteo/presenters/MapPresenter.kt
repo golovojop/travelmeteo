@@ -32,10 +32,6 @@ class MapPresenter(mapView: IMapView, val wp: WeatherProvider) : IMapPresenter, 
     }
 
     //region ForecastConsumer
-    override fun onContextRequest(): Context? {
-        return null
-    }
-
     override fun onForecastCurrent(model: WeatherResponseModel, icon: Bitmap) {
     }
 

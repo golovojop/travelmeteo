@@ -19,7 +19,7 @@ import k.s.yarlykov.travelmeteo.extensions.bitmapFromVectorDrawable
 import k.s.yarlykov.travelmeteo.extensions.iconId
 import k.s.yarlykov.travelmeteo.extensions.rotate
 
-class HourlyRVAdapter(val source: MutableList<CustomForecast>, val context: Context) :
+class HourlyRVAdapter(private val source: MutableList<CustomForecast>, val context: Context) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     // Загрузить массивы с именами сторон света и значениями углов направления ветра
