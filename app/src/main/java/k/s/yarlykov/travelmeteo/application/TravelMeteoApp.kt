@@ -6,7 +6,7 @@ import k.s.yarlykov.travelmeteo.di.AppExtensionProvider
 
 class TravelMeteoApp: Application() , AppExtensionProvider {
 
-    val applicationExtension = AppExtensions()
+    private val applicationExtension = AppExtensions()
 
     override fun onCreate() {
         super.onCreate()

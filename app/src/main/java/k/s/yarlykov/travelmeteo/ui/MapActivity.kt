@@ -35,6 +35,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import k.s.yarlykov.travelmeteo.R
+import k.s.yarlykov.travelmeteo.application.TravelMeteoApp
 import k.s.yarlykov.travelmeteo.data.domain.CustomForecast
 import k.s.yarlykov.travelmeteo.data.domain.CustomForecastModel
 import k.s.yarlykov.travelmeteo.data.domain.celsius
@@ -56,47 +57,27 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, /*ForecastConsumer,
     private var googleMap: GoogleMap? = null
     private var isPermissionGranted = false
     private var isPortrait: Boolean = false
+    private var savedState: Bundle? = null
 
     //region Activity Life Cycle Methods
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Запросить разрешение на работу с гео
-        requestLocationPermissions()
-        if (!isPermissionGranted) {
-            /**
-             * TODO: Нужно загрузить какой-нибудь макет с предупреждением
-             */
-            return
-        }
-
-        // Определить ориентацию экрана
-        isPortrait = resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT
-        // Загрузить нужный макет
-        setContentView(if (isPortrait) R.layout.activity_google_map else R.layout.activity_google_map_lan)
-        // Добавить AppBar
-        setSupportActionBar(bottom_app_bar)
-
-        // Список маркеров на карте
-        markers = mutableListOf()
-
-        // Инициализация виджетов с учетом savedInstanceState
-        initViews(savedInstanceState)
+        savedState = savedInstanceState
 
         // Инициализировать presenter'а
         val appExtension = (this.application as AppExtensionProvider).provideAppExtension()
         presenter = MapPresenter(this, appExtension.getWeatherProvider())
-        presenter.onCreate()
 
-        // Подгрузить карту асинхронно
-        locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
-        mapFragment.getMapAsync(this)
+        // Запросить разрешение на работу с гео
+        requestLocationPermissions()
+
+        // Оповестить презентера
+        presenter.onCreate()
     }
 
     override fun onResume() {
         super.onResume()
-        setBottomSheetSizing()
         presenter.onResume()
     }
 
@@ -109,39 +90,6 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, /*ForecastConsumer,
     override fun onSaveInstanceState(outState: Bundle?) {
         super.onSaveInstanceState(outState)
         outState?.putParcelable(FORECAST_KEY, lastForecastDate)
-    }
-
-    // Инициализация вьюшек
-    private fun initViews(savedInstanceState: Bundle?) {
-        // Очистить список с прогнозами
-        hourly.clear()
-
-        // Скрыть шторку BottomSheet, потому что карта ещё не загружена
-        setBottomSheetVisibility(hideContent = true)
-
-        // Загрузить картинки природы для фона
-        resources.obtainTypedArray(R.array.summerNature).let { typedArray ->
-            seasonImages.clear()
-            for (i in 0 until typedArray.length()) {
-                seasonImages.add(ContextCompat.getDrawable(this, typedArray.getResourceId(i, R.drawable.home_logo)))
-            }
-            typedArray.recycle()
-        }
-
-        // Извлечение данных из savedState
-        savedInstanceState?.let {
-            updateForecastData(it.getParcelable(FORECAST_KEY) as? CustomForecastModel)
-        }
-
-        // Инициализация RecycleView
-        rvHourly.apply {
-            // Размер RV не зависит от изменения размеров его элементов
-            setHasFixedSize(true)
-            // Горизонтальная прокрутка
-            layoutManager = LinearLayoutManager(this@MapActivity, LinearLayoutManager.HORIZONTAL, false)
-            adapter = HourlyRVAdapter(hourly, applicationContext)
-            itemAnimator = DefaultItemAnimator()
-        }
     }
     //endregion
 
@@ -187,6 +135,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, /*ForecastConsumer,
             }
         } else {
             isPermissionGranted = true
+            presenter.onPermissions(isPermissionGranted)
         }
     }
 
@@ -199,6 +148,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, /*ForecastConsumer,
                             grantResults[1] == PackageManager.PERMISSION_GRANTED)
                 ) {
                     isPermissionGranted = true
+                    presenter.onPermissions(isPermissionGranted)
                 }
             }
         }
@@ -270,6 +220,55 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, /*ForecastConsumer,
     //endregion
 
     //region IMapView implementation. BottomSheet Management. Update forecast info.
+    // Инициализация вьюшек
+    override fun initViews() {
+
+        // Очистить список с прогнозами
+        hourly.clear()
+        // Список маркеров на карте
+        markers = mutableListOf()
+        // Определить ориентацию экрана
+        isPortrait = resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT
+        // Загрузить нужный макет
+        setContentView(if (isPortrait) R.layout.activity_google_map else R.layout.activity_google_map_lan)
+        // Добавить AppBar
+        setSupportActionBar(bottom_app_bar)
+
+        // Подгрузить карту асинхронно
+        locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
+        mapFragment.getMapAsync(this)
+
+        // Скрыть шторку BottomSheet, потому что карта ещё не загружена
+        setBottomSheetVisibility(hideContent = true)
+
+        // Загрузить картинки природы для фона
+        resources.obtainTypedArray(R.array.summerNature).let { typedArray ->
+            seasonImages.clear()
+            for (i in 0 until typedArray.length()) {
+                seasonImages.add(ContextCompat.getDrawable(this, typedArray.getResourceId(i, R.drawable.home_logo)))
+            }
+            typedArray.recycle()
+        }
+
+        // Извлечение данных из savedState
+        savedState?.let {
+            updateForecastData(it.getParcelable(FORECAST_KEY) as? CustomForecastModel)
+        }
+
+        // Инициализация RecycleView
+        rvHourly.apply {
+            // Размер RV не зависит от изменения размеров его элементов
+            setHasFixedSize(true)
+            // Горизонтальная прокрутка
+            layoutManager = LinearLayoutManager(this@MapActivity, LinearLayoutManager.HORIZONTAL, false)
+            adapter = HourlyRVAdapter(hourly, applicationContext)
+            itemAnimator = DefaultItemAnimator()
+        }
+
+        // Сообщить презентеру, что все виджеты инициализированы
+        presenter.onMapScreenReady()
+    }
     /**
      * Materials:
      * https://medium.com/material-design-in-action/implementing-bottomappbar-behavior-fbfbc3a30568
@@ -279,10 +278,10 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, /*ForecastConsumer,
         BottomSheetBehavior.from(bottom_sheet).state = state
     }
 
-    // Расчитываем высоту "шапки" BottomSheet'a которая будет на BottomAppBar'ом
+    // Расчитываем высоту "шапки" BottomSheet'a которая будет над BottomAppBar'ом
     override fun setBottomSheetSizing() {
 
-        val bottomAppBarHeight = getActionBarHeight()!!
+        val bottomAppBarHeight = getActionBarHeight()
 
         // 1. Расчет и установка высоты верхней видимой части BottomSheet
         // в свернутом состоянии: то что будет видно над BottomAppBar.
@@ -325,8 +324,8 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, /*ForecastConsumer,
 
         // 5.1 Высота картинки фона. Так как эта картинка находится в FrameLayout слайдера,
         // то выставив её высоту достаточно большой мы определяем самый высокий элемент внутри CardView
-        // и по его высоте будет регулироться высота остальных sibling элементов этой карточки.
-        ivNatureBg.layoutParams.height = screenRatioHeight(0.6f)
+        // и по его высоте будет регулироваться высота остальных sibling элементов этой карточки.
+        ivNatureBg.layoutParams.height = screenRatioHeight(0.5f)
     }
 
     // Управление видимостью виджетов внутри BottomSheet
@@ -370,14 +369,19 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, /*ForecastConsumer,
 
     // Определить высоту AppBar'а
     // https://stackoverflow.com/questions/12301510/how-to-get-the-actionbar-height/18427819#18427819
-    private fun getActionBarHeight(): Int? {
-        var actionBarHeight = supportActionBar?.height
+    private fun getActionBarHeight(): Int {
+        var actionBarHeight = 0
 
-        if (actionBarHeight == 0) {
-            val tv = TypedValue()
-            if (theme.resolveAttribute(android.R.attr.actionBarSize, tv, true))
-                actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data, resources.displayMetrics)
+        supportActionBar?.let {
+            actionBarHeight = it.height
+
+            if (actionBarHeight == 0) {
+                val tv = TypedValue()
+                if (theme.resolveAttribute(android.R.attr.actionBarSize, tv, true))
+                    actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data, resources.displayMetrics)
+            }
         }
+
         return actionBarHeight
     }
     //endregion
@@ -386,7 +390,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, /*ForecastConsumer,
     companion object {
         private val EXTRA_MAP = MapActivity::class.java.simpleName + "extra.MAP"
         private const val REQUEST_PERM_LOCATION = 101
-        private val FORECAST_KEY = "FORECAST_KEY"
+        private const val FORECAST_KEY = "FORECAST_KEY"
 
         // В связи с тем, что данные будут меняться при каждом
         // запросе погоды, то используем MutableList
