@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="card_bg_radius">6dp</dimen>
+
+    <dimen name="topMargin">12dp</dimen>
+    <dimen name="leftMargin">12dp</dimen>
+    <dimen name="endMargin">12dp</dimen>
+    <dimen name="unityMarginStart">4dp</dimen>
+    <dimen name="rowMarginTop">8dp</dimen>
+
+    <dimen name="imgBknWidth">56dp</dimen>
+    <dimen name="imgBknHeight">56dp</dimen>
+
+    <dimen name="imgBknWidthLan">64dp</dimen>
+    <dimen name="imgBknHeightLan">64dp</dimen>
+
+
+    <dimen name="imgWidth">24dp</dimen>
+    <dimen name="imgHeight">24dp</dimen>
+</resources>

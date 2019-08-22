@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView
+        xmlns:card_view="http://schemas.android.com/apk/res-auto"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/cvHourly"
+        android:layout_gravity="center"
+        app:cardElevation="0dp"
+        card_view:cardPreventCornerOverlap="false"
+        android:layout_width="wrap_content"
+        android:backgroundTint="@android:color/transparent"
+        android:layout_height="wrap_content">
+    <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="32dp">
+
+        <!-- Wind info -->
+        <LinearLayout android:layout_width="match_parent"
+                      android:layout_height="wrap_content"
+                      android:orientation="horizontal"
+                      android:layout_marginTop="@dimen/rowMarginTop"
+                      android:layout_gravity="start">
+            <ImageView
+                    android:id="@+id/ivWind"
+                    android:layout_width="@dimen/imgWidth"
+                    android:layout_height="@dimen/imgHeight"
+                    android:layout_marginStart="@dimen/leftMargin"
+                    android:layout_marginEnd="@dimen/endMargin"
+                    app:srcCompat="@drawable/ic_wind"
+                    tools:src="@drawable/ic_wind"/>
+            <TextView android:id="@+id/tvWindValue"
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      android:layout_gravity="center_vertical"
+                      android:gravity="center_vertical"
+                      android:text="@string/toolWindValue"
+                      tools:text="@string/toolWindValue"
+                      android:textColor="@android:color/white"/>
+            <TextView android:id="@+id/tvWindUnits"
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      android:layout_gravity="center_vertical"
+                      android:gravity="end|center_vertical"
+                      android:text="@string/toolWindUnits"
+                      android:layout_marginStart="@dimen/unityMarginStart"
+                      tools:text="@string/toolWindUnits"
+                      android:textColor="@android:color/white"/>
+            <TextView android:id="@+id/tvWindDirection"
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      android:layout_gravity="center_vertical"
+                      android:gravity="start|center_vertical"
+                      tools:text="@string/toolWindDirection"
+                      android:textColor="@android:color/white"/>
+            <ImageView
+                    android:id="@+id/ivWindDirection"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="2dp"
+                    android:layout_gravity="center_vertical"
+                    app:srcCompat="@drawable/ic_wind_direction_white"
+                    tools:src="@drawable/ic_wind_direction_white"/>
+
+        </LinearLayout>
+
+        <!-- Pressure info -->
+        <LinearLayout android:layout_width="match_parent"
+                      android:layout_height="wrap_content"
+                      android:orientation="horizontal"
+                      android:layout_marginTop="@dimen/rowMarginTop"
+                      android:layout_gravity="start">
+            <ImageView
+                    android:id="@+id/ivPressure"
+                    android:layout_width="@dimen/imgWidth"
+                    android:layout_height="@dimen/imgHeight"
+                    android:layout_marginStart="@dimen/leftMargin"
+                    android:layout_marginEnd="@dimen/endMargin"
+                    app:srcCompat="@drawable/ic_pressure"
+                    tools:src="@drawable/ic_pressure"/>
+            <TextView android:id="@+id/tvPressureValue"
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      android:layout_gravity="center_vertical"
+                      android:gravity="center_vertical"
+                      android:text="@string/toolPressureValue"
+                      tools:text="@string/toolPressureValue"
+                      android:textColor="@android:color/white"/>
+            <TextView android:id="@+id/tvPressureUnits"
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      android:layout_gravity="center_vertical"
+                      android:gravity="center_vertical"
+                      android:layout_marginStart="@dimen/unityMarginStart"
+                      android:text="@string/toolPressureUnits"
+                      tools:text="@string/toolPressureUnits"
+                      android:textColor="@android:color/white"/>
+        </LinearLayout>
+
+        <!-- Humidity info -->
+        <LinearLayout android:layout_width="match_parent"
+                      android:layout_height="wrap_content"
+                      android:orientation="horizontal"
+                      android:layout_marginTop="@dimen/rowMarginTop"
+                      android:layout_gravity="start">
+            <ImageView
+                    android:id="@+id/ivHumidity"
+                    android:layout_width="@dimen/imgWidth"
+                    android:layout_height="@dimen/imgHeight"
+                    android:layout_marginStart="@dimen/leftMargin"
+                    android:layout_marginEnd="@dimen/endMargin"
+                    app:srcCompat="@drawable/ic_humidity"
+                    tools:src="@drawable/ic_humidity"/>
+            <TextView android:id="@+id/tvHumidityValue"
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      android:layout_gravity="center_vertical"
+                      android:gravity="center_vertical"
+                      android:text="@string/toolHumidityValue"
+                      tools:text="@string/toolHumidityValue"
+                      android:textColor="@android:color/white"/>
+            <TextView android:id="@+id/tvHumidityUnits"
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      android:layout_gravity="center_vertical"
+                      android:gravity="center_vertical"
+                      android:layout_marginStart="@dimen/unityMarginStart"
+                      android:text="@string/toolHumidityUnits"
+                      tools:text="@string/toolHumidityUnits"
+                      android:textColor="@android:color/white"/>
+        </LinearLayout>
+
+    </LinearLayout>
+</android.support.v7.widget.CardView>

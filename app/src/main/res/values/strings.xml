@@ -13,4 +13,20 @@
     <string name="sz_map_mode_terrain">Terrain</string>
     <string name="sz_map_mode_satellite">Satellite</string>
 
+    <!-- Forecast BottomSheet -->
+    <string name="sz_forecast_hello" translatable="false">Forecast will be here</string>
+    <string name="toolCity" translatable="false">Moscow</string>
+    <string name="toolTemperature" translatable="false">+ 30\u2103</string>
+
+    <string name="toolWindValue" translatable="false">5</string>
+    <string name="toolWindUnits">m/s</string>
+    <string name="toolWindDirection">NW</string>
+
+    <string name="toolPressureValue" translatable="false">763</string>
+    <string name="toolPressureUnits">mmHg</string>
+
+    <string name="toolHumidityValue" translatable="false">78</string>
+    <string name="toolHumidityUnits" translatable="false">%</string>
+
+
 </resources>

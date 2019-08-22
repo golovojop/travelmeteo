@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".ui.MapActivity">
+
+    <!-- подключение элемента GoogleMap Fragment -->
+    <include layout="@layout/layout_google_map"/>
+
+    <!-- подключение нижнего экрана с прогнозом погоды -->
+    <include layout="@layout/layout_bottom_sheet_forecast_lan"/>
+
+    <!-- верхняя окантовка элемента BottomAppBar привязывается через anchor-->
+    <View android:id="@+id/vAppBarBorder"
+          android:layout_width="fill_parent"
+          android:layout_height="4dp"
+          app:layout_anchor="@+id/bottom_app_bar"
+          app:layout_anchorGravity="top"
+          android:background="@color/top_border_bottom_sheet"/>
+
+    <android.support.design.bottomappbar.BottomAppBar
+            android:id="@+id/bottom_app_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom"
+            app:backgroundTint="@android:color/white"
+            app:hideOnScroll="true"
+            app:layout_scrollFlags="scroll|enterAlways"/>
+</android.support.design.widget.CoordinatorLayout>

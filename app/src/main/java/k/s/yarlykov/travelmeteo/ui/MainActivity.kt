@@ -8,12 +8,9 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity(), View.OnClickListener {
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
-
         btnShowMap.setOnClickListener(this)
     }
 
@@ -21,12 +18,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         when(v?.id) {
             R.id.btnShowMap -> {
                 MapActivity.start(this, "Some data")
-
             }
-
-
         }
     }
-
-
 }
