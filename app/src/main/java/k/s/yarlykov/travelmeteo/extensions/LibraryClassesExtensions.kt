@@ -11,6 +11,8 @@ import android.util.DisplayMetrics
 import android.widget.ImageView
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
+import com.squareup.picasso.Picasso
+import com.squareup.picasso.Transformation
 import k.s.yarlykov.travelmeteo.data.domain.CustomForecast
 import k.s.yarlykov.travelmeteo.data.sources.openweather.model.hourly.Forecast
 import java.text.SimpleDateFormat
@@ -104,13 +106,27 @@ fun ImageView.rotate(angle: Float) {
     this.imageMatrix = matrix
 }
 
+
+/**
+ * Загрузка растровой картинки из локальных ресурсов.
+ * Picasso не поддерживает работу с векторной графикой, поэтому иконку направления
+ * ветра поворачиваем самостоятельно, он векторная.
+ */
+fun ImageView.usePicasso(resourceId: Int, transformation : Transformation, angle: Float) {
+    Picasso
+        .get()
+        .load(resourceId)
+        .transform(transformation)
+        .rotate(angle)
+        .into(this)
+}
+
 /**
  * Context
  *
  * Materials:
  * https://stackoverflow.com/questions/33696488/getting-bitmap-from-vector-drawable
  */
-
 fun Context.bitmapFromVectorDrawable(drawableId: Int, dpW: Int, dpH: Int): Bitmap? {
     var drawable = ContextCompat.getDrawable(this, drawableId) ?: return null
 

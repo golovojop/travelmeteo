@@ -243,13 +243,26 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, /*ForecastConsumer,
         setBottomSheetVisibility(hideContent = true)
 
         // Загрузить картинки природы для фона
-        resources.obtainTypedArray(R.array.summerNature).let { typedArray ->
+        with(resources.obtainTypedArray(R.array.summerNature)) {
             seasonImages.clear()
-            for (i in 0 until typedArray.length()) {
-                seasonImages.add(ContextCompat.getDrawable(this, typedArray.getResourceId(i, R.drawable.home_logo)))
+            seasonImagesId.clear()
+
+            for (i in 0 until this.length()) {
+                val id = this.getResourceId(i, R.drawable.home_logo)
+                seasonImages.add(ContextCompat.getDrawable(this@MapActivity, id))
+                seasonImagesId.add(id)
             }
-            typedArray.recycle()
+            this.recycle()
         }
+//
+//
+//        resources.obtainTypedArray(R.array.summerNature).let { typedArray ->
+//            seasonImages.clear()
+//            for (i in 0 until typedArray.length()) {
+//                seasonImages.add(ContextCompat.getDrawable(this, typedArray.getResourceId(i, R.drawable.home_logo)))
+//            }
+//            typedArray.recycle()
+//        }
 
         // Извлечение данных из savedState
         savedState?.let {
@@ -349,8 +362,10 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, /*ForecastConsumer,
             m.list.let {
                 // Установить название места
                 tvCity.text = m.city
-                // Установить иконку
-                ivBkn.setImageResource(this.iconId(it[0].icon))
+                // Установить иконку погоды
+                ivBkn.usePicasso(this.iconId(it[0].icon), EmptyTransformation, 0f)
+//                ivBkn.setImageResource(this.iconId(it[0].icon))
+
                 // Установить температуру
                 tvTemperature.text = it[0].celsius(it[0].temp)
                 // Обновить RecycleView
@@ -361,8 +376,11 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, /*ForecastConsumer,
                 // Выдвинуть шторку с виджетом
                 setBottomSheetState(STATE_EXPANDED)
                 // Установить картинку фона под прогноз
-                val r = random(seasonImages.size)
-                ivNatureBg.setImageDrawable(seasonImages[r])
+
+                val r = random(seasonImagesId.size)
+                ivNatureBg.usePicasso(seasonImagesId[r]!!, EmptyTransformation, 0f)
+//                val r = random(seasonImages.size)
+//                ivNatureBg.setImageDrawable(seasonImages[r])
             }
         }
     }
@@ -398,6 +416,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, /*ForecastConsumer,
 
         // Картинки природы для фона
         private val seasonImages: MutableList<Drawable?> = mutableListOf()
+        private val seasonImagesId: MutableList<Int?> = mutableListOf()
 
         fun start(context: Context?, extraData: String) {
             val intent = Intent(context, MapActivity::class.java).apply {

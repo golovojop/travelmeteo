@@ -11,13 +11,13 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.squareup.picasso.Transformation
 import android.widget.ImageView
 import android.widget.TextView
+import com.squareup.picasso.Picasso
 import k.s.yarlykov.travelmeteo.R
 import k.s.yarlykov.travelmeteo.data.domain.*
-import k.s.yarlykov.travelmeteo.extensions.bitmapFromVectorDrawable
-import k.s.yarlykov.travelmeteo.extensions.iconId
-import k.s.yarlykov.travelmeteo.extensions.rotate
+import k.s.yarlykov.travelmeteo.extensions.*
 
 class HourlyRVAdapter(private val source: MutableList<CustomForecast>, val context: Context) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -91,7 +91,7 @@ class HourlyRVAdapter(private val source: MutableList<CustomForecast>, val conte
         fun bind(f: CustomForecast) = with(f) {
             tvDate.text = this.time
             tvTemp.text = this.celsius(this.temp)
-            ivIcon.setImageResource(context.iconId(this.icon))
+            ivIcon.usePicasso(context.iconId(this.icon), EmptyTransformation,0f)
         }
     }
 
