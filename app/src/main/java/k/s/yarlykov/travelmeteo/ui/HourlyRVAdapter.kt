@@ -91,7 +91,7 @@ class HourlyRVAdapter(private val source: MutableList<CustomForecast>, val conte
         fun bind(f: CustomForecast) = with(f) {
             tvDate.text = this.time
             tvTemp.text = this.celsius(this.temp)
-            ivIcon.usePicasso(context.iconId(this.icon), EmptyTransformation,0f)
+            ivIcon.loadWithPicasso(context.iconId(this.icon), EmptyTransformation,0f)
         }
     }
 

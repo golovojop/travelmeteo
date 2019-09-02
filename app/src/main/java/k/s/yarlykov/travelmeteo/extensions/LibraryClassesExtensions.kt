@@ -14,6 +14,8 @@ import com.google.android.gms.maps.model.Marker
 import com.squareup.picasso.Picasso
 import com.squareup.picasso.Transformation
 import k.s.yarlykov.travelmeteo.data.domain.CustomForecast
+import k.s.yarlykov.travelmeteo.data.domain.DayPart
+import k.s.yarlykov.travelmeteo.data.domain.Season
 import k.s.yarlykov.travelmeteo.data.sources.openweather.model.hourly.Forecast
 import java.text.SimpleDateFormat
 import java.util.*
@@ -68,6 +70,35 @@ fun Date.formatHHmm(offset: Int) = SimpleDateFormat("HH:mm", Locale.getDefault()
     this.timeZone = TimeZone.getTimeZone(zoneId)
 }.format(this)
 
+// Часть дня
+fun Date.partOfDay(offset: Int) : DayPart {
+    val hour = SimpleDateFormat("HH", Locale.getDefault()).apply {
+        val zoneId = TimeZone.getAvailableIDs(offset * 1000).asList()[0]
+        this.timeZone = TimeZone.getTimeZone(zoneId)
+    }.format(this).toInt()
+
+    return when(hour) {
+        in 6..7 -> DayPart.SUNRISE
+        in 7..22 -> DayPart.DAY
+        else -> DayPart.NIGHT
+    }
+}
+
+// Определить текущее время года
+fun Date.season(): Season {
+
+    val month = Calendar.getInstance().also {
+        it.setTime(this)
+    }.get(Calendar.MONTH)
+
+    return when(month) {
+        in 3..5 ->  Season.SPRING
+        in 6..8 -> Season.SUMMER
+        in 9..11 -> Season.AUTUMN
+        else -> Season.WINTER
+    }
+}
+
 /**
  * LatLng
  */
@@ -87,41 +118,6 @@ fun LatLng.lon(): String {
 }
 
 /**
- * ImageView
- *
- * Materials:
- * https://stackoverflow.com/questions/8981845/android-rotate-image-in-imageview-by-an-angle
- *
- * Есть проблемы при первом показе картинки. Лучше поворачивать bitmap, а потом устанавливать её
- * в ImageView (см метод Bitmap.rotate ниже)
- *
- */
-fun ImageView.rotate(angle: Float) {
-    val matrix = Matrix()
-    matrix.postRotate(angle,
-        this.drawable.bounds.width()/2.toFloat(),
-        this.drawable.bounds.height()/2.toFloat())
-
-    this.scaleType = ImageView.ScaleType.MATRIX
-    this.imageMatrix = matrix
-}
-
-
-/**
- * Загрузка растровой картинки из локальных ресурсов.
- * Picasso не поддерживает работу с векторной графикой, поэтому иконку направления
- * ветра поворачиваем самостоятельно, он векторная.
- */
-fun ImageView.usePicasso(resourceId: Int, transformation : Transformation, angle: Float) {
-    Picasso
-        .get()
-        .load(resourceId)
-        .transform(transformation)
-        .rotate(angle)
-        .into(this)
-}
-
-/**
  * Context
  *
  * Materials:
@@ -136,7 +132,8 @@ fun Context.bitmapFromVectorDrawable(drawableId: Int, dpW: Int, dpH: Int): Bitma
 
     val bitmap = Bitmap.createBitmap(
         dpToPix(dpW.toFloat()), dpToPix(dpH.toFloat()),
-        Bitmap.Config.ARGB_8888) ?: return null
+        Bitmap.Config.ARGB_8888
+    ) ?: return null
 
     val canvas = Canvas(bitmap)
     drawable.setBounds(0, 0, canvas.width, canvas.height)
@@ -151,8 +148,11 @@ fun Context.dpToPix(dp: Float): Int {
     return Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT))
 }
 
-fun Context.screenRatioHeight(ratio : Float): Int = (this.resources.displayMetrics.heightPixels.toFloat() * Math.abs(ratio)).toInt()
-fun Context.screenRatioWidth(ratio : Float): Int = (this.resources.displayMetrics.widthPixels.toFloat() * Math.abs(ratio)).toInt()
+fun Context.screenRatioHeight(ratio: Float): Int =
+    (this.resources.displayMetrics.heightPixels.toFloat() * Math.abs(ratio)).toInt()
+
+fun Context.screenRatioWidth(ratio: Float): Int =
+    (this.resources.displayMetrics.widthPixels.toFloat() * Math.abs(ratio)).toInt()
 
 /**
  * Bitmap
@@ -168,5 +168,5 @@ fun Bitmap.rotate(degrees: Float): Bitmap {
 }
 
 // Получить Resource Id ресурса картинки по имени файла (без расшипения)
-fun Context.iconId(picName : String) : Int =
+fun Context.iconId(picName: String): Int =
     resources.getIdentifier(picName, "drawable", this.packageName)

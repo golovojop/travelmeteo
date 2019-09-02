@@ -8,7 +8,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.drawable.AnimationDrawable
-import android.graphics.drawable.Drawable
 import android.location.LocationManager
 import android.os.Bundle
 import android.support.design.widget.BottomSheetBehavior
@@ -16,7 +15,6 @@ import android.support.design.widget.BottomSheetBehavior.STATE_COLLAPSED
 import android.support.design.widget.BottomSheetBehavior.STATE_EXPANDED
 import android.support.design.widget.CoordinatorLayout
 import android.support.v4.app.ActivityCompat
-import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.LinearLayoutManager
@@ -35,11 +33,9 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import k.s.yarlykov.travelmeteo.R
-import k.s.yarlykov.travelmeteo.application.TravelMeteoApp
-import k.s.yarlykov.travelmeteo.data.domain.CustomForecast
-import k.s.yarlykov.travelmeteo.data.domain.CustomForecastModel
-import k.s.yarlykov.travelmeteo.data.domain.celsius
+import k.s.yarlykov.travelmeteo.data.domain.*
 import k.s.yarlykov.travelmeteo.di.AppExtensionProvider
+import k.s.yarlykov.travelmeteo.di.AppExtensions
 import k.s.yarlykov.travelmeteo.extensions.*
 import k.s.yarlykov.travelmeteo.presenters.IMapPresenter
 import k.s.yarlykov.travelmeteo.presenters.IMapView
@@ -53,10 +49,11 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, /*ForecastConsumer,
     lateinit var locationManager: LocationManager
     lateinit var markers: MutableList<Marker>
     lateinit var presenter: IMapPresenter
+    lateinit var appExtensions: AppExtensions
     private var lastForecastDate: CustomForecastModel? = null
     private var googleMap: GoogleMap? = null
     private var isPermissionGranted = false
-    private var isPortrait: Boolean = false
+    private var isLandscape: Boolean = false
     private var savedState: Bundle? = null
 
     //region Activity Life Cycle Methods
@@ -65,9 +62,9 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, /*ForecastConsumer,
 
         savedState = savedInstanceState
 
-        // Инициализировать presenter'а
-        val appExtension = (this.application as AppExtensionProvider).provideAppExtension()
-        presenter = MapPresenter(this, appExtension.getWeatherProvider())
+        // DI. Инициализировать presenter'а
+        appExtensions = (this.application as AppExtensionProvider).provideAppExtension()
+        presenter = MapPresenter(this, appExtensions.getWeatherProvider())
 
         // Запросить разрешение на работу с гео
         requestLocationPermissions()
@@ -228,9 +225,9 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, /*ForecastConsumer,
         // Список маркеров на карте
         markers = mutableListOf()
         // Определить ориентацию экрана
-        isPortrait = resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT
+        isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
         // Загрузить нужный макет
-        setContentView(if (isPortrait) R.layout.activity_google_map else R.layout.activity_google_map_lan)
+        setContentView(if (isLandscape) R.layout.activity_google_map_lan else R.layout.activity_google_map)
         // Добавить AppBar
         setSupportActionBar(bottom_app_bar)
 
@@ -241,28 +238,6 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, /*ForecastConsumer,
 
         // Скрыть шторку BottomSheet, потому что карта ещё не загружена
         setBottomSheetVisibility(hideContent = true)
-
-        // Загрузить картинки природы для фона
-        with(resources.obtainTypedArray(R.array.summerNature)) {
-            seasonImages.clear()
-            seasonImagesId.clear()
-
-            for (i in 0 until this.length()) {
-                val id = this.getResourceId(i, R.drawable.home_logo)
-                seasonImages.add(ContextCompat.getDrawable(this@MapActivity, id))
-                seasonImagesId.add(id)
-            }
-            this.recycle()
-        }
-//
-//
-//        resources.obtainTypedArray(R.array.summerNature).let { typedArray ->
-//            seasonImages.clear()
-//            for (i in 0 until typedArray.length()) {
-//                seasonImages.add(ContextCompat.getDrawable(this, typedArray.getResourceId(i, R.drawable.home_logo)))
-//            }
-//            typedArray.recycle()
-//        }
 
         // Извлечение данных из savedState
         savedState?.let {
@@ -282,6 +257,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, /*ForecastConsumer,
         // Сообщить презентеру, что все виджеты инициализированы
         presenter.onMapScreenReady()
     }
+
     /**
      * Materials:
      * https://medium.com/material-design-in-action/implementing-bottomappbar-behavior-fbfbc3a30568
@@ -353,6 +329,32 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, /*ForecastConsumer,
         }
     }
 
+    // Установка фона под прогнозом
+    fun setBottomSheetBackground(season: Season, dayPart: DayPart, dims: Pair<Int, Int>) {
+
+        // Массив с идентификаторами ресурсов картинок для текущего времени года
+        val imagesId: List<Int> = appExtensions.getSeasonBackground(season)
+
+        // Выбрать картику в соответствии с текущим временем дня. Картинки для облачной погоды
+        // пока не используем, поэтому индексы через 1.
+        val r = when (dayPart) {
+            DayPart.SUNRISE -> 0
+            DayPart.DAY -> 2
+            else -> 4
+        }
+
+        logIt("DayPart = ${dayPart}:${r}")
+
+        // Отрисовываем картинку фона
+        with(ivNatureBg) {
+            if (isLandscape) {
+                loadAndCropWithPicasso(imagesId[r], dims.first, dims.second)
+            } else {
+                loadWithPicasso(imagesId[r], EmptyTransformation, 0f)
+            }
+        }
+    }
+
     // Обновить контент в BottomSheet новыми данными
     override fun updateForecastData(model: CustomForecastModel?) {
         model?.let { m ->
@@ -363,8 +365,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, /*ForecastConsumer,
                 // Установить название места
                 tvCity.text = m.city
                 // Установить иконку погоды
-                ivBkn.usePicasso(this.iconId(it[0].icon), EmptyTransformation, 0f)
-//                ivBkn.setImageResource(this.iconId(it[0].icon))
+                ivBkn.loadWithPicasso(this.iconId(it[0].icon), EmptyTransformation, 0f)
 
                 // Установить температуру
                 tvTemperature.text = it[0].celsius(it[0].temp)
@@ -375,12 +376,13 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, /*ForecastConsumer,
                 setBottomSheetVisibility(hideContent = false)
                 // Выдвинуть шторку с виджетом
                 setBottomSheetState(STATE_EXPANDED)
-                // Установить картинку фона под прогноз
 
-                val r = random(seasonImagesId.size)
-                ivNatureBg.usePicasso(seasonImagesId[r]!!, EmptyTransformation, 0f)
-//                val r = random(seasonImages.size)
-//                ivNatureBg.setImageDrawable(seasonImages[r])
+                // Установить заливку фона
+
+                // Установить картинку фона под прогноз
+                ivNatureBg.post {
+                    setBottomSheetBackground(m.season, m.dayPart, Pair(ivNatureBg.width, ivNatureBg.height))
+                }
             }
         }
     }
@@ -413,10 +415,6 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, /*ForecastConsumer,
         // В связи с тем, что данные будут меняться при каждом
         // запросе погоды, то используем MutableList
         private var hourly: MutableList<CustomForecast> = mutableListOf()
-
-        // Картинки природы для фона
-        private val seasonImages: MutableList<Drawable?> = mutableListOf()
-        private val seasonImagesId: MutableList<Int?> = mutableListOf()
 
         fun start(context: Context?, extraData: String) {
             val intent = Intent(context, MapActivity::class.java).apply {
