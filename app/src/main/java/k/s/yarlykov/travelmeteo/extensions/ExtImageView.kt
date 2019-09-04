@@ -40,10 +40,18 @@ fun ImageView.loadWithPicasso(resourceId: Int, transformation : Transformation, 
         .into(this)
 }
 
-fun ImageView.loadAndCropWithPicasso(resourceId: Int, width : Int, height : Int) {
+/**
+ * Алгоритм такой: у исходной png-картинки pic.width > pic.height и соотношение сторон w/h = 1.6
+ * .resize - сначала ма растягиваем битмап картинки на ширину ImageView с сохранением исходной пропорции.
+ * .transform - вырезаем из полученного битмапа нижнюю часть, соответствующую размеру ImageView.
+ * Эту вырезанную часть и поместим в ImageView.
+ */
+fun ImageView.loadAndFitWithPicasso(resourceId: Int, viewWidth : Int, viewHeight : Int) {
+    val ratio = 1.6f
     Picasso
         .get()
         .load(resourceId)
-        .transform(CropTransformation(width, height))
+        .resize(viewWidth, (viewWidth.toFloat() / ratio).toInt())
+        .transform(CropTransformation(viewWidth, viewHeight))
         .into(this)
 }

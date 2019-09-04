@@ -11,6 +11,8 @@
 package k.s.yarlykov.travelmeteo.ui
 
 import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Rect
 import com.squareup.picasso.Transformation
 
 /**
@@ -18,12 +20,11 @@ import com.squareup.picasso.Transformation
  * Нам нужно чтобы картинка полностью вошла в них по ширине, а
  * всю лишнюю часть сверху обрезаем.
  */
-class CropTransformation(val viewWidth: Int, val viewHeight: Int) : Transformation {
+class CropTransformationOld(val viewWidth: Int, val viewHeight: Int) : Transformation {
 
     override fun transform(source: Bitmap): Bitmap {
-
-        val actualW = if (viewWidth > source.width) source.width else viewWidth
-        val actualH = if (viewHeight > source.height) source.height else viewHeight
+        val actualW = Math.min(viewWidth, source.width)
+        val actualH = Math.min(viewHeight, source.height)
 
         val x = 0
         val y = if (viewHeight > source.height) 0 else source.height - viewHeight
@@ -36,16 +37,42 @@ class CropTransformation(val viewWidth: Int, val viewHeight: Int) : Transformati
     }
 
     override fun key(): String {
-        return "resize_${++count}"
-    }
-
-    companion object {
-        private var count = 0
+        return "resize_${viewWidth}_${viewHeight}"
     }
 }
 
+/**
+ * https://github.com/wasabeef/picasso-transformations/blob/master/transformations/src/main/java/jp/wasabeef/picasso/transformations/CropTransformation.java
+ */
+class CropTransformation(val viewWidth: Int, val viewHeight: Int) : Transformation {
+
+    // Сейчас прихо
+    override fun transform(source: Bitmap): Bitmap {
+        val actualW = Math.min(viewWidth, source.width)
+        val actualH = Math.min(viewHeight, source.height)
+
+        val x = 0
+        val y = if (source.height > viewHeight) source.height - viewHeight else 0
+
+        val rectSrc = Rect(x, y, x + actualW, y + actualH)
+        val rectDest = Rect(0, 0, actualW, actualH)
+
+        val bitmap = Bitmap.createBitmap(actualW, actualH, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        canvas.drawBitmap(source, rectSrc, rectDest, null)
+
+        source.recycle()
+        return bitmap
+    }
+
+    override fun key(): String {
+        return "resize_${viewWidth}_${viewHeight}"
+    }
+}
+
+
 // Изменение размера
-class ResizeTransformation(val width: Int, val height : Int) : Transformation {
+class ResizeTransformation(val width: Int, val height: Int) : Transformation {
     override fun transform(source: Bitmap?): Bitmap {
 
         return Bitmap.createBitmap(source!!, 0, 0, width, height).apply {

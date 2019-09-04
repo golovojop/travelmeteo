@@ -7,7 +7,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
-import android.graphics.drawable.AnimationDrawable
 import android.location.LocationManager
 import android.os.Bundle
 import android.support.design.widget.BottomSheetBehavior
@@ -22,8 +21,8 @@ import android.util.Log
 import android.util.TypedValue
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
 import android.widget.FrameLayout
+import android.widget.LinearLayout
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -270,63 +269,62 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, /*ForecastConsumer,
     // Расчитываем высоту "шапки" BottomSheet'a которая будет над BottomAppBar'ом
     override fun setBottomSheetSizing() {
 
+        // Максимальная высота всего содержимого BottomSheet
+        bottom_sheet.layoutParams.height = screenRatioHeight(0.6f)
+
+        // Высота BottomAppBar
         val bottomAppBarHeight = getActionBarHeight()
 
         // 1. Расчет и установка высоты верхней видимой части BottomSheet
         // в свернутом состоянии: то что будет видно над BottomAppBar.
         // Назовем эту видимую часть sheetCap
 
-        // 1.1. Расстояние между двумя CardView (верхняя рамка)
+        // 1.1. Расстояние между двумя наложенными друг на друга CardView (верхняя рамка)
         val shadowHeight = (cvNested.layoutParams as FrameLayout.LayoutParams).topMargin
+
         // 1.2. Высота видимой части BottomSheet
-        val sheetCapHeight = with(vSlider.layoutParams as FrameLayout.LayoutParams) {
-            2 * topMargin + height
+        val sheetCapHeight = with(vSlider.layoutParams as LinearLayout.LayoutParams) {
+            topMargin + bottomMargin + height
         }
-        // 2.1 Высота BottomAppBar
+
+        // 2.1 Высота рамки поверх BottomAppBar
         val bottomAppBarBorderHeight = (vAppBarBorder.layoutParams as CoordinatorLayout.LayoutParams).height
 
-        // 2.2 Складываем вместе и получаем peekHeight для BottomSheet
-        val calculatedHeight =
+        // 2.2 Складываем все вместе и получаем peekHeight для BottomSheet
+        val calculatedPeekHeight =
             bottomAppBarHeight +
                     shadowHeight +
                     sheetCapHeight +
                     bottomAppBarBorderHeight
 
-        // 2.3
-        BottomSheetBehavior.from(bottom_sheet).peekHeight = calculatedHeight
+        // 2.3 Установка высоты "шапочки"
+        BottomSheetBehavior.from(bottom_sheet).peekHeight = calculatedPeekHeight
 
         // 3 Позиционирование LinearLayout с прогнозом погоды внутри BottomSheet
-        // 3.1 Расчет отступа контента от верней рамки BottomSheet
+        // 3.1 Расчет отступа контента от верхней рамки BottomSheet
         val contentTopMargin =
             shadowHeight +
                     sheetCapHeight +
                     bottomAppBarBorderHeight
+
         // 3.2 Установка вычисленного значения через LayoutParams
         llForecast.layoutParams = (llForecast.layoutParams as FrameLayout.LayoutParams).apply {
             setMargins(this.leftMargin, contentTopMargin, this.rightMargin, this.bottomMargin)
         }
 
-        // 4.1 Позиционирование CardView с логотипом с таким же верхним отступом, что и LinearLayout с прогнозом погоды
-        cvMapLogo.layoutParams = (llForecast.layoutParams as FrameLayout.LayoutParams).apply {
-            setMargins(this.leftMargin, contentTopMargin, this.rightMargin, this.bottomMargin)
+        // 4.1 Позиционирование ImageView с картинкой фона.
+        // Почему-то в портретной ориентации отрисовка фона поверх BottomAppBar, как и надо,
+        // а в горизонтальной - картинка уходит вниз. Поэтому явно поднимаем её на высоту bottomAppBarHeight
+        ivNatureBg.layoutParams = (ivNatureBg.layoutParams as LinearLayout.LayoutParams).apply {
+            setMargins(this.leftMargin,
+                contentTopMargin,
+                this.rightMargin,
+                if(isLandscape) bottomAppBarHeight else this.bottomMargin)
         }
-
-        // 5.1 Высота картинки фона. Так как эта картинка находится в FrameLayout слайдера,
-        // то выставив её высоту достаточно большой мы определяем самый высокий элемент внутри CardView
-        // и по его высоте будет регулироваться высота остальных sibling элементов этой карточки.
-        ivNatureBg.layoutParams.height = screenRatioHeight(0.5f)
     }
 
     // Управление видимостью виджетов внутри BottomSheet
     override fun setBottomSheetVisibility(hideContent: Boolean) {
-        if (hideContent) {
-            cvMapLogo.visibility = View.VISIBLE
-            ivMapLogo.setBackgroundResource(R.drawable.crazy_marker)
-            (ivMapLogo.background as AnimationDrawable).start()
-        } else {
-            cvMapLogo.visibility = View.GONE
-            (ivMapLogo.background as AnimationDrawable).stop()
-        }
     }
 
     // Установка фона под прогнозом
@@ -343,12 +341,12 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, /*ForecastConsumer,
             else -> 4
         }
 
-        logIt("DayPart = ${dayPart}:${r}")
-
         // Отрисовываем картинку фона
         with(ivNatureBg) {
             if (isLandscape) {
-                loadAndCropWithPicasso(imagesId[r], dims.first, dims.second)
+                // Здесь вместо dims.first и dims.second уже можно использовать
+                // ivNatureBg.width и ivNatureBg.height. Значения одинаковые.
+                loadAndFitWithPicasso(imagesId[r], dims.first, dims.second)
             } else {
                 loadWithPicasso(imagesId[r], EmptyTransformation, 0f)
             }
@@ -401,7 +399,6 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, /*ForecastConsumer,
                     actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data, resources.displayMetrics)
             }
         }
-
         return actionBarHeight
     }
     //endregion
