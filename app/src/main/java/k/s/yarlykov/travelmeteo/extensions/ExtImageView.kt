@@ -2,9 +2,12 @@ package k.s.yarlykov.travelmeteo.extensions
 
 import android.graphics.Matrix
 import android.widget.ImageView
+import com.squareup.picasso.MemoryPolicy
 import com.squareup.picasso.Picasso
 import com.squareup.picasso.Transformation
-import k.s.yarlykov.travelmeteo.ui.CropTransformation
+import k.s.yarlykov.travelmeteo.data.domain.DayPart
+import k.s.yarlykov.travelmeteo.ui.CropHorizontalAndEnlargeVertical
+import k.s.yarlykov.travelmeteo.ui.ForegroundGradientOverlay
 
 /**
  * ImageView
@@ -40,18 +43,12 @@ fun ImageView.loadWithPicasso(resourceId: Int, transformation : Transformation, 
         .into(this)
 }
 
-/**
- * Алгоритм такой: у исходной png-картинки pic.width > pic.height и соотношение сторон w/h = 1.6
- * .resize - сначала ма растягиваем битмап картинки на ширину ImageView с сохранением исходной пропорции.
- * .transform - вырезаем из полученного битмапа нижнюю часть, соответствующую размеру ImageView.
- * Эту вырезанную часть и поместим в ImageView.
- */
-fun ImageView.loadAndFitWithPicasso(resourceId: Int, viewWidth : Int, viewHeight : Int) {
-    val ratio = 1.6f
+fun ImageView.loadAsForecastBackground(resourceId: Int, mode: DayPart, verticalScalling : Float) {
     Picasso
         .get()
         .load(resourceId)
-        .resize(viewWidth, (viewWidth.toFloat() / ratio).toInt())
-        .transform(CropTransformation(viewWidth, viewHeight))
+        .transform(CropHorizontalAndEnlargeVertical(0.25f, verticalScalling))
+        .transform(ForegroundGradientOverlay(mode))
+        .memoryPolicy(MemoryPolicy.NO_CACHE)
         .into(this)
 }

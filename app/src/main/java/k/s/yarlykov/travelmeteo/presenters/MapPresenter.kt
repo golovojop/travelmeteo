@@ -1,6 +1,5 @@
 package k.s.yarlykov.travelmeteo.presenters
 
-import android.content.Context
 import android.graphics.Bitmap
 import com.google.android.gms.maps.model.LatLng
 import k.s.yarlykov.travelmeteo.data.domain.CustomForecastModel
@@ -17,11 +16,11 @@ class MapPresenter(var mapView: IMapView?, private val wp: WeatherProvider) : IM
     override fun onCreate() {
         if(isPermissionsGranted) {
             mapView?.initViews()
-
         }
     }
 
     override fun onResume() {
+        // Если получены разрешения для работы с гео и если карта загружена, то...
         if(isPermissionsGranted && isMapScreenReady) {
             mapView?.setBottomSheetSizing()
         }
@@ -32,8 +31,8 @@ class MapPresenter(var mapView: IMapView?, private val wp: WeatherProvider) : IM
         isMapScreenReady = false
     }
 
-    override fun onPermissions(isGranted: Boolean) {
-        isPermissionsGranted = isGranted
+    override fun onPermissionsGranted() {
+        isPermissionsGranted = true
     }
 
     override fun onMapScreenReady() {
@@ -48,6 +47,14 @@ class MapPresenter(var mapView: IMapView?, private val wp: WeatherProvider) : IM
     override fun onMapLongClick(latLng: LatLng) {
         wp.requestForecastHourly(this, latLng)
     }
+
+    override fun onSavedDataPresent(model: CustomForecastModel?) {
+        model?.let {
+            mapView?.updateForecastData(model)
+        }
+    }
+
+
     //endregion
 
     //region ForecastConsumer

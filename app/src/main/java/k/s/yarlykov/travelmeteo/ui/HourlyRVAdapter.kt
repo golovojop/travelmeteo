@@ -7,7 +7,7 @@
 package k.s.yarlykov.travelmeteo.ui
 
 import android.content.Context
-import android.support.v7.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,7 +20,7 @@ import k.s.yarlykov.travelmeteo.data.domain.*
 import k.s.yarlykov.travelmeteo.extensions.*
 
 class HourlyRVAdapter(private val source: MutableList<CustomForecast>, val context: Context) :
-    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+    androidx.recyclerview.widget.RecyclerView.Adapter<androidx.recyclerview.widget.RecyclerView.ViewHolder>() {
 
     // Загрузить массивы с именами сторон света и значениями углов направления ветра
     val directionNames: List<String> = context.resources.getStringArray(R.array.compass_directions).asList()
@@ -41,7 +41,7 @@ class HourlyRVAdapter(private val source: MutableList<CustomForecast>, val conte
     }
 
     // Вызывается когда нужно создать новый элемент списка
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): androidx.recyclerview.widget.RecyclerView.ViewHolder {
 
         return when (viewType) {
             TYPE_HEADER -> {
@@ -65,7 +65,7 @@ class HourlyRVAdapter(private val source: MutableList<CustomForecast>, val conte
         }
     }
 
-    override fun onBindViewHolder(viewHolder: RecyclerView.ViewHolder, position: Int) {
+    override fun onBindViewHolder(viewHolder: androidx.recyclerview.widget.RecyclerView.ViewHolder, position: Int) {
 
         if (source.size == 0) return
 
@@ -83,7 +83,7 @@ class HourlyRVAdapter(private val source: MutableList<CustomForecast>, val conte
         return source.size
     }
 
-    inner class ViewHolderItem(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class ViewHolderItem(itemView: View) : androidx.recyclerview.widget.RecyclerView.ViewHolder(itemView) {
         val tvDate = itemView.findViewById<TextView>(R.id.tvHourlyDate)
         val tvTemp = itemView.findViewById<TextView>(R.id.tvHourlyTemp)
         val ivIcon = itemView.findViewById<ImageView>(R.id.ivHourlyIcon)
@@ -95,7 +95,7 @@ class HourlyRVAdapter(private val source: MutableList<CustomForecast>, val conte
         }
     }
 
-    inner class ViewHolderHeader(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class ViewHolderHeader(itemView: View) : androidx.recyclerview.widget.RecyclerView.ViewHolder(itemView) {
         val tvWind = itemView.findViewById<TextView>(R.id.tvWindValue)
         val tvWindDir = itemView.findViewById<TextView>(R.id.tvWindDirection)
         val tvPressure = itemView.findViewById<TextView>(R.id.tvPressureValue)

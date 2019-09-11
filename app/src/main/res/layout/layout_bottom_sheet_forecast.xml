@@ -2,108 +2,99 @@
 <LinearLayout xmlns:app="http://schemas.android.com/apk/res-auto"
               xmlns:android="http://schemas.android.com/apk/res/android"
               xmlns:tools="http://schemas.android.com/tools"
-              android:id="@+id/bottom_sheet"
+              android:id="@+id/bottomSheet"
               android:layout_width="match_parent"
-              android:layout_height="match_parent"
+              android:layout_height="wrap_content"
               android:orientation="vertical"
               android:background="@android:color/transparent"
-              android:layout_marginBottom="?attr/actionBarSize"
               app:behavior_hideable="false"
-              app:layout_behavior="android.support.design.widget.BottomSheetBehavior">
+              app:behavior_peekHeight="96dp"
+              app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
-    <!-- Two CardViews for top border with round corners -->
-    <android.support.v7.widget.CardView
-            xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    <!--Крышка-слайдер с закругленными верхними углами-->
+    <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"
-            card_view:cardCornerRadius="@dimen/card_bg_radius"
-            card_view:cardBackgroundColor="@color/top_border_bottom_sheet">
+            android:layout_height="40dp"
+            app:shapeAppearanceOverlay="@style/AppShapeAppearance.LargeComponent"
+            android:background="@android:color/white">
+        <View
+                android:id="@+id/vSlider"
+                android:layout_width="12dp"
+                android:layout_height="4dp"
+                android:layout_gravity="center_vertical|center_horizontal"
+                android:background="#4c4c4c"/>
+    </com.google.android.material.card.MaterialCardView>
 
-        <android.support.v7.widget.CardView
-                xmlns:card_view="http://schemas.android.com/apk/res-auto"
-                android:id="@+id/cvNested"
+    <!--Основная картинка и градиентный фон поверх неё-->
+    <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent">
+        <!-- Элемент играет роль фона -->
+        <ImageView
+                android:id="@+id/ivNatureBg"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:scaleType="centerCrop"
+                tools:src="@drawable/autumn_city_dawn_clear"/>
+        <!-- Main content -->
+        <LinearLayout
+                android:id="@+id/llForecast"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_gravity="center"
-                android:layout_marginTop="1.6dp"
-                card_view:cardCornerRadius="@dimen/card_bg_radius"
-                card_view:cardBackgroundColor="@android:color/white">
+                android:background="@drawable/bg_gradient_day"
+                android:orientation="vertical">
+            <!-- Place name -->
+            <TextView android:id="@+id/tvCity"
+                      android:layout_width="match_parent"
+                      android:layout_height="wrap_content"
+                      android:gravity="center"
+                      android:layout_margin="12dp"
+                      android:textSize="16sp"
+                      android:textColor="@android:color/white"
+                      android:text="@string/toolCity"
+                      tools:text="@string/toolCity"/>
 
-            <!-- Slider indicator and nature pic background-->
+            <!-- Temperature and current weather logo -->
             <LinearLayout android:layout_width="match_parent"
-                          android:layout_height="match_parent"
-                          android:orientation="vertical"
-                          android:id="@+id/llSlider">
-                <View
-                        android:id="@+id/vSlider"
-                        android:layout_marginTop="8dp"
-                        android:layout_marginBottom="8dp"
-                        android:layout_width="12dp"
-                        android:layout_height="4dp"
-                        android:layout_gravity="top|center_horizontal"
-                        android:background="#4c4c4c"/>
-                <ImageView
-                        android:id="@+id/ivNatureBg"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_gravity="bottom"
-                        app:srcCompat="@drawable/summer_01"
-                        tools:src="@drawable/summer_01"/>
-            </LinearLayout>
-
-            <!-- Main content -->
-            <LinearLayout
-                    android:id="@+id/llForecast"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:background="@drawable/bg_gradient_day"
-                    android:orientation="vertical">
-                <!-- Place name -->
-                <TextView android:id="@+id/tvCity"
-                          android:layout_width="match_parent"
                           android:layout_height="wrap_content"
-                          android:gravity="center"
-                          android:layout_margin="12dp"
-                          android:textSize="16sp"
+                          android:orientation="horizontal"
+                          android:gravity="center">
+
+                <TextView android:id="@+id/tvTemperature"
                           android:textColor="@android:color/white"
-                          android:text="@string/toolCity"
-                          tools:text="@string/toolCity"/>
+                          android:layout_width="wrap_content"
+                          android:layout_height="wrap_content"
+                          android:textSize="48sp"
+                          android:gravity="center"
+                          android:text="@string/toolTemperature"
+                          tools:text="@string/toolTemperature"/>
 
-                <!-- Temperature and current weather logo -->
-                <LinearLayout android:layout_width="match_parent"
-                              android:layout_height="wrap_content"
-                              android:orientation="horizontal"
-                              android:gravity="center">
-
-                    <TextView android:id="@+id/tvTemperature"
-                              android:textColor="@android:color/white"
-                              android:layout_width="wrap_content"
-                              android:layout_height="wrap_content"
-                              android:textSize="48sp"
-                              android:gravity="center"
-                              android:text="@string/toolTemperature"
-                              tools:text="@string/toolTemperature"/>
-
-                    <ImageView
-                            android:id="@+id/ivBkn"
-                            android:layout_width="@dimen/imgBknWidth"
-                            android:layout_height="@dimen/imgBknHeight"
-                            android:layout_marginStart="@dimen/leftMargin"
-                            android:layout_marginEnd="@dimen/endMargin"
-                            app:srcCompat="@drawable/bkn_d_flat"
-                            tools:src="@drawable/bkn_d_flat"/>
-                </LinearLayout>
-
-                <!-- Hourly forecast list -->
-                <android.support.v7.widget.RecyclerView
-                        android:id="@+id/rvHourly"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"/>
+                <ImageView
+                        android:id="@+id/ivBkn"
+                        android:layout_width="@dimen/imgBknWidth"
+                        android:layout_height="@dimen/imgBknHeight"
+                        android:layout_marginStart="@dimen/leftMargin"
+                        android:layout_marginEnd="@dimen/endMargin"
+                        app:srcCompat="@drawable/bkn_d_flat"
+                        tools:src="@drawable/bkn_d_flat"/>
             </LinearLayout>
-        </android.support.v7.widget.CardView>
-    </android.support.v7.widget.CardView>
+
+            <!-- Hourly forecast list -->
+            <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvHourly"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"/>
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+    <!--"Фальш-пол"- элемент для увеличения высоты BottomSheet на высоту BottomAppBar-->
+    <View
+            android:id="@+id/vFakeFooter"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@android:color/white"/>
 </LinearLayout>
 
 
