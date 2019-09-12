@@ -206,11 +206,8 @@ class MapActivity : AppCompatActivity(), IMapView {
         savedState?.let {
             presenter?.onSavedDataPresent(it.getParcelable(FORECAST_KEY) as? CustomForecastModel)
         }
-
-
-
         // Скрыть шторку BottomSheet, потому что карта ещё не загружена
-//        setBottomSheetVisibility(false)
+        setBottomSheetVisibility(false)
 
         // Инициализация RecycleView
         rvHourly.apply {
@@ -287,7 +284,7 @@ class MapActivity : AppCompatActivity(), IMapView {
                 hourly.initFromModel(it)
                 rvHourly.adapter?.notifyDataSetChanged()
                 // Сменить видимость виджетов
-//                setBottomSheetVisibility(lastForecastData == null)
+                setBottomSheetVisibility(lastForecastData == null)
                 // Выдвинуть шторку с виджетом
                 setBottomSheetState(STATE_EXPANDED)
                 // Установить картинку фона под прогноз
