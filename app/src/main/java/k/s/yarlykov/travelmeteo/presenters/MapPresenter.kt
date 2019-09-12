@@ -2,59 +2,74 @@ package k.s.yarlykov.travelmeteo.presenters
 
 import android.graphics.Bitmap
 import com.google.android.gms.maps.model.LatLng
+import io.reactivex.disposables.CompositeDisposable
 import k.s.yarlykov.travelmeteo.data.domain.CustomForecastModel
 import k.s.yarlykov.travelmeteo.data.sources.openweather.model.current.WeatherResponseModel
 import k.s.yarlykov.travelmeteo.data.sources.unifiedprovider.ForecastConsumer
 import k.s.yarlykov.travelmeteo.data.sources.unifiedprovider.WeatherProvider
+import k.s.yarlykov.travelmeteo.data.sources.unifiedprovider.WeatherProviderRx
+import k.s.yarlykov.travelmeteo.ui.MapActivity
 
-class MapPresenter(var mapView: IMapView?, private val wp: WeatherProvider) : IMapPresenter, ForecastConsumer {
+class MapPresenter(var mapView: IMapView, private val wp: WeatherProviderRx) : IMapPresenter, ForecastConsumer {
 
-    private var isPermissionsGranted = false
-    private var isMapScreenReady = false
+    private var isMapReady = false
+    private val meteoDataSource = wp.getForecastPublisher()
+    private val compositeDisposable = CompositeDisposable()
 
     //region Activity Life Cycle
+
+    // Вызывается, если приложению предоставлены разрешения ACCESS_X_LOCATION
     override fun onCreate() {
-        if(isPermissionsGranted) {
-            mapView?.initViews()
-        }
+        MapActivity.logIt("MapPresenter: onCreate()")
+
+        // Подписаться на получение данных из модели
+        compositeDisposable.add(
+            meteoDataSource.subscribe { model ->
+                mapView.updateForecastData(model)
+            }
+        )
+
+        // Загрузить макет
+        mapView.initViews()
+        // Загрузить карту
+        mapView.loadMap()
     }
 
     override fun onResume() {
-        // Если получены разрешения для работы с гео и если карта загружена, то...
-        if(isPermissionsGranted && isMapScreenReady) {
-            mapView?.setBottomSheetSizing()
+        MapActivity.logIt("MapPresenter: onResume(). isMapScreenReady = ${isMapReady}")
+        // Если карта загружена, то...
+        if (isMapReady) {
+            mapView.setBottomSheetSizing()
         }
     }
 
     override fun onDestroy() {
-        mapView = null
-        isMapScreenReady = false
+        compositeDisposable.clear()
     }
 
-    override fun onPermissionsGranted() {
-        isPermissionsGranted = true
-    }
-
-    override fun onMapScreenReady() {
-        isMapScreenReady = true
+    override fun onActivityLayoutLoaded() {
+        MapActivity.logIt("MapPresenter: onActivityLayoutLoaded()")
     }
     //endregion
 
     //region Map Events Handlers
-    override fun onMapClick(latLng: LatLng) {
+    override fun onMapLoaded() {
+        MapActivity.logIt("MapPresenter: onMapLoaded()")
+        isMapReady = true
     }
 
+    override fun onMapClick(latLng: LatLng) {}
+
     override fun onMapLongClick(latLng: LatLng) {
-        wp.requestForecastHourly(this, latLng)
+        MapActivity.logIt("MapPresenter: onMapLongClick()")
+        wp.requestForecastHourly(latLng)
     }
 
     override fun onSavedDataPresent(model: CustomForecastModel?) {
         model?.let {
-            mapView?.updateForecastData(model)
+            mapView.updateForecastData(model)
         }
     }
-
-
     //endregion
 
     //region ForecastConsumer
@@ -63,7 +78,7 @@ class MapPresenter(var mapView: IMapView?, private val wp: WeatherProvider) : IM
 
     override fun onForecastHourly(model: CustomForecastModel) {
         if (model.list.isNotEmpty()) {
-            mapView?.updateForecastData(model)
+            mapView.updateForecastData(model)
         }
     }
     //endregion

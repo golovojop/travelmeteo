@@ -4,7 +4,9 @@ import android.content.Context
 import k.s.yarlykov.travelmeteo.R
 import k.s.yarlykov.travelmeteo.data.domain.Season
 import k.s.yarlykov.travelmeteo.data.sources.openweather.api.OpenWeatherMapProvider
+import k.s.yarlykov.travelmeteo.data.sources.openweather.api.OpenWeatherMapProviderRx
 import k.s.yarlykov.travelmeteo.data.sources.unifiedprovider.AppWeatherProvider
+import k.s.yarlykov.travelmeteo.data.sources.unifiedprovider.AppWeatherProviderRx
 
 // Implemented by TravelMeteoApp
 interface AppExtensionProvider {
@@ -22,7 +24,7 @@ class AppExtensions(val context: Context) {
     init {
         backgroundPics = HashMap()
 
-        // Получить массив массивов. Массив, содержащий ID других массивов
+        // Получить массив массивов: массив, содержащий ID других массивов
         with(context.resources.obtainTypedArray(R.array.seasons)) {
             val seasons = enumValues<Season>()
 
@@ -43,6 +45,12 @@ class AppExtensions(val context: Context) {
         }
     }
 
+    // Вернуть поставщика метео данных
     fun getWeatherProvider() = AppWeatherProvider(OpenWeatherMapProvider)
+
+    // Вернуть поставщика метео данных
+    fun getWeatherProviderRx() = AppWeatherProviderRx(OpenWeatherMapProviderRx)
+
+    // Вернуть картинки фона для сезона года season
     fun getSeasonBackground(season: Season) : List<Int> = backgroundPics[season]!!
 }
