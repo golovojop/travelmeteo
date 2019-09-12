@@ -9,16 +9,12 @@ import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.location.LocationManager
 import android.os.Bundle
-import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_COLLAPSED
-import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDED
-import androidx.core.app.ActivityCompat
-import androidx.appcompat.app.AppCompatActivity
 import android.util.Log
-import android.util.TypedValue
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -27,12 +23,13 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
-import io.reactivex.Maybe
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_COLLAPSED
+import com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDED
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
-import io.reactivex.subjects.PublishSubject
 import k.s.yarlykov.travelmeteo.R
 import k.s.yarlykov.travelmeteo.data.domain.*
 import k.s.yarlykov.travelmeteo.di.AppExtensionProvider
@@ -45,18 +42,16 @@ import kotlinx.android.synthetic.main.activity_google_map.*
 import kotlinx.android.synthetic.main.layout_bottom_sheet_forecast.*
 import kotlin.random.Random
 
-class MapActivity : AppCompatActivity(), /*OnMapReadyCallback, ForecastConsumer,*/ IMapView {
+class MapActivity : AppCompatActivity(), IMapView {
 
     lateinit var locationManager: LocationManager
     lateinit var markers: MutableList<Marker>
 
     lateinit var appExtensions: AppExtensions
-    lateinit var obsLocationPermissions: Observable<Boolean>
-
+    lateinit var obsPermissions: Observable<Boolean>
 
     private var lastForecastData: CustomForecastModel? = null
     private var googleMap: GoogleMap? = null
-    private var isPermissionGranted = false
     private var isLandscape: Boolean = false
     private var savedState: Bundle? = null
     private var presenter: IMapPresenter? = null
@@ -75,9 +70,9 @@ class MapActivity : AppCompatActivity(), /*OnMapReadyCallback, ForecastConsumer,
          * https://habr.com/ru/post/270023/
          */
 
-        // Эмиттер результата проверки/запроса разрешений приложения
-        obsLocationPermissions = BehaviorSubject.create()
-        compositeDisposable.add(obsLocationPermissions.subscribe { isPermitted ->
+        // Проверку разрешений программы делаем реактивно ))
+        obsPermissions = BehaviorSubject.create()
+        compositeDisposable.add(obsPermissions.subscribe { isPermitted ->
             if (isPermitted) {
                 logIt("Location permissions granted")
                 appExtensions = (this.application as AppExtensionProvider).provideAppExtension()
@@ -149,7 +144,7 @@ class MapActivity : AppCompatActivity(), /*OnMapReadyCallback, ForecastConsumer,
                 )
             }
         } else {
-            (obsLocationPermissions as BehaviorSubject<Boolean>).onNext(true)
+            (obsPermissions as BehaviorSubject<Boolean>).onNext(true)
         }
     }
 
@@ -168,7 +163,6 @@ class MapActivity : AppCompatActivity(), /*OnMapReadyCallback, ForecastConsumer,
     }
     //endregion
 
-
     //region IMapView implementation. BottomSheet Management. Update forecast info.
     /**
      * Это Observable для загрузки карты
@@ -182,10 +176,8 @@ class MapActivity : AppCompatActivity(), /*OnMapReadyCallback, ForecastConsumer,
             Single.create<GoogleMap> { emitter ->
 
                 val mapReadyCallback = OnMapReadyCallback { map ->
-                    logIt("MapActivity: OnMapReadyCallback() ${map != null}")
-
+                    logIt("MapActivity: OnMapReadyCallback()")
                     googleMap = map
-                    initMap()
                     emitter.onSuccess(map)
                 }
                 mapFragment.getMapAsync(mapReadyCallback)
@@ -207,11 +199,15 @@ class MapActivity : AppCompatActivity(), /*OnMapReadyCallback, ForecastConsumer,
         setContentView(if (isLandscape) R.layout.activity_google_map_lan else R.layout.activity_google_map)
         // Добавить AppBar
         setSupportActionBar(bottom_app_bar)
+        // Location Manager
+        locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
         // Извлечение данных из savedState
         savedState?.let {
             presenter?.onSavedDataPresent(it.getParcelable(FORECAST_KEY) as? CustomForecastModel)
         }
+
+
 
         // Скрыть шторку BottomSheet, потому что карта ещё не загружена
 //        setBottomSheetVisibility(false)
@@ -299,26 +295,10 @@ class MapActivity : AppCompatActivity(), /*OnMapReadyCallback, ForecastConsumer,
             }
         }
     }
-
-    // Определить высоту AppBar'а
-    // https://stackoverflow.com/questions/12301510/how-to-get-the-actionbar-height/18427819#18427819
-//    private fun getActionBarHeight(): Int {
-//        var actionBarHeight = 0
-//
-//        supportActionBar?.let {
-//            actionBarHeight = it.height
-//
-//            if (actionBarHeight == 0) {
-//                val tv = TypedValue()
-//                if (theme.resolveAttribute(android.R.attr.actionBarSize, tv, true))
-//                    actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data, resources.displayMetrics)
-//            }
-//        }
-//        return actionBarHeight
-//    }
     //endregion
 
-    private fun initMap() {
+    //region Googlemap handlers
+    override fun initMap() {
         logIt("MapActivity: initMap()")
         googleMap?.let {
             it.uiSettings.isZoomControlsEnabled = false
@@ -342,7 +322,7 @@ class MapActivity : AppCompatActivity(), /*OnMapReadyCallback, ForecastConsumer,
             }
 
             @SuppressLint("MissingPermission")
-            it.isMyLocationEnabled = isPermissionGranted
+            it.isMyLocationEnabled = true
         }
     }
 

@@ -56,6 +56,7 @@ class MapPresenter(var mapView: IMapView, private val wp: WeatherProviderRx) : I
     override fun onMapLoaded() {
         MapActivity.logIt("MapPresenter: onMapLoaded()")
         isMapReady = true
+        mapView.initMap()
     }
 
     override fun onMapClick(latLng: LatLng) {}
