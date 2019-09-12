@@ -29,6 +29,11 @@ import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import io.reactivex.Observable
 import io.reactivex.Single
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.subjects.AsyncSubject
+import io.reactivex.subjects.BehaviorSubject
+import io.reactivex.subjects.PublishSubject
+import io.reactivex.subjects.Subject
 import k.s.yarlykov.travelmeteo.R
 import k.s.yarlykov.travelmeteo.data.domain.*
 import k.s.yarlykov.travelmeteo.di.AppExtensionProvider
@@ -45,8 +50,10 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, /*ForecastConsumer,
 
     lateinit var locationManager: LocationManager
     lateinit var markers: MutableList<Marker>
-    lateinit var presenter: IMapPresenter
+    var presenter: IMapPresenter? = null
     lateinit var appExtensions: AppExtensions
+    lateinit var obsLocationAccess: Observable<Boolean>
+    val compositeDisposable = CompositeDisposable()
     private var lastForecastData: CustomForecastModel? = null
     private var googleMap: GoogleMap? = null
     private var isPermissionGranted = false
@@ -63,27 +70,53 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, /*ForecastConsumer,
         appExtensions = (this.application as AppExtensionProvider).provideAppExtension()
         presenter = MapPresenter(this, appExtensions.getWeatherProvider())
 
+        /**
+         * Что-то мне сдается, что создавать презентера нужно только в том случае, если есть
+         * разрешения на GPS. Иначе нет смысла. Нужно создать
+         */
+
         // Запросить разрешение на работу с гео
         requestLocationPermissions()
 
         // Оповестить презентера
-        presenter.onCreate()
+        presenter?.onCreate()
+
+
+        /**
+         * https://medium.com/@kosmogradsky/subject-%D0%B2-rxjs-%D0%BA%D1%80%D0%B0%D1%82%D0%BA%D0%BE%D0%B5-%D0%B2%D0%B2%D0%B5%D0%B4%D0%B5%D0%BD%D0%B8%D0%B5-c9099231be6d
+         * https://habr.com/ru/post/270023/
+         */
+
+        obsLocationAccess = BehaviorSubject.create()
+
+        compositeDisposable.also {
+            it.add(obsLocationAccess.subscribe { isPermitted ->
+                if (isPermitted) {
+                    appExtensions = (this.application as AppExtensionProvider).provideAppExtension()
+                    presenter = MapPresenter(this, appExtensions.getWeatherProvider())
+                    presenter?.onCreate()
+                }
+            })
+        }
+
+        requestLocationPermissions()
     }
 
     override fun onResume() {
         super.onResume()
-        presenter.onResume()
+        presenter?.onResume()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        presenter.onDestroy()
+        compositeDisposable.clear()
+        presenter?.onDestroy()
     }
 
     // Сохранить последний прогноз
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState?.putParcelable(FORECAST_KEY, lastForecastData)
+        outState.putParcelable(FORECAST_KEY, lastForecastData)
     }
     //endregion
 
@@ -129,7 +162,9 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, /*ForecastConsumer,
             }
         } else {
             isPermissionGranted = true
-            presenter.onPermissionsGranted()
+            presenter?.onPermissionsGranted()
+            (obsLocationAccess as BehaviorSubject<Boolean>).onNext(true)
+
         }
     }
 
@@ -240,9 +275,9 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, /*ForecastConsumer,
          *
          * Наверное его нужно отдать в презентер, чтобы он ждал её загрузки
          */
-        val obsMap : Single<GoogleMap> = Single.create { emitter ->
+        val obsMap: Single<GoogleMap> = Single.create { emitter ->
 
-            val mapReadyCallback = OnMapReadyCallback {googleMap ->
+            val mapReadyCallback = OnMapReadyCallback { googleMap ->
                 emitter.onSuccess(googleMap)
             }
             mapFragment.getMapAsync(mapReadyCallback)
@@ -300,7 +335,7 @@ class MapActivity : AppCompatActivity(), OnMapReadyCallback, /*ForecastConsumer,
         // Массив с идентификаторами ресурсов картинок для текущего времени года
         val imagesId: List<Int> = appExtensions.getSeasonBackground(season)
 
-        // Выбрать картику в соответствии с текущим временем дня. Картинки для облачной погоды
+        // Выбрать картинку в соответствии с текущим временем дня. Картинки для облачной погоды
         // пока не используем, поэтому индексы через 1.
         val idx = when (dayPart) {
             DayPart.SUNRISE -> 0
