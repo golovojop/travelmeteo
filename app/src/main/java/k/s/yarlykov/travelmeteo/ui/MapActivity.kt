@@ -71,8 +71,9 @@ class MapActivity : AppCompatActivity(), IMapView {
          */
 
         // Проверку разрешений программы делаем реактивно ))
+        // Создаем Subject через который будет эмиттироваться результат проверки permissions
         obsPermissions = BehaviorSubject.create()
-        compositeDisposable.add(obsPermissions.subscribe { isPermitted ->
+        compositeDisposable.add(obsPermissions.subscribe { /* onNext */ isPermitted ->
             if (isPermitted) {
                 logIt("Location permissions granted")
                 appExtensions = (this.application as AppExtensionProvider).provideAppExtension()
@@ -81,6 +82,7 @@ class MapActivity : AppCompatActivity(), IMapView {
             }
         })
 
+        // Проверяем permissions
         requestLocationPermissions()
     }
 
@@ -91,15 +93,16 @@ class MapActivity : AppCompatActivity(), IMapView {
 
     override fun onDestroy() {
         super.onDestroy()
+        // clear() позволяет отписаться, а dispose() завершает эмиссию
         compositeDisposable.clear()
         presenter?.onDestroy()
     }
 
     // Сохранить последний прогноз
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        outState.putParcelable(FORECAST_KEY, lastForecastData)
-    }
+//    override fun onSaveInstanceState(outState: Bundle) {
+//        super.onSaveInstanceState(outState)
+//        outState.putParcelable(FORECAST_KEY, lastForecastData)
+//    }
     //endregion
 
     //region Options Menu
@@ -180,18 +183,19 @@ class MapActivity : AppCompatActivity(), IMapView {
                     googleMap = map
                     emitter.onSuccess(map)
                 }
+
                 mapFragment.getMapAsync(mapReadyCallback)
-            }.subscribe{_ -> presenter?.onMapLoaded()}
+            }.subscribe { _ -> presenter?.onMapLoaded() }
         )
     }
 
-    // Инициализация вьюшек
+    // Инициализация вьюшек.
     override fun initViews() {
         logIt("MapActivity::initViews()")
 
         // Очистить список с прогнозами
         hourly.clear()
-        // Список маркеров на карте
+        // Создать список для маркеров на карте
         markers = mutableListOf()
         // Определить ориентацию экрана
         isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
@@ -203,14 +207,14 @@ class MapActivity : AppCompatActivity(), IMapView {
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
         // Извлечение данных из savedState
-        savedState?.let {
-            presenter?.onSavedDataPresent(it.getParcelable(FORECAST_KEY) as? CustomForecastModel)
-        }
+//        savedState?.let {
+//            presenter?.onSavedDataPresent(it.getParcelable(FORECAST_KEY) as? CustomForecastModel)
+//        }
         // Скрыть шторку BottomSheet, потому что карта ещё не загружена
-        setBottomSheetVisibility(false)
+//        setBottomSheetVisibility(false)
 
         // Инициализация RecycleView
-        rvHourly.apply {
+        with(rvHourly) {
             // Размер RV не зависит от изменения размеров его элементов
             setHasFixedSize(true)
             // Горизонтальная прокрутка
@@ -238,7 +242,7 @@ class MapActivity : AppCompatActivity(), IMapView {
 
     // ????????????????
     override fun setBottomSheetSizing() {
-        setBottomSheetBackground(Season.WINTER, DayPart.DAY)
+        setBottomSheetBackground()
     }
 
     // Управление видимостью BottomSheet
@@ -247,7 +251,7 @@ class MapActivity : AppCompatActivity(), IMapView {
     }
 
     // Установка фона под прогнозом
-    fun setBottomSheetBackground(season: Season, dayPart: DayPart) {
+    fun setBottomSheetBackground(season: Season = Season.SUMMER, dayPart: DayPart = DayPart.DAY) {
 
         // Массив с идентификаторами ресурсов картинок для текущего времени года
         val imagesId: List<Int> = appExtensions.getSeasonBackground(season)
@@ -262,7 +266,7 @@ class MapActivity : AppCompatActivity(), IMapView {
 
         // Отрисовать картинку фона
         with(ivNatureBg) {
-            loadAsForecastBackground(imagesId[idx], dayPart, if (isLandscape) 3f else 5f)
+            loadAsForecastBackground(imagesId[idx], dayPart, if (isLandscape) 2f else 3f)
         }
     }
 
@@ -284,7 +288,7 @@ class MapActivity : AppCompatActivity(), IMapView {
                 hourly.initFromModel(it)
                 rvHourly.adapter?.notifyDataSetChanged()
                 // Сменить видимость виджетов
-                setBottomSheetVisibility(lastForecastData == null)
+//                setBottomSheetVisibility(lastForecastData == null)
                 // Выдвинуть шторку с виджетом
                 setBottomSheetState(STATE_EXPANDED)
                 // Установить картинку фона под прогноз

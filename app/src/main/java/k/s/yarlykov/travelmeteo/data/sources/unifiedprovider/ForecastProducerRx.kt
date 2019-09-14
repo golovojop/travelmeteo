@@ -4,6 +4,6 @@ import io.reactivex.Observable
 import k.s.yarlykov.travelmeteo.data.domain.CustomForecastModel
 
 interface ForecastProducerRx {
-    fun requestForecastHourlyRx(lat: String, lon: String)
-    fun getForecastPublisher() : Observable<CustomForecastModel>
+    fun onRequestForecastHourlyRx(lat: String, lon: String)
+    fun hourlyForecastStream() : Observable<CustomForecastModel>
 }

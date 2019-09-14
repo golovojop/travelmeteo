@@ -14,7 +14,7 @@ interface WeatherProvider {
 
 interface WeatherProviderRx {
     fun requestForecastHourly(coord: LatLng)
-    fun getForecastPublisher() : Observable<CustomForecastModel>
+    fun hourlyForecastStream() : Observable<CustomForecastModel>
 }
 
 data class AppWeatherProvider(val forecastProducer: ForecastProducer) : WeatherProvider {
@@ -31,10 +31,10 @@ data class AppWeatherProviderRx(val forecastProducer: ForecastProducerRx) : Weat
 
     override fun requestForecastHourly(coord: LatLng) {
         MapActivity.logIt("AppWeatherProviderRx: requestForecastHourly()")
-        forecastProducer.requestForecastHourlyRx(coord.lat(), coord.lon())
+        forecastProducer.onRequestForecastHourlyRx(coord.lat(), coord.lon())
     }
 
-    override fun getForecastPublisher(): Observable<CustomForecastModel> {
-        return forecastProducer.getForecastPublisher()
+    override fun hourlyForecastStream(): Observable<CustomForecastModel> {
+        return forecastProducer.hourlyForecastStream()
     }
 }

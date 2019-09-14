@@ -6,28 +6,20 @@ import io.reactivex.disposables.CompositeDisposable
 import k.s.yarlykov.travelmeteo.data.domain.CustomForecastModel
 import k.s.yarlykov.travelmeteo.data.sources.openweather.model.current.WeatherResponseModel
 import k.s.yarlykov.travelmeteo.data.sources.unifiedprovider.ForecastConsumer
-import k.s.yarlykov.travelmeteo.data.sources.unifiedprovider.WeatherProvider
 import k.s.yarlykov.travelmeteo.data.sources.unifiedprovider.WeatherProviderRx
 import k.s.yarlykov.travelmeteo.ui.MapActivity
 
 class MapPresenter(var mapView: IMapView, private val wp: WeatherProviderRx) : IMapPresenter, ForecastConsumer {
 
     private var isMapReady = false
-    private val meteoDataSource = wp.getForecastPublisher()
     private val compositeDisposable = CompositeDisposable()
+    private val forecastStream = wp.hourlyForecastStream()
 
     //region Activity Life Cycle
 
     // Вызывается, если приложению предоставлены разрешения ACCESS_X_LOCATION
     override fun onCreate() {
         MapActivity.logIt("MapPresenter: onCreate()")
-
-        // Подписаться на получение данных из модели
-        compositeDisposable.add(
-            meteoDataSource.subscribe { model ->
-                mapView.updateForecastData(model)
-            }
-        )
 
         // Загрузить макет
         mapView.initViews()
@@ -37,10 +29,22 @@ class MapPresenter(var mapView: IMapView, private val wp: WeatherProviderRx) : I
 
     override fun onResume() {
         MapActivity.logIt("MapPresenter: onResume(). isMapScreenReady = ${isMapReady}")
+
+        // Подписаться на получение данных из модели. Это нужно делать либо после mapView.initViews() либо
+        // здесь, потому что данные о прогнозе могут прилететь раньше, чем загрузится макет.
+        // (Например, при повороте экрана)
+        compositeDisposable.add(
+            forecastStream.subscribe { model ->
+                mapView.updateForecastData(model)
+            }
+        )
+
         // Если карта загружена, то...
-        if (isMapReady) {
-            mapView.setBottomSheetSizing()
-        }
+//        mapView.setBottomSheetSizing()
+//
+//        if (isMapReady) {
+//            mapView.setBottomSheetSizing()
+//        }
     }
 
     override fun onDestroy() {
@@ -67,9 +71,9 @@ class MapPresenter(var mapView: IMapView, private val wp: WeatherProviderRx) : I
     }
 
     override fun onSavedDataPresent(model: CustomForecastModel?) {
-        model?.let {
-            mapView.updateForecastData(model)
-        }
+//        model?.let {
+//            mapView.updateForecastData(model)
+//        }
     }
     //endregion
 
