@@ -26,7 +26,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
-            app:backgroundTint="@android:color/transparent"
+            app:backgroundTint="@android:color/white"
             app:hideOnScroll="true"
             app:layout_scrollFlags="scroll|enterAlways"/>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

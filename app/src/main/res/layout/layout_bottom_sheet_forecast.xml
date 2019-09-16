@@ -25,12 +25,15 @@
                 android:background="#4c4c4c"/>
     </com.google.android.material.card.MaterialCardView>
 
-    <!--Основная картинка и градиентный фон поверх неё-->
+    <!-- Карточка с основным контентом. Включает в себя фоновую картинку -->
+    <!-- с градиентной заливкой поверх нее и данные о погоде -->
     <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@android:color/transparent">
+
         <!-- Элемент играет роль фона -->
+        <!-- Располагается ПОД контентом -->
         <ImageView
                 android:id="@+id/ivNatureBg"
                 android:layout_width="match_parent"
@@ -38,7 +41,7 @@
                 android:adjustViewBounds="true"
                 android:scaleType="fitXY"
                 tools:src="@drawable/autumn_city_dawn_clear"/>
-        <!-- Main content -->
+        <!-- Основной контент. ПОВЕРХ фона -->
         <LinearLayout
                 android:id="@+id/llForecast"
                 android:layout_width="match_parent"
@@ -87,6 +90,52 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"/>
+        </LinearLayout>
+
+        <!-- Элемент располагается внутри карточки поверх двух предыдущих элементов (ImageView и LinearLayout)-->
+        <!-- Выполнет роль "запонителя пустого места", пока нет метео данных и одновременно подсказки -->
+        <!-- Исчезает при появлении данных -->
+        <LinearLayout
+                android:id="@+id/llHint"
+                android:layout_width="match_parent"
+                android:layout_height="256dp"
+                android:background="@android:color/white"
+                android:orientation="vertical">
+            <View
+                    android:layout_width="match_parent"
+                    android:layout_height="2dp"
+                    android:layout_gravity="center_vertical|center_horizontal"
+                    android:background="#cccccc"/>
+
+            <!-- Text Auto Sizing -->
+            <!-- https://alvinalexander.com/bookmarks/android/links-about-adjusting-android-text-font-size-fit-textview-without-scrolling  -->
+            <!-- https://stackoverflow.com/questions/2596452/how-to-scale-resize-text-to-fit-a-textview -->
+            <!-- https://github.com/grantland/android-autofittextview  -->
+            <me.grantland.widget.AutofitTextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="24dp"
+                    android:layout_marginEnd="24dp"
+                    android:layout_marginTop="6dp"
+                    android:layout_marginBottom="6dp"
+                    android:gravity="center"
+                    android:textStyle="bold"
+                    android:textAllCaps="true"
+                    android:textColor="@android:color/background_dark"
+                    android:textSize="22sp"
+                    app:minTextSize="16sp"
+                    android:text="@string/mapHint"
+                    android:singleLine="true"
+                    android:maxLines="1"
+                    tools:text="@string/mapHint"/>
+            <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="8dp"
+                    android:elevation="4dp"
+                    android:scaleType="centerCrop"
+                    app:srcCompat="@drawable/hint_background"
+                    tools:src="@drawable/hint_background"/>
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
     <!--"Фальш-пол"- элемент для увеличения высоты BottomSheet на высоту BottomAppBar-->
