@@ -273,6 +273,9 @@ class MapActivity : AppCompatActivity(), IMapView {
     // Обновить контент в BottomSheet новыми данными
     override fun updateForecastData(model: CustomForecastModel?) {
         model?.let { m ->
+
+            llHint.visibility = View.GONE
+
             // Сохранить последний прогноз
             lastForecastData = m
 

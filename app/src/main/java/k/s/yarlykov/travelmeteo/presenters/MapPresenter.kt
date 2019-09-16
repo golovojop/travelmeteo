@@ -30,21 +30,14 @@ class MapPresenter(var mapView: IMapView, private val wp: WeatherProviderRx) : I
     override fun onResume() {
         MapActivity.logIt("MapPresenter: onResume(). isMapScreenReady = ${isMapReady}")
 
-        // Подписаться на получение данных из модели. Это нужно делать либо после mapView.initViews() либо
-        // здесь, потому что данные о прогнозе могут прилететь раньше, чем загрузится макет.
-        // (Например, при повороте экрана)
+        // Подписаться на получение данных из модели.
+        // Это нужно делать либо после mapView.initViews() либо здесь, потому что данные о прогнозе
+        // могут прилететь раньше, чем загрузится макет. Например, при повороте экрана.
         compositeDisposable.add(
             forecastStream.subscribe { model ->
                 mapView.updateForecastData(model)
             }
         )
-
-        // Если карта загружена, то...
-//        mapView.setBottomSheetSizing()
-//
-//        if (isMapReady) {
-//            mapView.setBottomSheetSizing()
-//        }
     }
 
     override fun onDestroy() {
