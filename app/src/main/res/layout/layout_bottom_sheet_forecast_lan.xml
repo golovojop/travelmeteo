@@ -25,12 +25,16 @@
                 android:background="#4c4c4c"/>
     </com.google.android.material.card.MaterialCardView>
 
-    <!--Основная картинка и градиентный фон поверх неё-->
+    <!-- Карточка с основным контентом. Включает в себя фоновую картинку -->
+    <!-- с градиентной заливкой поверх нее и данные о погоде -->
     <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@android:color/transparent">
+
         <!-- Элемент играет роль фона -->
+        <!-- Располагается ПОД контентом -->
+        <!-- Z = 0 -->
         <ImageView
                 android:id="@+id/ivNatureBg"
                 android:layout_width="match_parent"
@@ -38,17 +42,21 @@
                 android:adjustViewBounds="true"
                 android:scaleType="fitXY"
                 tools:src="@drawable/autumn_city_dawn_clear"/>
-        <!-- Main content -->
+
+        <!-- Основной контент. ПОВЕРХ фона -->
+        <!-- Z = 1 -->
         <LinearLayout
                 android:id="@+id/llForecast"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:gravity="center"
                 android:background="@drawable/bg_gradient_day"
                 android:orientation="horizontal">
             <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1.5"
+                    android:gravity="center"
                     android:layout_marginStart="20dp"
                     android:orientation="vertical">
                 <!-- Place name -->
@@ -92,13 +100,13 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="3"
                     android:layout_marginTop="4dp"
-                    android:layout_marginBottom="100dp"
                     app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
         </LinearLayout>
 
         <!-- Элемент располагается внутри карточки поверх двух предыдущих элементов (ImageView и LinearLayout)-->
         <!-- Выполнет роль "запонителя пустого места", пока нет метео данных и одновременно подсказки -->
         <!-- Исчезает при появлении данных -->
+        <!-- Z = 2 -->
         <LinearLayout
                 android:id="@+id/llHint"
                 android:layout_width="match_parent"
@@ -118,8 +126,8 @@
             <me.grantland.widget.AutofitTextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="36dp"
-                    android:layout_marginEnd="36dp"
+                    android:layout_marginStart="48dp"
+                    android:layout_marginEnd="48dp"
                     android:layout_marginTop="6dp"
                     android:layout_marginBottom="6dp"
                     android:gravity="center"
@@ -138,8 +146,8 @@
                     android:layout_margin="8dp"
                     android:elevation="4dp"
                     android:scaleType="centerCrop"
-                    app:srcCompat="@drawable/hint_background"
-                    tools:src="@drawable/hint_background"/>
+                    app:srcCompat="@drawable/bg_map"
+                    tools:src="@drawable/bg_map"/>
         </LinearLayout>
 
     </com.google.android.material.card.MaterialCardView>

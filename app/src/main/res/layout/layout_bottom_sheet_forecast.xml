@@ -114,8 +114,8 @@
             <me.grantland.widget.AutofitTextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="24dp"
-                    android:layout_marginEnd="24dp"
+                    android:layout_marginStart="36dp"
+                    android:layout_marginEnd="36dp"
                     android:layout_marginTop="6dp"
                     android:layout_marginBottom="6dp"
                     android:gravity="center"
@@ -134,8 +134,8 @@
                     android:layout_margin="8dp"
                     android:elevation="4dp"
                     android:scaleType="centerCrop"
-                    app:srcCompat="@drawable/hint_background"
-                    tools:src="@drawable/hint_background"/>
+                    app:srcCompat="@drawable/bg_map"
+                    tools:src="@drawable/bg_map"/>
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
     <!--"Фальш-пол"- элемент для увеличения высоты BottomSheet на высоту BottomAppBar-->
