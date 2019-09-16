@@ -41,6 +41,7 @@
                 android:adjustViewBounds="true"
                 android:scaleType="fitXY"
                 tools:src="@drawable/autumn_city_dawn_clear"/>
+
         <!-- Основной контент. ПОВЕРХ фона -->
         <LinearLayout
                 android:id="@+id/llForecast"

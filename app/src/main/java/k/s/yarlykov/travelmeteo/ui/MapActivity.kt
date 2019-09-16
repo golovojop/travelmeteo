@@ -273,7 +273,7 @@ class MapActivity : AppCompatActivity(), IMapView {
     // Обновить контент в BottomSheet новыми данными
     override fun updateForecastData(model: CustomForecastModel?) {
         model?.let { m ->
-
+            // Сменить видимость виджетов
             llHint.visibility = View.GONE
 
             // Сохранить последний прогноз
@@ -290,12 +290,10 @@ class MapActivity : AppCompatActivity(), IMapView {
                 // Обновить RecycleView
                 hourly.initFromModel(it)
                 rvHourly.adapter?.notifyDataSetChanged()
-                // Сменить видимость виджетов
-//                setBottomSheetVisibility(lastForecastData == null)
-                // Выдвинуть шторку с виджетом
-                setBottomSheetState(STATE_EXPANDED)
                 // Установить картинку фона под прогноз
                 setBottomSheetBackground(m.season, m.dayPart)
+                // Выдвинуть шторку с виджетом
+                setBottomSheetState(STATE_EXPANDED)
             }
         }
     }
