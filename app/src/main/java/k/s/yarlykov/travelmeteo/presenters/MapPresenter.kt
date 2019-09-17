@@ -2,6 +2,7 @@ package k.s.yarlykov.travelmeteo.presenters
 
 import android.graphics.Bitmap
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import io.reactivex.disposables.CompositeDisposable
 import k.s.yarlykov.travelmeteo.data.domain.CustomForecastModel
 import k.s.yarlykov.travelmeteo.data.sources.openweather.model.current.WeatherResponseModel
@@ -56,7 +57,9 @@ class MapPresenter(var mapView: IMapView, private val wp: WeatherProviderRx) : I
         mapView.initMap()
     }
 
-    override fun onMapClick(latLng: LatLng) {}
+    override fun onMapClick(latLng: LatLng) {
+        mapView.setBottomSheetState(BottomSheetBehavior.STATE_COLLAPSED)
+    }
 
     override fun onMapLongClick(latLng: LatLng) {
         MapActivity.logIt("MapPresenter: onMapLongClick()")
@@ -64,9 +67,6 @@ class MapPresenter(var mapView: IMapView, private val wp: WeatherProviderRx) : I
     }
 
     override fun onSavedDataPresent(model: CustomForecastModel?) {
-//        model?.let {
-//            mapView.updateForecastData(model)
-//        }
     }
     //endregion
 

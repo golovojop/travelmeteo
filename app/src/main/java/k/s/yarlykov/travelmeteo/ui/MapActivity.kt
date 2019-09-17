@@ -50,7 +50,6 @@ class MapActivity : AppCompatActivity(), IMapView {
     lateinit var appExtensions: AppExtensions
     lateinit var obsPermissions: Observable<Boolean>
 
-    private var lastForecastData: CustomForecastModel? = null
     private var googleMap: GoogleMap? = null
     private var isLandscape: Boolean = false
     private var savedState: Bundle? = null
@@ -97,12 +96,6 @@ class MapActivity : AppCompatActivity(), IMapView {
         compositeDisposable.clear()
         presenter?.onDestroy()
     }
-
-    // Сохранить последний прогноз
-//    override fun onSaveInstanceState(outState: Bundle) {
-//        super.onSaveInstanceState(outState)
-//        outState.putParcelable(FORECAST_KEY, lastForecastData)
-//    }
     //endregion
 
     //region Options Menu
@@ -206,12 +199,24 @@ class MapActivity : AppCompatActivity(), IMapView {
         // Location Manager
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
-        // Извлечение данных из savedState
-//        savedState?.let {
-//            presenter?.onSavedDataPresent(it.getParcelable(FORECAST_KEY) as? CustomForecastModel)
-//        }
-        // Скрыть шторку BottomSheet, потому что карта ещё не загружена
-//        setBottomSheetVisibility(false)
+        /**
+         * Решение проблемы с отрисовкой BottomSheet в положении landscape.
+         * Проблема была следующая - при первом показе в горизонтальной ориентации шторка всплывала
+         * не до конца. Со второго и далее показов всплывала нормально.
+         * https://stackoverflow.com/questions/35685681/dynamically-change-height-of-bottomsheetbehavior
+         *
+         */
+        BottomSheetBehavior.from(bottomSheet).bottomSheetCallback = object : BottomSheetBehavior.BottomSheetCallback() {
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {
+            }
+
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+                bottomSheet.post {
+                    bottomSheet.requestLayout()
+                    bottomSheet.invalidate()
+                }
+            }
+        }
 
         // Инициализация RecycleView
         with(rvHourly) {
@@ -237,7 +242,9 @@ class MapActivity : AppCompatActivity(), IMapView {
      */
     // Установить положение шторки: свернута или выдвинута на высоту контента
     override fun setBottomSheetState(state: Int) {
-        BottomSheetBehavior.from(bottomSheet).state = state
+        with(BottomSheetBehavior.from(bottomSheet)) {
+            this.state = state
+        }
     }
 
     // ????????????????
@@ -251,7 +258,7 @@ class MapActivity : AppCompatActivity(), IMapView {
     }
 
     // Установка фона под прогнозом
-    fun setBottomSheetBackground(season: Season = Season.SUMMER, dayPart: DayPart = DayPart.DAY) {
+    private fun setBottomSheetBackground(season: Season = Season.SUMMER, dayPart: DayPart = DayPart.DAY) {
 
         // Массив с идентификаторами ресурсов картинок для текущего времени года
         val imagesId: List<Int> = appExtensions.getSeasonBackground(season)
@@ -273,11 +280,6 @@ class MapActivity : AppCompatActivity(), IMapView {
     // Обновить контент в BottomSheet новыми данными
     override fun updateForecastData(model: CustomForecastModel?) {
         model?.let { m ->
-            // Сменить видимость виджетов
-            llHint.visibility = View.GONE
-
-            // Сохранить последний прогноз
-            lastForecastData = m
 
             m.list.let {
                 // Установить название места
@@ -290,6 +292,9 @@ class MapActivity : AppCompatActivity(), IMapView {
                 // Обновить RecycleView
                 hourly.initFromModel(it)
                 rvHourly.adapter?.notifyDataSetChanged()
+
+                // Скрыть виджет с подсказкой
+                llHint.visibility = View.GONE
                 // Установить картинку фона под прогноз
                 setBottomSheetBackground(m.season, m.dayPart)
                 // Выдвинуть шторку с виджетом
@@ -308,7 +313,6 @@ class MapActivity : AppCompatActivity(), IMapView {
             it.setPadding(0, 0, 0, dpToPix(80.toFloat()))
 
             it.setOnMapClickListener { latLng ->
-                setBottomSheetState(STATE_COLLAPSED)
                 markers.deleteAll()
                 presenter?.onMapClick(latLng)
             }

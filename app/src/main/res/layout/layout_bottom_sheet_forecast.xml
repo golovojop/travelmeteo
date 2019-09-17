@@ -46,8 +46,7 @@
         <LinearLayout
                 android:id="@+id/llForecast"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/bg_gradient_day"
+                android:layout_height="wrap_content"
                 android:orientation="vertical">
             <!-- Place name -->
             <TextView android:id="@+id/tvCity"
