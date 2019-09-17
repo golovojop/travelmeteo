@@ -199,24 +199,7 @@ class MapActivity : AppCompatActivity(), IMapView {
         // Location Manager
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
-        /**
-         * Решение проблемы с отрисовкой BottomSheet в положении landscape.
-         * Проблема была следующая - при первом показе в горизонтальной ориентации шторка всплывала
-         * не до конца. Со второго и далее показов всплывала нормально.
-         * https://stackoverflow.com/questions/35685681/dynamically-change-height-of-bottomsheetbehavior
-         *
-         */
-        BottomSheetBehavior.from(bottomSheet).bottomSheetCallback = object : BottomSheetBehavior.BottomSheetCallback() {
-            override fun onSlide(bottomSheet: View, slideOffset: Float) {
-            }
-
-            override fun onStateChanged(bottomSheet: View, newState: Int) {
-                bottomSheet.post {
-                    bottomSheet.requestLayout()
-                    bottomSheet.invalidate()
-                }
-            }
-        }
+        if(isLandscape) setBottomSheetCallback()
 
         // Инициализация RecycleView
         with(rvHourly) {
@@ -242,19 +225,15 @@ class MapActivity : AppCompatActivity(), IMapView {
      */
     // Установить положение шторки: свернута или выдвинута на высоту контента
     override fun setBottomSheetState(state: Int) {
-        with(BottomSheetBehavior.from(bottomSheet)) {
-            this.state = state
-        }
+        BottomSheetBehavior.from(bottomSheet).state = state
     }
 
     // ????????????????
     override fun setBottomSheetSizing() {
-        setBottomSheetBackground()
     }
 
-    // Управление видимостью BottomSheet
+    // ????????????????
     override fun setBottomSheetVisibility(isVisible: Boolean) {
-        bottomSheet.visibility = if (isVisible) View.VISIBLE else View.GONE
     }
 
     // Установка фона под прогнозом
@@ -274,6 +253,28 @@ class MapActivity : AppCompatActivity(), IMapView {
         // Отрисовать картинку фона
         with(ivNatureBg) {
             loadAsForecastBackground(imagesId[idx], dayPart, if (isLandscape) 2f else 3f)
+        }
+    }
+
+    /**
+     * Решение проблемы с отрисовкой BottomSheet в положении landscape.
+     * Проблема была следующая - при первом показе в горизонтальной ориентации шторка всплывала
+     * не до конца. Со второго и далее показов всплывала нормально.
+     * https://stackoverflow.com/questions/35685681/dynamically-change-height-of-bottomsheetbehavior
+     *
+     */
+    private fun setBottomSheetCallback() {
+
+        BottomSheetBehavior.from(bottomSheet).bottomSheetCallback = object : BottomSheetBehavior.BottomSheetCallback() {
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {
+            }
+
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+                bottomSheet.post {
+                    bottomSheet.requestLayout()
+                    bottomSheet.invalidate()
+                }
+            }
         }
     }
 
