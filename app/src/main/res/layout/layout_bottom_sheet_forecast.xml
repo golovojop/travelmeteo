@@ -17,12 +17,18 @@
             android:layout_height="40dp"
             app:shapeAppearanceOverlay="@style/AppShapeAppearance.LargeComponent"
             android:background="@android:color/white">
-        <View
+        <ImageView
                 android:id="@+id/vSlider"
-                android:layout_width="12dp"
-                android:layout_height="4dp"
-                android:layout_gravity="center_vertical|center_horizontal"
-                android:background="#4c4c4c"/>
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:srcCompat="@drawable/ic_arrow"
+                android:layout_gravity="center_vertical|center_horizontal"/>
+        <!--<View-->
+        <!--android:id="@+id/vSlider"-->
+        <!--android:layout_width="12dp"-->
+        <!--android:layout_height="4dp"-->
+        <!--android:layout_gravity="center_vertical|center_horizontal"-->
+        <!--android:background="#4c4c4c"/>-->
     </com.google.android.material.card.MaterialCardView>
 
     <!-- Карточка с основным контентом. Включает в себя фоновую картинку -->

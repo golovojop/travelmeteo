@@ -196,10 +196,11 @@ class MapActivity : AppCompatActivity(), IMapView {
         setContentView(if (isLandscape) R.layout.activity_google_map_lan else R.layout.activity_google_map)
         // Добавить AppBar
         setSupportActionBar(bottom_app_bar)
+
         // Location Manager
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
-        if(isLandscape) setBottomSheetCallback()
+        setBottomSheetCallback()
 
         // Инициализация RecycleView
         with(rvHourly) {
@@ -228,14 +229,6 @@ class MapActivity : AppCompatActivity(), IMapView {
         BottomSheetBehavior.from(bottomSheet).state = state
     }
 
-    // ????????????????
-    override fun setBottomSheetSizing() {
-    }
-
-    // ????????????????
-    override fun setBottomSheetVisibility(isVisible: Boolean) {
-    }
-
     // Установка фона под прогнозом
     private fun setBottomSheetBackground(season: Season = Season.SUMMER, dayPart: DayPart = DayPart.DAY) {
 
@@ -257,7 +250,9 @@ class MapActivity : AppCompatActivity(), IMapView {
     }
 
     /**
-     * Решение проблемы с отрисовкой BottomSheet в положении landscape.
+     * onSlide: Поворот стрелки на крышке шторки
+     *
+     * onStateChanged: Решение проблемы с отрисовкой BottomSheet в положении landscape.
      * Проблема была следующая - при первом показе в горизонтальной ориентации шторка всплывала
      * не до конца. Со второго и далее показов всплывала нормально.
      * https://stackoverflow.com/questions/35685681/dynamically-change-height-of-bottomsheetbehavior
@@ -265,14 +260,20 @@ class MapActivity : AppCompatActivity(), IMapView {
      */
     private fun setBottomSheetCallback() {
 
-        BottomSheetBehavior.from(bottomSheet).bottomSheetCallback = object : BottomSheetBehavior.BottomSheetCallback() {
-            override fun onSlide(bottomSheet: View, slideOffset: Float) {
-            }
+        with(BottomSheetBehavior.from(bottomSheet)) {
 
-            override fun onStateChanged(bottomSheet: View, newState: Int) {
-                bottomSheet.post {
-                    bottomSheet.requestLayout()
-                    bottomSheet.invalidate()
+            bottomSheetCallback = object : BottomSheetBehavior.BottomSheetCallback() {
+                override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                    animateBottomSheetArrows(slideOffset)
+                }
+
+                override fun onStateChanged(bottomSheet: View, newState: Int) {
+                    if(isLandscape) {
+                        bottomSheet.post {
+                            bottomSheet.requestLayout()
+                            bottomSheet.invalidate()
+                        }
+                    }
                 }
             }
         }
@@ -302,6 +303,11 @@ class MapActivity : AppCompatActivity(), IMapView {
                 setBottomSheetState(STATE_EXPANDED)
             }
         }
+    }
+
+    // Поворот стрелки.
+    private fun animateBottomSheetArrows(slideOffset : Float) {
+        vSlider.rotation = slideOffset * -180f
     }
     //endregion
 

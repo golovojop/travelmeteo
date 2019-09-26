@@ -7,7 +7,5 @@ interface IMapView {
     fun initMap()
     fun loadMap()
     fun setBottomSheetState(state: Int)
-    fun setBottomSheetSizing()
-    fun setBottomSheetVisibility(isVisible: Boolean)
     fun updateForecastData(model: CustomForecastModel?)
 }
