@@ -23,12 +23,7 @@
                 android:layout_height="wrap_content"
                 app:srcCompat="@drawable/ic_arrow"
                 android:layout_gravity="center_vertical|center_horizontal"/>
-        <!--<View-->
-        <!--android:id="@+id/vSlider"-->
-        <!--android:layout_width="12dp"-->
-        <!--android:layout_height="4dp"-->
-        <!--android:layout_gravity="center_vertical|center_horizontal"-->
-        <!--android:background="#4c4c4c"/>-->
+
     </com.google.android.material.card.MaterialCardView>
 
     <!-- Карточка с основным контентом. Включает в себя фоновую картинку -->
@@ -51,24 +46,24 @@
 
         <!-- Основной контент. ПОВЕРХ фона -->
         <!-- Z = 1 -->
-        <LinearLayout
+        <androidx.coordinatorlayout.widget.CoordinatorLayout
                 android:id="@+id/llForecast"
+                android:layout_gravity="center_vertical|center_horizontal"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="horizontal">
+                android:layout_height="wrap_content">
 
             <!-- Head of forecast-->
             <LinearLayout
-                    android:layout_width="0dp"
+                    android:id="@+id/headView"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1.5"
                     android:gravity="center"
+                    android:layout_gravity="start|center_vertical"
                     android:layout_marginStart="20dp"
                     android:orientation="vertical">
                 <!-- Place name -->
                 <TextView android:id="@+id/tvCity"
-                          android:layout_width="match_parent"
+                          android:layout_width="wrap_content"
                           android:layout_height="wrap_content"
                           android:gravity="center"
                           android:layout_margin="12dp"
@@ -104,17 +99,23 @@
             <!-- Tail of forecast: Hourly list -->
             <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rvHourly"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="3"/>
-        </LinearLayout>
+                    app:layout_anchorGravity="right|center_vertical"
+                    app:layout_anchor="@id/headView"
+                    android:layout_gravity="end|center"
+                    android:layout_width="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:layout_height="wrap_content"/>
+
+        </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
 
         <!-- Элемент располагается внутри карточки поверх двух предыдущих элементов (ImageView и LinearLayout)-->
-        <!-- Выполнет роль "запонителя пустого места", пока нет метео данных и одновременно подсказки -->
+        <!-- Выполнет роль "заполнителя пустого места", пока нет метео данных и одновременно подсказки -->
         <!-- Исчезает при появлении данных -->
         <!-- Z = 2 -->
         <LinearLayout
                 android:id="@+id/llHint"
+                android:visibility="invisible"
                 android:layout_width="match_parent"
                 android:layout_height="192dp"
                 android:background="@android:color/white"
