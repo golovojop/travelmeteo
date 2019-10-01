@@ -26,152 +26,98 @@
 
     </com.google.android.material.card.MaterialCardView>
 
+
     <!-- Карточка с основным контентом. Включает в себя фоновую картинку -->
     <!-- с градиентной заливкой поверх нее и данные о погоде -->
-    <!--<com.google.android.material.card.MaterialCardView-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:background="@android:color/transparent">-->
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+            android:id="@+id/clForecast"
+            android:layout_gravity="center_vertical|center_horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+        <!-- Элемент располагается внутри карточки поверх двух предыдущих элементов (ImageView и LinearLayout)-->
+        <!-- Выполнет роль "заполнителя пустого места", пока нет метео данных и одновременно подсказки -->
+        <!-- Исчезает при появлении данных -->
+        <!-- Z = 2 -->
+        <include layout="@layout/layout_hint"/>
 
         <!-- Элемент играет роль фона -->
         <!-- Располагается ПОД контентом -->
         <!-- Z = 0 -->
-        <!--<ImageView-->
-                <!--android:id="@+id/ivNatureBg"-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:adjustViewBounds="true"-->
-                <!--android:scaleType="fitXY"-->
-                <!--tools:src="@drawable/autumn_city_dawn_clear"/>-->
+        <ImageView
+                android:id="@+id/ivNatureBg"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:scaleType="fitXY"
+                tools:src="@drawable/autumn_city_dawn_clear"/>
 
         <!-- Основной контент. ПОВЕРХ фона -->
         <!-- Z = 1 -->
-        <androidx.coordinatorlayout.widget.CoordinatorLayout
-                android:id="@+id/llForecast"
-                android:layout_gravity="center_vertical|center_horizontal"
+        <LinearLayout
+                app:layout_behavior=".ui.CustomBottomSheetBevavior"
+                android:id="@+id/llForecastContent"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-            <ImageView
-                    android:id="@+id/ivNatureBg"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:adjustViewBounds="true"
-                    android:scaleType="fitXY"
-                    tools:src="@drawable/autumn_city_dawn_clear"/>
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal">
 
+            <!-- Head of forecast-->
             <LinearLayout
-                    android:layout_width="match_parent"
+                    android:id="@+id/forecastHead"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1.5"
                     android:gravity="center"
-                    android:orientation="horizontal">
+                    android:layout_marginStart="20dp"
+                    android:orientation="vertical">
+                <!-- Place name -->
+                <TextView android:id="@+id/tvCity"
+                          android:layout_width="match_parent"
+                          android:layout_height="wrap_content"
+                          android:gravity="center"
+                          android:layout_margin="12dp"
+                          android:textSize="16sp"
+                          android:textColor="@android:color/white"
+                          android:text="@string/toolCity"
+                          tools:text="@string/toolCity"/>
 
-                <!-- Head of forecast-->
-                <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1.5"
-                        android:gravity="center"
-                        android:layout_marginStart="20dp"
-                        android:orientation="vertical">
-                    <!-- Place name -->
-                    <TextView android:id="@+id/tvCity"
+                <!-- Temperature and current weather logo -->
+                <LinearLayout android:layout_width="wrap_content"
+                              android:layout_height="wrap_content"
+                              android:orientation="horizontal">
+
+                    <TextView android:id="@+id/tvTemperature"
+                              android:textColor="@android:color/white"
                               android:layout_width="match_parent"
                               android:layout_height="wrap_content"
+                              android:textSize="48sp"
                               android:gravity="center"
-                              android:layout_margin="12dp"
-                              android:textSize="16sp"
-                              android:textColor="@android:color/white"
-                              android:text="@string/toolCity"
-                              tools:text="@string/toolCity"/>
+                              android:text="@string/toolTemperature"
+                              tools:text="@string/toolTemperature"/>
 
-                    <!-- Temperature and current weather logo -->
-                    <LinearLayout android:layout_width="wrap_content"
-                                  android:layout_height="wrap_content"
-                                  android:orientation="horizontal">
-
-                        <TextView android:id="@+id/tvTemperature"
-                                  android:textColor="@android:color/white"
-                                  android:layout_width="match_parent"
-                                  android:layout_height="wrap_content"
-                                  android:textSize="48sp"
-                                  android:gravity="center"
-                                  android:text="@string/toolTemperature"
-                                  tools:text="@string/toolTemperature"/>
-
-                        <ImageView
-                                android:id="@+id/ivBkn"
-                                android:layout_width="@dimen/imgBknWidthLan"
-                                android:layout_height="@dimen/imgBknHeightLan"
-                                android:layout_gravity="center_horizontal|center_vertical"
-                                app:srcCompat="@drawable/bkn_d_flat"
-                                tools:src="@drawable/bkn_d_flat"/>
-                    </LinearLayout>
+                    <ImageView
+                            android:id="@+id/ivBkn"
+                            android:layout_width="@dimen/imgBknWidthLan"
+                            android:layout_height="@dimen/imgBknHeightLan"
+                            android:layout_gravity="center_horizontal|center_vertical"
+                            app:srcCompat="@drawable/bkn_d_flat"
+                            tools:src="@drawable/bkn_d_flat"/>
                 </LinearLayout>
-
-                <!-- Tail of forecast: Hourly list -->
-                <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/rvHourly"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="3"/>
             </LinearLayout>
 
-            <include layout="@layout/layout_hint"/>
+            <!-- Tail of forecast: Hourly list -->
+            <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvHourly"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="3"/>
+        </LinearLayout>
 
-        </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
 
-        <!--&lt;!&ndash; Элемент располагается внутри карточки поверх двух предыдущих элементов (ImageView и LinearLayout)&ndash;&gt;-->
-        <!--&lt;!&ndash; Выполнет роль "заполнителя пустого места", пока нет метео данных и одновременно подсказки &ndash;&gt;-->
-        <!--&lt;!&ndash; Исчезает при появлении данных &ndash;&gt;-->
-        <!--&lt;!&ndash; Z = 2 &ndash;&gt;-->
-        <!--<LinearLayout-->
-                <!--android:id="@+id/llHint"-->
-                <!--android:visibility="invisible"-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="192dp"-->
-                <!--android:background="@android:color/white"-->
-                <!--android:orientation="vertical">-->
-            <!--<View-->
-                    <!--android:layout_width="match_parent"-->
-                    <!--android:layout_height="2dp"-->
-                    <!--android:layout_gravity="center_vertical|center_horizontal"-->
-                    <!--android:background="#cccccc"/>-->
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
-            <!--&lt;!&ndash; Text Auto Sizing &ndash;&gt;-->
-            <!--&lt;!&ndash; https://alvinalexander.com/bookmarks/android/links-about-adjusting-android-text-font-size-fit-textview-without-scrolling  &ndash;&gt;-->
-            <!--&lt;!&ndash; https://stackoverflow.com/questions/2596452/how-to-scale-resize-text-to-fit-a-textview &ndash;&gt;-->
-            <!--&lt;!&ndash; https://github.com/grantland/android-autofittextview  &ndash;&gt;-->
-
-            <!--&lt;!&ndash;android:textAllCaps="true"&ndash;&gt;-->
-
-            <!--<me.grantland.widget.AutofitTextView-->
-                    <!--android:layout_width="match_parent"-->
-                    <!--android:layout_height="wrap_content"-->
-                    <!--android:layout_marginStart="48dp"-->
-                    <!--android:layout_marginEnd="48dp"-->
-                    <!--android:layout_marginTop="6dp"-->
-                    <!--android:layout_marginBottom="6dp"-->
-                    <!--android:gravity="center"-->
-                    <!--android:textStyle="bold"-->
-                    <!--android:textColor="@android:color/background_dark"-->
-                    <!--android:textSize="22sp"-->
-                    <!--app:minTextSize="16sp"-->
-                    <!--android:text="@string/mapHint"-->
-                    <!--android:singleLine="true"-->
-                    <!--android:maxLines="1"-->
-                    <!--tools:text="@string/mapHint"/>-->
-            <!--<ImageView-->
-                    <!--android:layout_width="wrap_content"-->
-                    <!--android:layout_height="wrap_content"-->
-                    <!--android:layout_margin="8dp"-->
-                    <!--android:elevation="4dp"-->
-                    <!--android:scaleType="centerCrop"-->
-                    <!--app:srcCompat="@drawable/bg_map"-->
-                    <!--tools:src="@drawable/bg_map"/>-->
-        <!--</LinearLayout>-->
-
-    <!--</com.google.android.material.card.MaterialCardView>-->
     <!--"Фальш-пол"- элемент для увеличения высоты BottomSheet на высоту BottomAppBar-->
     <View
             android:id="@+id/vFakeFooter"

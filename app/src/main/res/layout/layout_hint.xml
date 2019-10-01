@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
               xmlns:app="http://schemas.android.com/apk/res-auto"
               android:id="@+id/llHint"
-              android:visibility="invisible"
+              android:visibility="visible"
               android:layout_width="match_parent"
               android:layout_height="192dp"
               android:background="@android:color/white"
@@ -17,9 +18,7 @@
     <!-- https://alvinalexander.com/bookmarks/android/links-about-adjusting-android-text-font-size-fit-textview-without-scrolling  -->
     <!-- https://stackoverflow.com/questions/2596452/how-to-scale-resize-text-to-fit-a-textview -->
     <!-- https://github.com/grantland/android-autofittextview  -->
-
     <!--android:textAllCaps="true"-->
-
     <me.grantland.widget.AutofitTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
