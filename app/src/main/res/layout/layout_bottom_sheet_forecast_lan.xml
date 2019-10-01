@@ -28,21 +28,21 @@
 
     <!-- Карточка с основным контентом. Включает в себя фоновую картинку -->
     <!-- с градиентной заливкой поверх нее и данные о погоде -->
-    <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@android:color/transparent">
+    <!--<com.google.android.material.card.MaterialCardView-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:background="@android:color/transparent">-->
 
         <!-- Элемент играет роль фона -->
         <!-- Располагается ПОД контентом -->
         <!-- Z = 0 -->
-        <ImageView
-                android:id="@+id/ivNatureBg"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:adjustViewBounds="true"
-                android:scaleType="fitXY"
-                tools:src="@drawable/autumn_city_dawn_clear"/>
+        <!--<ImageView-->
+                <!--android:id="@+id/ivNatureBg"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:adjustViewBounds="true"-->
+                <!--android:scaleType="fitXY"-->
+                <!--tools:src="@drawable/autumn_city_dawn_clear"/>-->
 
         <!-- Основной контент. ПОВЕРХ фона -->
         <!-- Z = 1 -->
@@ -51,6 +51,13 @@
                 android:layout_gravity="center_vertical|center_horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
+            <ImageView
+                    android:id="@+id/ivNatureBg"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:adjustViewBounds="true"
+                    android:scaleType="fitXY"
+                    tools:src="@drawable/autumn_city_dawn_clear"/>
 
             <LinearLayout
                     android:layout_width="match_parent"
@@ -109,60 +116,62 @@
                         android:layout_weight="3"/>
             </LinearLayout>
 
+            <include layout="@layout/layout_hint"/>
+
         </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
 
-        <!-- Элемент располагается внутри карточки поверх двух предыдущих элементов (ImageView и LinearLayout)-->
-        <!-- Выполнет роль "заполнителя пустого места", пока нет метео данных и одновременно подсказки -->
-        <!-- Исчезает при появлении данных -->
-        <!-- Z = 2 -->
-        <LinearLayout
-                android:id="@+id/llHint"
-                android:visibility="invisible"
-                android:layout_width="match_parent"
-                android:layout_height="192dp"
-                android:background="@android:color/white"
-                android:orientation="vertical">
-            <View
-                    android:layout_width="match_parent"
-                    android:layout_height="2dp"
-                    android:layout_gravity="center_vertical|center_horizontal"
-                    android:background="#cccccc"/>
+        <!--&lt;!&ndash; Элемент располагается внутри карточки поверх двух предыдущих элементов (ImageView и LinearLayout)&ndash;&gt;-->
+        <!--&lt;!&ndash; Выполнет роль "заполнителя пустого места", пока нет метео данных и одновременно подсказки &ndash;&gt;-->
+        <!--&lt;!&ndash; Исчезает при появлении данных &ndash;&gt;-->
+        <!--&lt;!&ndash; Z = 2 &ndash;&gt;-->
+        <!--<LinearLayout-->
+                <!--android:id="@+id/llHint"-->
+                <!--android:visibility="invisible"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="192dp"-->
+                <!--android:background="@android:color/white"-->
+                <!--android:orientation="vertical">-->
+            <!--<View-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="2dp"-->
+                    <!--android:layout_gravity="center_vertical|center_horizontal"-->
+                    <!--android:background="#cccccc"/>-->
 
-            <!-- Text Auto Sizing -->
-            <!-- https://alvinalexander.com/bookmarks/android/links-about-adjusting-android-text-font-size-fit-textview-without-scrolling  -->
-            <!-- https://stackoverflow.com/questions/2596452/how-to-scale-resize-text-to-fit-a-textview -->
-            <!-- https://github.com/grantland/android-autofittextview  -->
+            <!--&lt;!&ndash; Text Auto Sizing &ndash;&gt;-->
+            <!--&lt;!&ndash; https://alvinalexander.com/bookmarks/android/links-about-adjusting-android-text-font-size-fit-textview-without-scrolling  &ndash;&gt;-->
+            <!--&lt;!&ndash; https://stackoverflow.com/questions/2596452/how-to-scale-resize-text-to-fit-a-textview &ndash;&gt;-->
+            <!--&lt;!&ndash; https://github.com/grantland/android-autofittextview  &ndash;&gt;-->
 
-            <!--android:textAllCaps="true"-->
+            <!--&lt;!&ndash;android:textAllCaps="true"&ndash;&gt;-->
 
-            <me.grantland.widget.AutofitTextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="48dp"
-                    android:layout_marginEnd="48dp"
-                    android:layout_marginTop="6dp"
-                    android:layout_marginBottom="6dp"
-                    android:gravity="center"
-                    android:textStyle="bold"
-                    android:textColor="@android:color/background_dark"
-                    android:textSize="22sp"
-                    app:minTextSize="16sp"
-                    android:text="@string/mapHint"
-                    android:singleLine="true"
-                    android:maxLines="1"
-                    tools:text="@string/mapHint"/>
-            <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="8dp"
-                    android:elevation="4dp"
-                    android:scaleType="centerCrop"
-                    app:srcCompat="@drawable/bg_map"
-                    tools:src="@drawable/bg_map"/>
-        </LinearLayout>
+            <!--<me.grantland.widget.AutofitTextView-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:layout_marginStart="48dp"-->
+                    <!--android:layout_marginEnd="48dp"-->
+                    <!--android:layout_marginTop="6dp"-->
+                    <!--android:layout_marginBottom="6dp"-->
+                    <!--android:gravity="center"-->
+                    <!--android:textStyle="bold"-->
+                    <!--android:textColor="@android:color/background_dark"-->
+                    <!--android:textSize="22sp"-->
+                    <!--app:minTextSize="16sp"-->
+                    <!--android:text="@string/mapHint"-->
+                    <!--android:singleLine="true"-->
+                    <!--android:maxLines="1"-->
+                    <!--tools:text="@string/mapHint"/>-->
+            <!--<ImageView-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:layout_margin="8dp"-->
+                    <!--android:elevation="4dp"-->
+                    <!--android:scaleType="centerCrop"-->
+                    <!--app:srcCompat="@drawable/bg_map"-->
+                    <!--tools:src="@drawable/bg_map"/>-->
+        <!--</LinearLayout>-->
 
-    </com.google.android.material.card.MaterialCardView>
+    <!--</com.google.android.material.card.MaterialCardView>-->
     <!--"Фальш-пол"- элемент для увеличения высоты BottomSheet на высоту BottomAppBar-->
     <View
             android:id="@+id/vFakeFooter"
