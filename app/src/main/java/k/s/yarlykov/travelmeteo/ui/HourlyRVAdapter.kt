@@ -7,28 +7,28 @@
 package k.s.yarlykov.travelmeteo.ui
 
 import android.content.Context
-import android.support.v7.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.squareup.picasso.Transformation
 import android.widget.ImageView
 import android.widget.TextView
+import com.squareup.picasso.Picasso
 import k.s.yarlykov.travelmeteo.R
 import k.s.yarlykov.travelmeteo.data.domain.*
-import k.s.yarlykov.travelmeteo.extensions.bitmapFromVectorDrawable
-import k.s.yarlykov.travelmeteo.extensions.iconId
-import k.s.yarlykov.travelmeteo.extensions.rotate
+import k.s.yarlykov.travelmeteo.extensions.*
 
 class HourlyRVAdapter(private val source: MutableList<CustomForecast>, val context: Context) :
-    RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+    androidx.recyclerview.widget.RecyclerView.Adapter<androidx.recyclerview.widget.RecyclerView.ViewHolder>() {
 
     // Загрузить массивы с именами сторон света и значениями углов направления ветра
     val directionNames: List<String> = context.resources.getStringArray(R.array.compass_directions).asList()
     val directionAngles: IntArray = context.resources.getIntArray(R.array.compass_directions_angles)
 
     // Размеры указателя направления ветра в dip
-    val dipWindW = 20
-    val dipWindH = 20
+    private val dipWindW = 20
+    private val dipWindH = 20
 
     // Исходный bitmap для иконки направления ветра (стрелка вверх).
     val windBitmap = context.bitmapFromVectorDrawable(R.drawable.ic_wind_direction_white, dipWindW, dipWindH)
@@ -41,7 +41,7 @@ class HourlyRVAdapter(private val source: MutableList<CustomForecast>, val conte
     }
 
     // Вызывается когда нужно создать новый элемент списка
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): androidx.recyclerview.widget.RecyclerView.ViewHolder {
 
         return when (viewType) {
             TYPE_HEADER -> {
@@ -65,7 +65,7 @@ class HourlyRVAdapter(private val source: MutableList<CustomForecast>, val conte
         }
     }
 
-    override fun onBindViewHolder(viewHolder: RecyclerView.ViewHolder, position: Int) {
+    override fun onBindViewHolder(viewHolder: androidx.recyclerview.widget.RecyclerView.ViewHolder, position: Int) {
 
         if (source.size == 0) return
 
@@ -83,24 +83,24 @@ class HourlyRVAdapter(private val source: MutableList<CustomForecast>, val conte
         return source.size
     }
 
-    inner class ViewHolderItem(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val tvDate = itemView.findViewById<TextView>(R.id.tvHourlyDate)
-        val tvTemp = itemView.findViewById<TextView>(R.id.tvHourlyTemp)
-        val ivIcon = itemView.findViewById<ImageView>(R.id.ivHourlyIcon)
+    inner class ViewHolderItem(itemView: View) : androidx.recyclerview.widget.RecyclerView.ViewHolder(itemView) {
+        private val tvDate = itemView.findViewById<TextView>(R.id.tvHourlyDate)
+        private val tvTemp = itemView.findViewById<TextView>(R.id.tvHourlyTemp)
+        private val ivIcon = itemView.findViewById<ImageView>(R.id.ivHourlyIcon)
 
         fun bind(f: CustomForecast) = with(f) {
             tvDate.text = this.time
             tvTemp.text = this.celsius(this.temp)
-            ivIcon.setImageResource(context.iconId(this.icon))
+            ivIcon.loadWithPicasso(context.iconId(this.icon), EmptyTransformation,0f)
         }
     }
 
-    inner class ViewHolderHeader(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        val tvWind = itemView.findViewById<TextView>(R.id.tvWindValue)
-        val tvWindDir = itemView.findViewById<TextView>(R.id.tvWindDirection)
-        val tvPressure = itemView.findViewById<TextView>(R.id.tvPressureValue)
-        val tvHumidity = itemView.findViewById<TextView>(R.id.tvHumidityValue)
-        val ivWindDir = itemView.findViewById<ImageView>(R.id.ivWindDirection)
+    inner class ViewHolderHeader(itemView: View) : androidx.recyclerview.widget.RecyclerView.ViewHolder(itemView) {
+        private val tvWind = itemView.findViewById<TextView>(R.id.tvWindValue)
+        private val tvWindDir = itemView.findViewById<TextView>(R.id.tvWindDirection)
+        private val tvPressure = itemView.findViewById<TextView>(R.id.tvPressureValue)
+        private val tvHumidity = itemView.findViewById<TextView>(R.id.tvHumidityValue)
+        private val ivWindDir = itemView.findViewById<ImageView>(R.id.ivWindDirection)
 
         fun bind(f: CustomForecast) = with(f) {
 

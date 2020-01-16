@@ -1,52 +1,72 @@
 package k.s.yarlykov.travelmeteo.presenters
 
-import android.content.Context
 import android.graphics.Bitmap
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import io.reactivex.disposables.CompositeDisposable
 import k.s.yarlykov.travelmeteo.data.domain.CustomForecastModel
 import k.s.yarlykov.travelmeteo.data.sources.openweather.model.current.WeatherResponseModel
 import k.s.yarlykov.travelmeteo.data.sources.unifiedprovider.ForecastConsumer
-import k.s.yarlykov.travelmeteo.data.sources.unifiedprovider.WeatherProvider
+import k.s.yarlykov.travelmeteo.data.sources.unifiedprovider.WeatherProviderRx
+import k.s.yarlykov.travelmeteo.ui.MapActivity
 
-class MapPresenter(var mapView: IMapView?, private val wp: WeatherProvider) : IMapPresenter, ForecastConsumer {
+class MapPresenter(var mapView: IMapView, private val wp: WeatherProviderRx) : IMapPresenter, ForecastConsumer {
 
-    private var isPermissionsGranted = false
-    private var isMapScreenReady = false
+    private var isMapReady = false
+    private val compositeDisposable = CompositeDisposable()
+    private val forecastStream = wp.hourlyForecastStream()
 
     //region Activity Life Cycle
-    override fun onCreate() {
-        if(isPermissionsGranted) {
-            mapView?.initViews()
 
-        }
+    // Вызывается, если приложению предоставлены разрешения ACCESS_X_LOCATION
+    override fun onCreate() {
+        MapActivity.logIt("MapPresenter: onCreate()")
+
+        // Загрузить макет
+        mapView.initViews()
+        // Загрузить карту
+        mapView.loadMap()
     }
 
     override fun onResume() {
-        if(isPermissionsGranted && isMapScreenReady) {
-            mapView?.setBottomSheetSizing()
-        }
+        MapActivity.logIt("MapPresenter: onResume(). isMapScreenReady = ${isMapReady}")
+
+        // Подписаться на получение данных из модели.
+        // Это нужно делать либо после mapView.initViews() либо здесь, потому что данные о прогнозе
+        // могут прилететь раньше, чем загрузится макет. Например, при повороте экрана.
+        compositeDisposable.add(
+            forecastStream.subscribe { model ->
+                mapView.updateForecastData(model)
+            }
+        )
     }
 
     override fun onDestroy() {
-        mapView = null
-        isMapScreenReady = false
+        compositeDisposable.clear()
     }
 
-    override fun onPermissions(isGranted: Boolean) {
-        isPermissionsGranted = isGranted
-    }
-
-    override fun onMapScreenReady() {
-        isMapScreenReady = true
+    override fun onActivityLayoutLoaded() {
+        MapActivity.logIt("MapPresenter: onActivityLayoutLoaded()")
     }
     //endregion
 
     //region Map Events Handlers
+    override fun onMapLoaded() {
+        MapActivity.logIt("MapPresenter: onMapLoaded()")
+        isMapReady = true
+        mapView.initMap()
+    }
+
     override fun onMapClick(latLng: LatLng) {
+        mapView.setBottomSheetState(BottomSheetBehavior.STATE_COLLAPSED)
     }
 
     override fun onMapLongClick(latLng: LatLng) {
-        wp.requestForecastHourly(this, latLng)
+        MapActivity.logIt("MapPresenter: onMapLongClick()")
+        wp.requestForecastHourly(latLng)
+    }
+
+    override fun onSavedDataPresent(model: CustomForecastModel?) {
     }
     //endregion
 
@@ -56,7 +76,7 @@ class MapPresenter(var mapView: IMapView?, private val wp: WeatherProvider) : IM
 
     override fun onForecastHourly(model: CustomForecastModel) {
         if (model.list.isNotEmpty()) {
-            mapView?.updateForecastData(model)
+            mapView.updateForecastData(model)
         }
     }
     //endregion

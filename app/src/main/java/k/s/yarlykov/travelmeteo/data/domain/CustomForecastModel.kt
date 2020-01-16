@@ -13,5 +13,7 @@ data class CustomForecastModel(
     val city: String,
     val country: String,
     val coord: LatLng,
+    val season: Season,
+    val dayPart: DayPart,
     val list: List<CustomForecast>
 ) : Parcelable

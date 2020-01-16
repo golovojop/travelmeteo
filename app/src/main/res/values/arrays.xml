@@ -1,11 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <integer-array name="seasons">
-        <item>@array/summerNature</item>
-        <item>@array/winterNature</item>
-    </integer-array>
-
     <integer-array name="summerNature">
         <item>@drawable/summer_01</item>
         <item>@drawable/summer_02</item>
@@ -21,4 +16,48 @@
         <item>@drawable/summer_04</item>
         <item>@drawable/summer_05</item>
     </integer-array>
+
+    <integer-array name="seasons">
+        <item>@array/winterCity</item>
+        <item>@array/springCity</item>
+        <item>@array/summerCity</item>
+        <item>@array/autumnCity</item>
+    </integer-array>
+
+    <integer-array name="winterCity">
+        <item>@drawable/winter_city_dawn_clear</item>
+        <item>@drawable/winter_city_dawn_overcast</item>
+        <item>@drawable/winter_city_day_clear</item>
+        <item>@drawable/winter_city_day_overcast</item>
+        <item>@drawable/winter_city_night_clear</item>
+        <item>@drawable/winter_city_night_overcast</item>
+    </integer-array>
+
+    <integer-array name="springCity">
+        <item>@drawable/spring_city_dawn_clear</item>
+        <item>@drawable/spring_city_dawn_overcast</item>
+        <item>@drawable/spring_city_day_clear</item>
+        <item>@drawable/spring_city_day_overcast</item>
+        <item>@drawable/spring_city_night_clear</item>
+        <item>@drawable/spring_city_night_overcast</item>
+    </integer-array>
+
+    <integer-array name="summerCity">
+        <item>@drawable/summer_city_dawn_clear</item>
+        <item>@drawable/summer_city_dawn_overcast</item>
+        <item>@drawable/summer_city_day_clear</item>
+        <item>@drawable/summer_city_day_overcast</item>
+        <item>@drawable/summer_city_night_clear</item>
+        <item>@drawable/summer_city_night_overcast</item>
+    </integer-array>
+
+    <integer-array name="autumnCity">
+        <item>@drawable/autumn_city_dawn_clear</item>
+        <item>@drawable/autumn_city_dawn_overcast</item>
+        <item>@drawable/autumn_city_day_clear</item>
+        <item>@drawable/autumn_city_day_overcast</item>
+        <item>@drawable/autumn_city_night_clear</item>
+        <item>@drawable/autumn_city_night_overcast</item>
+    </integer-array>
+
 </resources>

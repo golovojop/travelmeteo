@@ -1,6 +1,6 @@
 package k.s.yarlykov.travelmeteo.ui
 
-import android.support.v7.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import k.s.yarlykov.travelmeteo.R

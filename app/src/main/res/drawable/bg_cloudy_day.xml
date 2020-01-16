@@ -2,7 +2,5 @@
 <shape android:shape="rectangle"
   xmlns:android="http://schemas.android.com/apk/res/android">
     <corners android:radius="@dimen/card_bg_radius" />
-    <gradient android:startColor="@color/bg_bkn_day_start_color"
-              android:endColor="@color/bg_bkn_day_end_color"
-              android:angle="@integer/bg_card_gradient_angle" />
+    <gradient android:startColor="@color/bg_bkn_day_start_color" android:endColor="@color/bg_bkn_day_end_color" android:angle="@integer/bg_card_gradient_angle" />
 </shape>

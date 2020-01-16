@@ -6,10 +6,11 @@ import k.s.yarlykov.travelmeteo.di.AppExtensionProvider
 
 class TravelMeteoApp: Application() , AppExtensionProvider {
 
-    private val applicationExtension = AppExtensions()
+    lateinit var applicationExtension : AppExtensions
 
     override fun onCreate() {
         super.onCreate()
+        applicationExtension = AppExtensions(this)
     }
 
     override fun provideAppExtension() : AppExtensions {

@@ -21,10 +21,10 @@ data class CustomForecast(
     val icon: String = ""
 ) : Parcelable
 
-// Представить температуру в виде строки с префиксом "+" или "-" и знаком градуса после значения
+// Представить температуру в виде строки с префиксом "+" (если > 0) и знаком градуса после значения
 fun CustomForecast.celsius(t: Int): String {
     val sb = StringBuilder()
-    sb.append(if (t < 0) "-" else "+")
+    if(t > 0) sb.append("+")
     sb.append("$t")
     sb.append("\u00B0")
 

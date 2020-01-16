@@ -18,4 +18,6 @@
     <string name="toolPressureUnits">мм.рт.ст</string>
     <string name="toolWindDirection">ЮВ</string>
 
+    <string name="mapHint">Выбери место на карте</string>
+
 </resources>

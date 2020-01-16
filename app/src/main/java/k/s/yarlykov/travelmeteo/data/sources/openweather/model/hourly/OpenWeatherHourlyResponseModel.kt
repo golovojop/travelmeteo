@@ -7,7 +7,10 @@ import com.google.gson.annotations.SerializedName
 import k.s.yarlykov.travelmeteo.R
 import k.s.yarlykov.travelmeteo.data.domain.CustomForecast
 import k.s.yarlykov.travelmeteo.data.domain.CustomForecastModel
+import k.s.yarlykov.travelmeteo.data.domain.Season
 import k.s.yarlykov.travelmeteo.extensions.formatHHmm
+import k.s.yarlykov.travelmeteo.extensions.partOfDay
+import k.s.yarlykov.travelmeteo.extensions.season
 import java.util.*
 
 class OpenWeatherHourlyResponseModel {
@@ -31,10 +34,14 @@ class OpenWeatherHourlyResponseModel {
 
 fun OpenWeatherHourlyResponseModel.mapModel(): CustomForecastModel {
 
+    val currentMillis = System.currentTimeMillis()
+
     return CustomForecastModel(
         this.city.name,
         this.city.country,
         LatLng(this.city.coord.lat.toDouble(), this.city.coord.lon.toDouble()),
+        Date(currentMillis).season(),
+        Date(currentMillis).partOfDay(this.city.timezone),
         this.list.map {
             CustomForecast(
                 Date(it.dt * 1000).formatHHmm(this.city.timezone),
