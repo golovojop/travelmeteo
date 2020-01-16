@@ -28,5 +28,5 @@
     <string name="toolHumidityValue" translatable="false">78</string>
     <string name="toolHumidityUnits" translatable="false">%</string>
 
-    <string name="mapHint">Select place on the map</string>
+    <string name="mapHint">Select Place On The Map</string>
 </resources>

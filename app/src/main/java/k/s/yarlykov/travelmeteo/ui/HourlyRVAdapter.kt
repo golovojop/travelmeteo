@@ -27,8 +27,8 @@ class HourlyRVAdapter(private val source: MutableList<CustomForecast>, val conte
     val directionAngles: IntArray = context.resources.getIntArray(R.array.compass_directions_angles)
 
     // Размеры указателя направления ветра в dip
-    val dipWindW = 20
-    val dipWindH = 20
+    private val dipWindW = 20
+    private val dipWindH = 20
 
     // Исходный bitmap для иконки направления ветра (стрелка вверх).
     val windBitmap = context.bitmapFromVectorDrawable(R.drawable.ic_wind_direction_white, dipWindW, dipWindH)
@@ -84,9 +84,9 @@ class HourlyRVAdapter(private val source: MutableList<CustomForecast>, val conte
     }
 
     inner class ViewHolderItem(itemView: View) : androidx.recyclerview.widget.RecyclerView.ViewHolder(itemView) {
-        val tvDate = itemView.findViewById<TextView>(R.id.tvHourlyDate)
-        val tvTemp = itemView.findViewById<TextView>(R.id.tvHourlyTemp)
-        val ivIcon = itemView.findViewById<ImageView>(R.id.ivHourlyIcon)
+        private val tvDate = itemView.findViewById<TextView>(R.id.tvHourlyDate)
+        private val tvTemp = itemView.findViewById<TextView>(R.id.tvHourlyTemp)
+        private val ivIcon = itemView.findViewById<ImageView>(R.id.ivHourlyIcon)
 
         fun bind(f: CustomForecast) = with(f) {
             tvDate.text = this.time
@@ -96,11 +96,11 @@ class HourlyRVAdapter(private val source: MutableList<CustomForecast>, val conte
     }
 
     inner class ViewHolderHeader(itemView: View) : androidx.recyclerview.widget.RecyclerView.ViewHolder(itemView) {
-        val tvWind = itemView.findViewById<TextView>(R.id.tvWindValue)
-        val tvWindDir = itemView.findViewById<TextView>(R.id.tvWindDirection)
-        val tvPressure = itemView.findViewById<TextView>(R.id.tvPressureValue)
-        val tvHumidity = itemView.findViewById<TextView>(R.id.tvHumidityValue)
-        val ivWindDir = itemView.findViewById<ImageView>(R.id.ivWindDirection)
+        private val tvWind = itemView.findViewById<TextView>(R.id.tvWindValue)
+        private val tvWindDir = itemView.findViewById<TextView>(R.id.tvWindDirection)
+        private val tvPressure = itemView.findViewById<TextView>(R.id.tvPressureValue)
+        private val tvHumidity = itemView.findViewById<TextView>(R.id.tvHumidityValue)
+        private val ivWindDir = itemView.findViewById<ImageView>(R.id.ivWindDirection)
 
         fun bind(f: CustomForecast) = with(f) {
 

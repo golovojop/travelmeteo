@@ -101,11 +101,13 @@
         <!-- Элемент располагается внутри карточки поверх двух предыдущих элементов (ImageView и LinearLayout)-->
         <!-- Выполнет роль "запонителя пустого места", пока нет метео данных и одновременно подсказки -->
         <!-- Исчезает при появлении данных -->
+<!--        android:background="@android:color/white"-->
         <LinearLayout
                 android:id="@+id/llHint"
                 android:layout_width="match_parent"
                 android:layout_height="256dp"
-                android:background="@android:color/white"
+                android:background="@color/bottom_bg_color"
+
                 android:orientation="vertical">
             <View
                     android:layout_width="match_parent"
@@ -125,9 +127,9 @@
                     android:layout_marginTop="6dp"
                     android:layout_marginBottom="6dp"
                     android:gravity="center"
-                    android:textStyle="bold"
-                    android:textAllCaps="true"
-                    android:textColor="@android:color/background_dark"
+                    android:textStyle="bold|italic"
+                    android:textAllCaps="false"
+                    android:textColor="@color/bottom_bg_font"
                     android:textSize="22sp"
                     app:minTextSize="16sp"
                     android:text="@string/mapHint"
@@ -140,8 +142,8 @@
                     android:layout_margin="8dp"
                     android:elevation="4dp"
                     android:scaleType="centerCrop"
-                    app:srcCompat="@drawable/bg_map"
-                    tools:src="@drawable/bg_map"/>
+                    app:srcCompat="@drawable/bottom_bg"
+                    tools:src="@drawable/bottom_bg"/>
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
     <!--"Фальш-пол"- элемент для увеличения высоты BottomSheet на высоту BottomAppBar-->

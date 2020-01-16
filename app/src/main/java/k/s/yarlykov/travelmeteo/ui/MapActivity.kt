@@ -260,9 +260,8 @@ class MapActivity : AppCompatActivity(), IMapView {
      */
     private fun setBottomSheetCallback() {
 
-        with(BottomSheetBehavior.from(bottomSheet)) {
-
-            bottomSheetCallback = object : BottomSheetBehavior.BottomSheetCallback() {
+        BottomSheetBehavior.from(bottomSheet).addBottomSheetCallback(
+            object : BottomSheetBehavior.BottomSheetCallback() {
                 override fun onSlide(bottomSheet: View, slideOffset: Float) {
                     animateBottomSheetArrows(slideOffset)
                 }
@@ -276,7 +275,7 @@ class MapActivity : AppCompatActivity(), IMapView {
                     }
                 }
             }
-        }
+        )
     }
 
     // Обновить контент в BottomSheet новыми данными

@@ -53,4 +53,6 @@
     <color name="home_bg_ss_ovc_0">#ff083962</color>
     <color name="home_bg_ss_ovc_1">#ff2a5b89</color>
 
+    <color name="bottom_bg_color">#ff95D8EB</color>
+    <color name="bottom_bg_font">#ff63ADCA</color>
 </resources>
